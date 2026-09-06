@@ -249,6 +249,15 @@ p { margin: 0 0 16px; }
   width: 36px; height: 36px; font-size: 15px; line-height: 1; cursor: pointer;
 }
 .theme-toggle:hover { border-color: var(--accent); }
+/* Eight links have to fit between the mark and the theme button. Below the
+   full page width they lose a little of their gap and a little of their size;
+   below 900px the whole row goes away and the sections are reached by
+   scrolling. */
+@media (max-width: 1060px) {
+  .topbar__inner { gap: 12px; }
+  .topbar__nav { gap: 11px; margin-left: 0; }
+  .topbar__nav a { font-size: .82rem; }
+}
 @media (max-width: 900px) { .topbar__nav { display: none; } }
 
 /* ----------------------------------------------------------------------------
@@ -490,6 +499,35 @@ ul.limits li {
   padding: 2px 0 2px 16px; margin: 0 0 16px;
 }
 ul.limits li b { font-weight: 700; }
+
+/* ----------------------------------------------------------------------------
+   Glossary. Each term and its definition are wrapped in a <div> inside the
+   <dl>, which is what lets a hairline separate one pair from the next without
+   ever cutting between a term and its definition.
+   -------------------------------------------------------------------------- */
+dl.glossary {
+  max-width: var(--measure);
+  margin: 0 0 20px;
+  padding: 0;
+}
+dl.glossary > div {
+  padding: 13px 0;
+  border-top: 1px solid var(--line);
+}
+dl.glossary > div:first-child { border-top: 0; padding-top: 2px; }
+dl.glossary dt {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: .96rem;
+  color: var(--ink);
+}
+html[lang="ja"] dl.glossary dt { font-family: var(--font-ja); }
+dl.glossary dd {
+  margin: 3px 0 0;
+  padding: 0;
+  font-size: .93rem;
+  color: var(--ink);
+}
 
 /* ----------------------------------------------------------------------------
    Citation
