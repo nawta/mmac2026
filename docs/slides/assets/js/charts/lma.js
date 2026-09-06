@@ -4,7 +4,7 @@
   /* Verdict 3 of the explainability suite, and the load-bearing one: does the
      saliency the model puts on each body region line up with the rule-based
      Laban attributes for that emotion? One bar group per emotion for the
-     explained member and for the submitted 11-way ensemble, with the
+     one strong member and for the submitted 11-way ensemble, with the
      classical-kinematics control beside them. The two aggregate levels are
      reference lines because the gap between them is the finding; the bars show
      how that aggregate is spread across emotions. Companion to panel A of
@@ -143,7 +143,7 @@
         {
           value: head.memberRho,
           colour: accent,
-          name: 'explained member',
+          name: 'one strong member',
           number: rho + ' = ' + signed(head.memberRho, 3),
         },
         {
@@ -334,7 +334,7 @@
         },
         series: [
           {
-            name: 'explained member',
+            name: 'one strong member',
             type: 'bar',
             data: rows.map(function (r) { return r.member; }),
             itemStyle: { color: sky, borderRadius: 3 },

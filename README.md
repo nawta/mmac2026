@@ -1,10 +1,33 @@
 # MMAC @ ACII 2026 talk site
 
-This repository holds the talk site for the ACII 2026 oral paper **Orthogonal
-Ensembles and Tested Explanations for Performer-Independent Body-Motion Emotion
-Recognition** by Naoto Nishida and Yoshio Ishiguro (The University of Tokyo).
-The paper appears in the MMAC Challenge session on cross-cultural emotion
-recognition from body movements, on the DIEM-A subset.
+This repository is the talk site for a system that names the emotion a person is
+acting from the movement of their body alone. The system was built for the MMAC
+Challenge, a contest at ACII 2026, the conference on affective computing and
+intelligent interaction, and the site presents the paper written about it,
+**Orthogonal Ensembles and Tested Explanations for Performer-Independent
+Body-Motion Emotion Recognition**, by Naoto Nishida and Yoshio Ishiguro (The
+University of Tokyo).
+
+The contest, *Cross-Cultural Emotion Recognition from Body Movements*, gives
+entrants motion capture recordings of Japanese and Taiwanese performers, one
+performer acting one of twelve emotions per recording, and asks for a system
+that names the emotion in a recording. The recordings come from DIEM-A, the
+Diverse Intercultural E-Motion Database of Asian Performers, published by Cheng
+et al. at ACII 2025. Markers on the body give a skeleton of 24 joints moving in
+three dimensions plus one point for where the body stands in the room, and that
+skeleton is all the model sees: no face, no sound, no scene. The 18 performers
+in the 1,944 test recordings never appear in the 7,992 training recordings made
+by the other 74, so a system cannot get by on learning how one particular person
+moves. The organisers keep the test labels, so entrants cannot score themselves,
+and their leaderboard decides the contest.
+
+The system submitted here runs eleven models over the same skeleton and averages
+their raw output scores, with nothing learned or tuned in the averaging. The
+gain comes from disagreement: the eleven are wrong about different recordings,
+so averaging cancels mistakes instead of repeating them. The work also tests its
+explanations instead of only drawing them. Whenever the paper says the model
+read a particular part of the body, that part is masked, perturbed or edited,
+and the check is whether the prediction moves.
 
 - 📊 **Talk page:** <https://nawta.github.io/mmac2026/> (source in [`docs/`](docs/))
 - 🇯🇵 **Japanese page:** <https://nawta.github.io/mmac2026/ja/> (source in [`docs/ja/`](docs/ja/))
@@ -14,9 +37,21 @@ recognition from body movements, on the DIEM-A subset.
 
 ## Results
 
-The numbers below come from 10-fold leave-performers-out cross-validation on the
-labeled training performers. They are not a leaderboard placement, and the
-hidden-test result is still pending.
+Macro-F1 scores each of the twelve emotions on its own and averages the twelve,
+so a system cannot look good by getting the common ones right and ignoring the
+rest. Guessing at random scores 8.3%.
+
+The bottom four rows are our reproduction of the organisers' reference model
+STGCN++, the best single model we trained, and two ways of averaging several
+models. They run on the same recordings through the same script, so a difference
+between them is a difference between systems. The top row is not: it is the
+organisers' own figure for STGCN++, over all 92 performers under their protocol,
+quoted here and never re-run with our script.
+
+Those four come from splitting the 74 labeled training performers into ten
+groups and training ten times, each time holding one group out and testing on
+it. They are not a leaderboard placement, and the hidden-test result is still
+pending.
 
 | System | Trainable params (M)‡ | Macro-F1 (mean ± SD) | Macro-F1 95% CI | Accuracy (mean ± SD) |
 |---|---|---|---|---|
@@ -26,23 +61,25 @@ hidden-test result is still pending.
 | 7-way ensemble | 12.98 | 33.86 ± 2.92 | [33.01, 35.04] | 34.68 ± 3.00 |
 | **11-way logit-mean (submitted)** | **12.98** | **36.80 ± 4.00** | **[35.90, 37.94]** | **37.40 ± 4.06** |
 
-Main results on DIEM-A (10-fold LPO, 74-performer train split). Final row =
-submitted model. Macro-F1 / Accuracy = 10-fold LPO per-fold mean ± SD (the
-official convention); fusion = logit-mean (mean of raw logits); 95% CI =
-sample-level paired bootstrap, 1000 iter, seed 42, on pooled OOF. Pooled-OOF F1
-is a secondary, descriptive number: 7-way 34.03%, 11-way logit-mean 36.94%.
+Main results on DIEM-A, over the 74-performer training split. The final row is
+the submitted model. Macro-F1 and accuracy are the mean ± standard deviation
+across the ten runs, the convention the organisers use. Logit-mean is the
+averaging of raw output scores before they become probabilities. The 95%
+confidence intervals come from a paired bootstrap over samples, 1000 iterations,
+seed 42, on the ten runs' held-out predictions pooled. That pooled set gives a
+second, descriptive Macro-F1: 7-way 34.03%, 11-way logit-mean 36.94%.
 
-- ★ Reported by the challenge (92-performer full LPO, official 25.2 % ± 4.5 %,
-  no bootstrap CI). We did not re-evaluate it with our script. Our reproduction
-  (25.73 ± 4.03) is within one SD of the official number, so we treat the
-  official baseline as an external anchor only, and every improvement figure
-  compares systems on the same split.
+- ★ The organisers' figure, over all 92 performers rather than our 74: an
+  official 25.2 % ± 4.5 % with no bootstrap confidence interval. Our reproduction
+  (25.73 ± 4.03) is within one standard deviation of it, so the official baseline
+  stays an outside anchor and every improvement figure compares systems on the
+  same split.
 - ‡ Counts are trainable parameters. Each frozen external branch adds fewer than
   0.01 M of them.
 
 The talk compares the last row with the reproduced baseline in the second row:
-36.80 − 25.73 = **+11.07 pp**, or +43% relative, on the same split and under the
-same per-fold convention. Chance on this 12-class task is 8.3%.
+36.80 − 25.73 = **+11.07 pp**, or +43% relative, on the same split and counted
+the same way in every run.
 
 ## Running it locally
 
@@ -55,9 +92,9 @@ one and `/slides/` for the deck.
 
 Opening `docs/index.html` or `docs/slides/index.html` from the file system works
 too, because every path is relative and every library sits in the repository.
-The deck loads its data as plain scripts, so it needs nothing more. The landing
-pages fetch their numbers from JSON files, which some browsers block on
-`file://` pages, so start the server if a chart comes up empty.
+The deck loads its data as plain scripts. The landing pages fetch their numbers
+from JSON files, which some browsers block on `file://` pages, so start the
+server if a chart comes up empty.
 
 ## Regenerating the data files
 
@@ -67,8 +104,8 @@ number on a slide and the same number in the paper come from one source.
 
     python3 scripts/build_site_data.py --paper-repo ~/GITs/LaTeX/MMAC_ACII2026
 
-It needs Python 3 and NumPy. The inputs, with paths relative to the paper
-repository:
+It needs Python 3 and NumPy. One row per chart or table on the site, with paths
+relative to the paper repository:
 
 | data | source |
 |---|---|
@@ -94,7 +131,7 @@ failure.
 
 | key | |
 |---|---|
-| <kbd>→</kbd> <kbd>↓</kbd> <kbd>Space</kbd> <kbd>PageDown</kbd> <kbd>n</kbd> | forward, one fragment or one slide at a time |
+| <kbd>→</kbd> <kbd>↓</kbd> <kbd>Space</kbd> <kbd>PageDown</kbd> <kbd>n</kbd> | forward, one revealed step or one slide at a time |
 | <kbd>←</kbd> <kbd>↑</kbd> <kbd>PageUp</kbd> <kbd>p</kbd> | back |
 | <kbd>Home</kbd> <kbd>End</kbd> | first slide, last slide |
 | <kbd>f</kbd> | fullscreen |

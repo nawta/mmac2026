@@ -92,11 +92,11 @@
       Cheng, Tseng, Fujiwara, Schneider and Kitamura at ACII 2025. One recording is one performer acting one emotion
       while a motion capture system follows reflective markers worn on the body: a 57-marker Vicon rig for most of the
       corpus, and a 41-marker OptiTrack rig for the five earliest Japanese performers, none of whom appear in the
-      training split used here. What reaches the model is the skeleton that comes out of that tracking, which is 24 body
-      joints moving in three dimensions plus one extra node carrying where the body is in the room, so 25 moving points
-      in total. There is no video of the face, no sound and no view of the scene. Recordings run at 120 frames per second
-      and a typical one lasts about 845 frames, and every model on this page reads a fixed window of 64 of those frames,
-      about half a second of movement (0.53 s), which is the window the organisers' own reference system reads.
+      training split used here. What reaches the model is the skeleton that tracking produces: 24 body joints
+      moving in three dimensions, plus one node carrying where the body is in the room, so 25 points in total. There is
+      no video of the face, no sound and no view of the scene. Recordings run at 120 frames per second and a typical one
+      lasts about 845 frames; every model on this page reads a fixed window of 64 of them, about half a second of
+      movement (0.53 s), the window the organisers' own reference system reads.
     </p>
 
     <p>
@@ -120,9 +120,8 @@
       No number on this page is scored against the organisers' test labels, since entrants do not have them. Everything
       here is measured on a stand-in built from the training performers alone: those 74 are divided into ten groups, and
       the whole procedure runs ten times, each time training on nine groups and testing on the group left out. One such
-      run is a fold, and the arrangement is what the paper calls leave-performers-out, because the people in any run's
-      test recordings never appear in its training recordings. It reproduces the condition that makes the contest hard,
-      on data whose labels we hold. The hidden test result is still pending, so nothing here is a leaderboard placement.
+      run is a fold, and the paper calls the arrangement leave-performers-out, since nobody in a run's test recordings
+      appears in its training recordings. It reproduces what makes the contest hard, on data whose labels we hold. The hidden test result is still pending, so nothing here is a leaderboard placement.
     </p>
   </section>
 
@@ -138,59 +137,49 @@
       </div>
       <div class="kpi" data-tone="ok">
         <span class="kpi__value">+11.07 pp</span>
-        <span class="kpi__label">percentage points of Macro-F1 above the baseline we reproduced on the same split</span>
-        <span class="kpi__note">A gain of +43% on that baseline, and about 4.4 times chance, which is 8.3%</span>
+        <span class="kpi__label">percentage points of Macro-F1 above the organisers' own reference model, retrained here on the same split</span>
+        <span class="kpi__note">That reference scores 25.73 ± 4.03%. The gain is +43% of it, and the result is about 4.4 times chance, which is 8.3%</span>
       </div>
       <div class="kpi" data-tone="note">
         <span class="kpi__value">ρ = +0.500 vs +0.033</span>
         <span class="kpi__label">agreement between the body parts the model used and the ones a movement analyst would name</span>
-        <span class="kpi__note">Against a control of ordinary motion measurements, about fifteen times weaker; +0.517 for the submitted system itself</span>
+        <span class="kpi__note">The +0.033 is a control built from ordinary motion measurements; for the submitted system itself the agreement is +0.517</span>
       </div>
     </div>
 
     <p>
-      Retrained on the split above, the reference system the organisers supply, STGCN++, reaches
-      <span class="num">25.73 ± 4.03%</span> Macro-F1. It treats the skeleton as a graph, with joints for nodes and bones
-      for edges. The system submitted here reaches <strong>36.80 ± 4.00%</strong>, which is 11.07 percentage points
-      higher, a gain of +43% on that baseline, and roughly 4.4 times chance.
+      Retrained on that split, the reference model the organisers supply, STGCN++, reaches
+      <span class="num">25.73 ± 4.03%</span> Macro-F1. It treats the skeleton as a graph, with joints for nodes and
+      bones for edges. The system submitted here reaches <strong>36.80 ± 4.00%</strong>, which is 11.07 percentage
+      points higher, written <strong>+11.07 pp</strong>.
     </p>
 
     <p>
-      That gain comes from disagreement between models rather than from a better model. Eleven models are combined by
-      averaging the raw score each of them gives each of the twelve emotions, the number a model produces before it is
-      turned into a probability, which the paper calls a logit. Nothing in the averaging is learned or tuned. The eleven
-      are built in four different ways, and that is the point, because models built differently make different mistakes.
-      The paper calls the four families graph convolution, attention, hybrid MLP, and frozen external pretraining, the
-      last of these being models trained beforehand on other motion data and left unchanged here. Across every pair of
-      the eleven members, the correlation between which recordings they get wrong runs from 0.15 to 0.43, so they are
-      usually wrong on different recordings, and averaging cancels mistakes instead of reinforcing them. Making one model bigger did not do the same
-      work: the best single model we trained reaches 30.05 ± 3.48%.
+      That gain comes from disagreement between models rather than from a better model. Eleven models each score the
+      twelve emotions, and the system averages those scores, with nothing in the averaging learned or tuned. The eleven
+      are built in four ways, which is the point, because models built differently make different mistakes: graph
+      convolution, attention, hybrid MLP, and models trained beforehand on other motion data and left unchanged here.
+      Making one model bigger did not do the same work: the best single model we trained reaches 30.05 ± 3.48%.
+      <a href="#orthogonality">How far apart their mistakes fall</a> is measured below.
     </p>
 
     <p>
-      The other half of the work tests its explanations instead of drawing them. Whenever the system says the model used
-      a particular part of the body, we hide that part, disturb it, or edit its motion, and check whether the answer
-      moves. Six such tests were run and all six are reported, five positive and one negative. The main positive result
-      concerns Laban Movement Analysis, a vocabulary movement professionals use to describe how a body moves, in terms
-      such as how far the head bows or how far the trunk leans, written by people rather than learned from data. Rank the
-      four body regions, which are head, arms, legs and torso, by how much the model used them, rank them again by those
-      written attributes, and the two orders agree at Spearman <strong>ρ = +0.500</strong>, on a scale where +1 is
-      identical orders, 0 unrelated, and −1 opposite. A control built from ordinary motion measurements instead of the
-      analyst vocabulary reaches only <strong>+0.033</strong>, about fifteen times weaker, and the same comparison on
-      the submitted eleven-model system gives <strong>ρ = +0.517</strong>. For sadness the parts the model used are
-      the ones an analyst would name for it: a bowed head, a lower head height, and a forward lean of the trunk.
+      The other half of the work tests its explanations instead of drawing them. Six tests were run and all six are
+      reported, five positive and one negative. The main positive result concerns Laban Movement Analysis, a vocabulary
+      movement professionals use to describe how a body moves, in terms such as how far the head bows or how far the
+      trunk leans, written by people rather than learned from data. Rank the four body regions, head, arms, legs and
+      torso, by how much the model used them, rank them again by those written attributes, and the two orders agree at
+      Spearman <strong>ρ = +0.500</strong>, where +1 would be the same order, 0 no relation and −1 the reverse. A control built from
+      ordinary motion measurements reaches only <strong>+0.033</strong>, about fifteen times weaker. For sadness the
+      parts the model used are the ones an analyst would name: a bowed head, a lower head height, and a forward lean of
+      the trunk.
     </p>
 
     <p>
       The work claims less than those numbers might suggest on their own. The headline is the ten-run stand-in on the
-      labelled training performers rather than a leaderboard placement, and the hidden test result is pending. A
-      Macro-F1 near 37% is low, and we do not defend it as good. The Laban result says the parts the model used carry
-      meaning; whether the model depends on them is a separate question, tested separately by hiding parts and by
-      checking the ranking under noise. Editing the motion corroborates that the model relies on that motion without
-      proving causation. The difference between the Japanese and Taiwanese performers is a split in the data, tangled up
-      with when the recordings were made and how individuals move, and we do not read it as a cultural finding.
-      <a href="#limits">The limits section</a> states each of these with the check that bounds it, and
-      <a href="#glossary">the glossary</a> collects the terms.
+      labelled training performers rather than a leaderboard placement, the hidden test result is pending, and a
+      Macro-F1 near 37% is low, which we do not defend as good. <a href="#limits">The limits section</a> states each of
+      these with the check that bounds it.
     </p>
   </section>
 
@@ -199,12 +188,11 @@
     <p class="section-lede">Every row below is scored on the same ten runs over held-out performers, so the numbers compare directly.</p>
 
     <p>
-      The whole system has 12.98 M trainable parameters. Answering one recording means running eleven models over the
-      same 64-frame window and averaging their scores, with no fitted weights. Averaging the raw scores rather than the
-      probabilities is worth <strong>+1.15 pp</strong> on its own, and that is not an artifact of one model producing
-      larger numbers than another: rescaling every model's scores to a common spread first still leaves +0.99 pp, and
-      discarding the scores altogether and combining only the order in which each model ranks the twelve emotions leaves
-      +0.69 pp.
+      The eleven models hold 12.98 M learned numbers between them. Answering one recording means running all eleven over
+      the same 64-frame window and averaging their scores, with no fitted weights. Averaging the raw scores rather than
+      the probabilities is worth <strong>+1.15 pp</strong>, and not because one model produces larger numbers than
+      another: rescaling every model's scores to a common spread first still leaves +0.99 pp, and keeping only the order
+      in which each model ranks the twelve emotions leaves +0.69 pp.
     </p>
 
     <figure class="chart-figure" id="tbl-results">
@@ -221,23 +209,20 @@
       <figcaption>
         <b>Table 1.</b> Macro-F1 and accuracy for the reproduced baseline, the strongest single model, and the two
         combined systems. The +11.07 pp is the difference between the reproduced baseline row and the submitted system
-        row. The official baseline in the first row is the organisers' own figure on a wider arrangement that uses all
-        92 performers, which we quote and did not re-run, so it stands as an outside reference point rather than a
-        result of ours.
+        row. The first row is the organisers' own figure over all 92 performers, which we quote and did not re-run, so
+        it is an outside reference point rather than a result of ours.
       </figcaption>
     </figure>
 
     <figure class="chart-figure" id="fig-liftpath">
       <div class="chart" id="chart-liftpath" data-chart="liftpath" data-src="liftpath" role="img"
-           aria-label="Bar chart of Macro-F1 at four stages: reproduced STGCN++ 25.73 percent, best single model 30.05, seven-way ensemble 33.86, eleven-way logit-mean ensemble 36.80 percent."></div>
+           aria-label="Bar chart of Macro-F1 at four stages: the reproduced baseline 25.73 percent, the best single model 30.05, seven models combined 33.86, and the submitted eleven-model system 36.80 percent."></div>
       <figcaption>
         <b>Figure 1.</b> The gain arrives in stages. Each bar is the mean Macro-F1 over the ten runs, with the spread
-        across them. The blue marker beside it is a second way of scoring the same system: rather than scoring each run
-        and averaging, it pools the held-out predictions from all ten runs and scores them once, and its interval is a
-        95% confidence interval found by resampling those pooled predictions many times. The two conventions give
-        different numbers for one system and should not be mixed. Combining models beats the best single model by about
-        6.8 pp, and the improvement over the reproduced baseline stays above zero in all ten runs (95% interval
-        [9.86, 12.33] pp when runs are resampled, [9.14, 12.17] pp when whole performers are).
+        across them. The blue marker beside it scores the same system the other way, gathering the held-out answers from
+        all ten runs and scoring them once, with a 95% interval from resampling those answers. Combining models beats the best single model by about 6.8 pp, and the improvement over the
+        reproduced baseline stays above zero in all ten runs (95% interval [9.86, 12.33] pp when runs are resampled,
+        [9.14, 12.17] pp when whole performers are).
       </figcaption>
     </figure>
 
@@ -256,31 +241,31 @@
 
     <p>
       Taken pair by pair, the correlation between which recordings two of them get wrong falls between 0.15 and 0.43,
-      and the lowest values belong to the models trained beforehand on other data, which differ most from the rest.
-      Moderate correlation does not mean redundancy: the pair of members whose errors agree most still supply the
-      largest single contribution. Removing that whole pretrained block at once costs <strong>−2.91 pp</strong>, so the
-      gain is spread across the four kinds of model rather than coming from one of them.
+      and the lowest values belong to the models trained beforehand on other data, which differ most from the rest. This
+      is what the title of the work calls orthogonal errors: the members go wrong in different directions, so the
+      average cancels their mistakes rather than piling them up. Moderate correlation does not mean redundancy: the pair whose
+      errors agree most still supply the largest single contribution. Removing the whole pretrained block at once costs
+      <strong>−2.91 pp</strong>, so the gain is spread across the four kinds of model rather than carried by one.
     </p>
 
     <figure class="chart-figure" id="fig-loo">
       <div class="chart" id="chart-loo" data-chart="loo" data-src="loo" role="img"
-           aria-label="Horizontal bar chart of the change in pooled out-of-fold Macro-F1 when each of the eleven ensemble members is removed. Every change is negative, from minus 0.84 percentage points for MAMP-NTU60 to minus 0.09 for CTR-GCN."></div>
+           aria-label="Horizontal bar chart of what happens to Macro-F1 when each of the eleven models is taken out of the average. Every change is negative, from minus 0.84 percentage points for the model that costs most to minus 0.09 for the one that costs least."></div>
       <figcaption>
         <b>Figure 2.</b> Removing any one member costs accuracy. Each bar is what happens to Macro-F1 when that member
-        leaves the average, measured against a base of 36.94% on the pooled held-out predictions. All eleven changes are
-        negative, from −0.84 pp to −0.09 pp, so every member contributes and none dominates. The two smallest losses
-        belong to graph-convolutional members, which duplicate each other most. Dropping all four pretrained members
-        together costs −2.91 pp, more than any single member and more than those graph-convolutional losses added
-        together.
+        leaves the average, against a base of 36.94% on the pooled held-out answers. All eleven changes are negative,
+        from −0.84 pp to −0.09 pp, so every member contributes and none dominates. The two smallest losses belong to
+        graph-convolution members, which duplicate each other most. Dropping all four pretrained members together costs
+        −2.91 pp, more than any single member.
       </figcaption>
     </figure>
 
     <p>
       The errors that survive fall where the task itself is ambiguous, between emotions close in meaning: jealousy into
-      contempt, guilt into sadness or shame. That matches a low maximum confidence of about 62%. Macro-F1 varies by
-      roughly a factor of four from one performer to another, and about half of that variation is how hard the performer
-      is for any model while the other half depends on which model is looking. It is that second half the averaging
-      cancels, and the explanations below look at the same disagreement.
+      contempt, guilt into sadness or shame, which matches a low maximum confidence of about 62%. Macro-F1 varies by
+      roughly a factor of four from one performer to another, about half of it how hard the performer is for any model
+      and the other half which model is looking. The averaging cancels that second half, and the explanations below look
+      at the same disagreement.
     </p>
   </section>
 
@@ -289,79 +274,87 @@
     <p class="section-lede">Every explanation here comes with a test that could have failed, and one of the six did.</p>
 
     <p>
-      A picture of where a model looked cannot be wrong, since a decorative one looks exactly like a real one.
-      So each claim here is paired with a check that could fail: hide a body part and see whether accuracy falls further
-      than it does for a part the model called unimportant, add noise and see whether the ranking of parts survives, edit
-      the motion and see whether the answer moves. The checks run after training, on a strong member of the submitted
-      system. They cost 0 pp of Macro-F1 and need no retraining, and the two that carry the most weight were run again on
-      the eleven-model system itself.
+      A picture of where a model looked cannot be wrong, since a decorative one looks exactly like a real one. So each
+      claim here is paired with a check that could fail: hide a body part, add noise to it, or edit how it moves, and
+      see whether the answer changes. The checks run after training on a strong member of the submitted system, cost
+      0 pp of Macro-F1 and need no retraining, and the two that carry the most weight were run again on the eleven-model
+      system itself.
     </p>
 
     <div class="verdicts" id="verdicts">
       <div class="verdict" data-result="pass">
-        <h3>Faithful <span class="verdict__result">pass</span></h3>
+        <h3>Uses what it points to <span class="verdict__result">pass</span></h3>
+        <p class="verdict__paper">Table 3: Faithful</p>
         <p>Hiding the parts the model called important costs more accuracy than hiding the parts it called unimportant.
           Plotted as accuracy against how much is hidden, the gap between the two curves is
-          <span class="num">+0.124 ± 0.031</span> over six body parts, positive in every run, and +0.199 when the body is
-          cut into all 25 tracked points instead of six parts.</p>
+          <span class="num">+0.124 ± 0.031</span> over six body parts, positive in every run, and +0.199 when the body
+          is cut into all 25 tracked points.</p>
       </div>
       <div class="verdict" data-result="pass">
-        <h3>Stable <span class="verdict__result">pass</span></h3>
-        <p>The ranking of parts barely moves when the input is jittered. Before and after agree at Spearman
-          <span class="num">ρ = +0.983 ± 0.039</span> for noise of σ = 0.02, and the top-ranked part never changes. A
-          ranking that moved under noise would be an accident rather than a property of the model, and the alignment
-          below would mean nothing.</p>
+        <h3>Steady under noise <span class="verdict__result">pass</span></h3>
+        <p class="verdict__paper">Table 3: Stable</p>
+        <p>The ranking of parts barely moves when small random noise is added to the input. Before and after agree at
+          Spearman <span class="num">ρ = +0.983 ± 0.039</span>, and the top-ranked part never changes. A ranking that
+          moved under noise would be an accident, and the match below would mean nothing.</p>
       </div>
       <div class="verdict" data-result="pass">
-        <h3>Semantically grounded <span class="verdict__result">pass</span></h3>
+        <h3>Matches a movement analyst <span class="verdict__result">pass</span></h3>
+        <p class="verdict__paper">Table 3: Semantically grounded</p>
         <p>The parts the model used agree with the written Laban attributes at <span class="num">ρ = +0.500</span>,
           against <span class="num">+0.033</span> for the control built from ordinary motion measurements. Resampling
           whole emotions gives a 95% interval of <span class="num">[+0.150, +0.733]</span>, and shuffling the region
-          scores within each emotion reaches an agreement this strong less than once in a thousand times
+          scores within each emotion reaches a match this strong less than once in a thousand times
           (p &lt; 0.001).</p>
       </div>
       <div class="verdict" data-result="pass">
-        <h3>Behaviourally corroborated <span class="verdict__result">pass</span></h3>
+        <h3>Edits move the answer <span class="verdict__result">pass</span></h3>
+        <p class="verdict__paper">Table 3: Behaviourally corroborated</p>
         <p>Editing the motion moves the answer. Freezing the head is the most disruptive edit: the score for the correct
-          emotion falls by <span class="num">Δp_true = −0.0164</span> and <span class="num">41%</span> of answers change,
-          while amplifying an arm changes <span class="num">23.1%</span>. Hiding a part and editing its motion are two
-          different kinds of interference, and both put the head and neck first.</p>
+          emotion falls by <span class="num">Δp_true = −0.0164</span> and <span class="num">41%</span> of answers
+          change, while amplifying an arm changes <span class="num">23.1%</span>. Hiding a part and editing its motion
+          are different kinds of interference, and both put the head and neck first.</p>
       </div>
       <div class="verdict" data-result="pass">
-        <h3>Grounded narration <span class="verdict__result">pass</span></h3>
-        <p>Of the 50 explanation cards we audited, <span class="num">0</span> contain a claim the underlying scores do
-          not support. The cards are qualitative, so we report grounding for them and no accuracy figure.</p>
+        <h3>Its written accounts hold up <span class="verdict__result">pass</span></h3>
+        <p class="verdict__paper">Table 3: Grounded narration</p>
+        <p>The system puts each decision into words on a card. Of the 50 cards we audited, <span class="num">0</span>
+          contain a claim the underlying scores do not support. The cards are qualitative, so we report grounding for
+          them and no accuracy figure.</p>
       </div>
       <div class="verdict" data-result="reported-negative">
-        <h3>Frame localization <span class="verdict__result">reported negative</span></h3>
-        <p>Inside the 64-frame window, no frame counts for much more than any other. The spread of frame importance
-          reaches about 98.7% of what a perfectly even spread would give, 99.5% averaged within a class, and the
-          equivalent of the faithfulness gap above is about <span class="num">+0.002</span> in time against +0.124 across
-          the body. The model's evidence is spatial. This says no single frame carries the answer, not that the model
-          ignores time, since playing a recording backwards does change accuracy.</p>
+        <h3>Cannot pick out a frame <span class="verdict__result">reported negative</span></h3>
+        <p class="verdict__paper">Table 3: Frame localization</p>
+        <p>Inside the 64-frame window, no frame counts for much more than any other. Frame importance is about
+          98.7% as even as it could possibly be, 99.5% averaged within a class, and the gap the first check measures is
+          about <span class="num">+0.002</span> in time against +0.124 across the body. The model's evidence is spatial. This
+          says no single frame carries the answer, not that the model ignores time, since playing a recording backwards
+          does change accuracy.</p>
       </div>
     </div>
+
+    <p class="footnote">
+      The checks group the body differently. Hiding works over six body parts, and again over all 25 tracked points;
+      the Laban comparison works over four regions, which are head, arms, legs and torso. The noise in the second check
+      has σ = 0.02.
+    </p>
 
     <p>
       On the submitted eleven-model system the Laban agreement is <strong>ρ = +0.517</strong> (95% interval
       [+0.333, +0.700], p = 0.001) and the part-hiding gap stays positive in all ten runs, so the finding describes the
       system we submitted and not only one member of it. The motion edits corroborate that the model relies on that
       motion without proving causation, and the agreement between hiding and editing is itself only suggestive, at
-      ρ = 0.49 over 6 body parts, p = 0.33. The claim therefore rests on the 0.500 against 0.033 contrast, which has the
-      sample size to support it.
+      ρ = 0.49 over 6 body parts, p = 0.33, so the claim rests on the 0.500 against 0.033 contrast instead.
     </p>
 
     <figure class="chart-figure" id="fig-lma">
       <div class="chart" id="chart-lma" data-chart="lma" data-src="lma" role="img"
-           aria-label="Grouped horizontal bar chart of per-emotion Spearman correlation between region saliency and Laban attributes, for a single member and for the submitted ensemble, against a classical-kinematics control. Alignment is positive for 10 of 12 emotions for the member and for 11 of 12 for the ensemble."></div>
+           aria-label="Grouped horizontal bar chart, one row per emotion, of how closely the parts the model used match the Laban attributes, for one model and for the submitted eleven-model system, against a control built from ordinary motion measurements. The match is positive for 10 of the 12 emotions for the single model and for 11 of 12 for the submitted system."></div>
       <figcaption>
         <b>Figure 3.</b> How closely the parts the model used match how a movement analyst would describe the same
-        motion, emotion by emotion. Each row compares two rankings of four body regions, so a single row can take only a
-        few values and none of them carries the claim alone. Pooled over the twelve emotions the agreement is ρ = +0.500
-        for the member and ρ = +0.517 for the submitted system, against ρ = +0.033 for the control. It is positive for
-        10 of the 12 emotions for the member (counting positives across emotions, p = 0.039, median ρ = +0.70) and for
-        11 of 12 for the submitted system (p = 0.001). For sadness it reads as a bowed, sunken posture: head bow up,
-        head height down, trunk lean forward.
+        motion, emotion by emotion. Each row compares two rankings of four regions, so a single row takes only a few
+        values and none of them carries the claim alone. The match is positive for 10 of the 12 emotions for the member
+        (p = 0.039, median ρ = +0.70) and for 11 of 12 for the submitted system (p = 0.001). What the legend calls the
+        kinematics control is the ordinary motion measurements.
       </figcaption>
     </figure>
   </section>
@@ -373,36 +366,34 @@
     <ul class="limits">
       <li>
         <b>The headline is a stand-in for the test, not a leaderboard result.</b> 36.80 ± 4.00% comes from the ten runs
-        over the 74 labelled training performers, and the hidden test result is pending. Every comparison on this page
-        uses the same split, so the +11.07 pp gain is measured under matched conditions even though the absolute number
-        is a development finding.
+        over the 74 labelled training performers, and the hidden test result is pending. Every comparison here uses the
+        same split, so the +11.07 pp gain is measured under matched conditions.
       </li>
       <li>
-        <b>We did not re-run the official baseline.</b> The organisers report 25.21 ± 4.49% on a wider arrangement that
-        uses all 92 performers, which we quote as an outside reference point. Our own reproduction of 25.73 ± 4.03% sits
-        within one standard deviation of it, and every improvement is measured against that reproduction rather than
-        against the organisers' figure.
+        <b>We did not re-run the official baseline.</b> The organisers report 25.21 ± 4.49% over all 92 performers,
+        which we quote as an outside reference point. Our own reproduction of 25.73 ± 4.03% sits within one standard
+        deviation of it, and every improvement is measured against that reproduction.
       </li>
       <li>
         <b>The absolute score is low.</b> A Macro-F1 near 37% across twelve emotions is not good in isolation, and we
-        never argue that it is. Against a chance level of 8.3% it is about 4.4 times chance, the gain is +43% over the
-        matched reproduction, and all twelve emotions improve.
+        never argue that it is. It is about 4.4 times the 8.3% chance level, the gain is +43% over the matched
+        reproduction, and all twelve emotions improve.
       </li>
       <li>
         <b>The Laban agreement is about meaning, not cause.</b> It shows that the parts the model used are the parts a
-        movement analyst would name. Whether the model depends on those parts is a separate question, tested by hiding
-        them (+0.124 ± 0.031) and by checking the ranking under noise (ρ = +0.983 ± 0.039).
+        movement analyst would name. Whether the model depends on them is a separate question, tested by hiding them
+        (+0.124 ± 0.031) and by checking the ranking under noise (ρ = +0.983 ± 0.039).
       </li>
       <li>
         <b>Motion edits corroborate rather than prove.</b> The edits move answers in the same order of parts that hiding
         produces, which is two methods agreeing rather than a causal account. That agreement rests on 6 body parts
-        (ρ = 0.49, p = 0.33), so the claim leans on the 0.500 against 0.033 contrast instead.
+        (ρ = 0.49, p = 0.33), so the claim leans on the 0.500 against 0.033 contrast.
       </li>
       <li>
-        <b>The Japan and Taiwan difference is a split in the data.</b> It is entangled with when the recordings were made
-        and with how individuals move, and we do not read it as a cultural finding. A classifier can tell a performer's
-        country from the motion features 69.8% of the time, which is why we treat country as a confound. Dropping the
-        seven earliest Japanese training performers moves the score on the pooled held-out predictions by −0.44 pp,
+        <b>The Japan and Taiwan difference is a split in the data.</b> It is entangled with when the recordings were
+        made and with how individuals move, and we do not read it as a cultural finding. A classifier can tell a
+        performer's country from the motion 69.8% of the time, so country is tangled with the movement itself. Dropping
+        the seven earliest Japanese training performers moves the score on the pooled held-out answers by −0.44 pp,
         36.50% against 36.94%.
       </li>
       <li>
@@ -413,11 +404,10 @@
 
     <div class="callout" data-tone="note">
       <p>
-        The things that did not work are part of the record too. Pulling same-emotion recordings together during
-        training, routing each recording to one of four specialist models instead of averaging all of them, matching
-        recordings against written descriptions of the scene, copying the answers of a model that reads images and text,
-        and rescaling the model's confidence after training all failed or made results worse under this arrangement. The
-        paper lists each under its own name with its configuration, since they are the reason the design went after
+        What did not work is part of the record too. Pulling same-emotion recordings together during training, routing
+        each recording to one of four specialist models instead of averaging all of them, matching recordings against
+        written descriptions of the scene, copying the answers of a model that reads images and text, and rescaling the
+        model's confidence after training all failed or made results worse here. They are why the design went after
         disagreement between models instead of a better single model.
       </p>
     </div>
@@ -425,86 +415,38 @@
 
   <section id="glossary">
     <h2>Terms</h2>
-    <p class="section-lede">The words this page keeps because the paper and the talk use them.</p>
+    <p class="section-lede">The table and the charts keep the paper's wording. These are the words they use that the text above does not.</p>
 
     <dl class="glossary">
-      <div>
-        <dt>ACII</dt>
-        <dd>The International Conference on Affective Computing and Intelligent Interaction. The 2026 edition, which
-          hosts this challenge, is the fourteenth.</dd>
-      </div>
-      <div>
-        <dt>MMAC Challenge</dt>
-        <dd>The contest at ACII 2026 whose subject is cross-cultural emotion recognition from body movements. Entrants
-          build a system that names the emotion in a motion capture recording, and a leaderboard the organisers run
-          decides it.</dd>
-      </div>
-      <div>
-        <dt>DIEM-A</dt>
-        <dd>The Diverse Intercultural E-Motion Database of Asian Performers, the dataset the contest uses, published by
-          Cheng, Tseng, Fujiwara, Schneider and Kitamura at ACII 2025.</dd>
-      </div>
-      <div>
-        <dt>Macro-F1</dt>
-        <dd>The score used throughout. It scores each of the twelve emotions separately and averages the twelve, so a
-          system cannot do well by getting the common emotions right and ignoring the rare ones. It runs from 0 to
-          100%.</dd>
-      </div>
-      <div>
-        <dt>pp</dt>
-        <dd>Percentage points, the difference between two percentages. Going from 25.73% to 36.80% is a rise of 11.07
-          percentage points.</dd>
-      </div>
-      <div>
-        <dt>Leave-performers-out, and a fold</dt>
-        <dd>An arrangement in which the people in the test recordings never appear in the training recordings, so a
-          system cannot succeed by learning how one particular person moves. Here the 74 training performers are split
-          ten ways and the whole procedure runs ten times, each time holding a different group out. One such run is a
-          fold.</dd>
-      </div>
-      <div>
-        <dt>Per-fold mean and pooled out-of-fold</dt>
-        <dd>Two ways of scoring the same ten runs. The per-fold mean scores each run and averages the ten, which is the
-          headline 36.80 ± 4.00%. Pooling out-of-fold gathers the held-out predictions from all ten runs and scores them
-          once, which gives 36.94%. They are different conventions on one system and should not be mixed.</dd>
-      </div>
-      <div>
-        <dt>Logit</dt>
-        <dd>A model's raw output score for each of the twelve emotions, before it is turned into a probability. The
-          eleven models here are combined by averaging those raw scores, with nothing learned or tuned in the
-          averaging.</dd>
-      </div>
       <div>
         <dt>STGCN++</dt>
         <dd>The model the organisers supply as a reference point. It treats the skeleton as a graph, with joints as
           nodes and bones as edges.</dd>
       </div>
       <div>
-        <dt>Saliency</dt>
-        <dd>A score for how much a part of the body contributed to the model's answer, computed after the fact from the
-          trained model. This page usually says the parts the model used instead.</dd>
+        <dt>LPO, leave-performers-out</dt>
+        <dd>The arrangement described at the top of this page, in which nobody appears in both the training and the test
+          recordings.</dd>
       </div>
       <div>
-        <dt>Laban Movement Analysis</dt>
-        <dd>A vocabulary movement professionals use to describe how a body moves, in terms such as how much the head
-          bows or how far the trunk leans. It is written by people, not learned from data.</dd>
+        <dt>Logit-mean</dt>
+        <dd>How the eleven models are combined: average the raw score each of them gives each emotion, before those
+          scores are turned into probabilities. Nothing in the average is learned or tuned.</dd>
       </div>
       <div>
-        <dt>Spearman ρ</dt>
-        <dd>A measure of whether two rankings agree, running from −1 for opposite orders through 0 for unrelated to +1
-          for identical orders.</dd>
+        <dt>Pooled out-of-fold</dt>
+        <dd>Figure 2 labels its axis this way. Pooling gathers the held-out answers from all ten runs and scores them
+          once, which gives 36.94%. The headline 36.80 ± 4.00% scores each run and averages the ten instead. The two are
+          conventions on one system and should not be mixed.</dd>
       </div>
       <div>
-        <dt>Bootstrap confidence interval</dt>
-        <dd>A range for a number, found by drawing the data over and over with replacement and recomputing the number
-          each time. Where the unit being redrawn matters, this page says which one it was: whole runs, whole
-          performers, or whole emotions.</dd>
+        <dt>Kinematics control</dt>
+        <dd>What Figure 3 calls the control built from ordinary motion measurements: each joint's speed, acceleration,
+          range of motion and energy.</dd>
       </div>
       <div>
-        <dt>Permutation test</dt>
-        <dd>A p-value found by scrambling the data many times to see how often chance alone produces a result as strong
-          as the real one. For the Laban comparison the region scores are shuffled within each emotion, which keeps the
-          structure of the data intact.</dd>
+        <dt>Trainable parameters</dt>
+        <dd>The count of numbers a model learns during training. The eleven here come to 12.98 M between them.</dd>
       </div>
     </dl>
   </section>

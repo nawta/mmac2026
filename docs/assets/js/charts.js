@@ -449,7 +449,7 @@
   /* --------------------------------------------------------------------------
      Figure 3 — per-emotion alignment with the Laban vocabulary.
 
-     Three bars per emotion: the explained member, the submitted ensemble, and
+     Three bars per emotion: one strong member, the submitted ensemble, and
      the classical-kinematics control. Each value is a Spearman correlation
      over four body regions, so the rows are coarse on purpose; the dashed rule
      is the pooled member correlation the claim actually rests on.
@@ -462,9 +462,9 @@
       var head = data.headline;
       var tight = isNarrow(el);
       var NAMES = {
-        member: "member vs Laban",
-        ensemble: "submitted ensemble vs Laban",
-        kinematics: "kinematics control"
+        member: "one strong member",
+        ensemble: "submitted ensemble",
+        kinematics: "ordinary motion measurements"
       };
       var COLOR = { member: p.sky, ensemble: p.mint, kinematics: p.muted };
 

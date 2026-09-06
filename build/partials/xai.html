@@ -3,15 +3,30 @@
 
            Ten pivots from the score to what the system reads, eleven is the
            scorecard, twelve the two checks everything else rests on, thirteen
-           the Laban match, fourteen the same match on the submitted system
+           the Laban match, fourteen the same match on the submitted ensemble
            plus the motion edits, and fifteen the negative we report. All six
            carry data-tone="note", the sky the site uses for this half.
 
-           The paper's terms (saliency, AUC, Spearman rho, folds, ensemble
-           members) are spent on a slide only where the audience meets them
-           again later or in the paper. Everywhere else the plain wording goes
-           on the slide and the term, where it is worth saying at all, sits in
-           the notes for the speaker to say once out loud.
+           Who is in the room: an ACII audience already fluent in Macro-F1,
+           folds, saliency, AUC, Spearman rho, ensembles, nulls and intervals.
+           So the deck names those terms and never defines them, since a
+           definition here reads as condescension and costs slide space the
+           talk needs. What it does explain, every time, is whatever is
+           particular to this work: the six checks, the four Laban regions and
+           their names, the classical-kinematics control and the four
+           measurements it covers, the 64-frame window, the narration cards.
+
+           Two groupings of the body appear here and they are not a
+           contradiction: masking works over 6 body parts (also reported at
+           25-joint resolution), the Laban alignment over 4 regions, which are
+           head, arms, legs and torso. The footnote on slide 12 says so. The
+           names of the six are not written down in the paper, so the six stay
+           a count.
+
+           Wording that has to agree with something outside this file: the
+           control is "classical kinematics", which is what the legend and the
+           caption of the chart on slide 13 call it, and it is spelled out once
+           as per-joint speed, acceleration, range of motion and energy.
 
            Layout that deck.css does not already provide lives in
            build/partials/xai.css, scoped to these six slide ids.
@@ -20,24 +35,23 @@
       <section class="slide section" id="s-10-tested-explanations" data-title="Tested explanations" data-tone="note">
         <h2>Explanations you can test</h2>
         <div class="body">
-          <p class="lead-in">A picture of where a model looked cannot come back wrong. A test can.</p>
-          <p>The second half of the talk asks which parts of the body the system uses, and answers by interfering with the movement rather than by drawing a picture.</p>
+          <p class="lead-in">A saliency map cannot come back wrong. A test can.</p>
+          <p>The second half asks which parts of the body the model uses, and answers by interfering with the movement instead of drawing a picture of it.</p>
         </div>
         <aside class="notes">
-          <p>That was the first half of the talk: where the number comes from and why it works.</p>
-          <p>The second half is the one I care more about. When people explain a model like this one, they usually draw a picture: a body with each part coloured by how much the model leaned on it. The trouble is that a picture like that cannot come back wrong. A decorative one looks exactly like a real one, so nothing is at stake in drawing it.</p>
-          <p>So we built our explanations as a set of checks instead. Each one makes a claim about a part of the body, interferes with that part, and reports what happened, with a number and something to compare that number against. Five of them come back positive and one comes back negative. All of it runs on models we had already finished training, so nothing is retrained and the score does not move.</p>
+          <p>That was the first half: where the number comes from and why it works.</p>
+          <p>The second half is the one I care more about. A saliency map cannot come back wrong, because a decorative attribution looks exactly like a real one. So we built the explanations as checks. Each one claims the model uses some part of the body, interferes with that part, and reports what happened against something it could have failed. Five come back positive, one comes back negative, and none of it retrains anything.</p>
         </aside>
       </section>
 
       <section class="slide" id="s-11-six-verdicts" data-title="Six verdicts" data-tone="note">
         <h2>Six checks, five positive and one negative</h2>
         <div class="body">
-          <p class="lead-in">To test that the model uses a part of the body, we hide that part, add noise to it, or edit how it moves, and watch whether the answer changes.</p>
+          <p class="lead-in">To claim the model uses a part of the body, we mask it, perturb it, or edit how it moves, and watch whether the prediction moves.</p>
           <div class="verdicts">
             <div class="verdict" data-result="pass">
               <strong>Uses what it points to</strong>
-              <span>hiding those parts hurts most, +0.124 ± 0.031</span>
+              <span>masking those parts hurts most, +0.124 ± 0.031</span>
             </div>
             <div class="verdict" data-result="pass">
               <strong>Steady under noise</strong>
@@ -45,11 +59,11 @@
             </div>
             <div class="verdict" data-result="pass">
               <strong>Matches a movement analyst</strong>
-              <span>+0.500, against +0.033 for speed and acceleration</span>
+              <span>+0.500, against +0.033 for classical kinematics</span>
             </div>
             <div class="verdict" data-result="pass">
-              <strong>Edits move the answer</strong>
-              <span>freezing the head changes 41% of answers</span>
+              <strong>Edits move the prediction</strong>
+              <span>freezing the head changes 41%</span>
             </div>
             <div class="verdict" data-result="pass">
               <strong>Its written accounts hold up</strong>
@@ -63,96 +77,96 @@
           <div class="callout" data-tone="ok">
             <p>All of this runs on the finished models, so nothing is retrained and no accuracy is lost.</p>
           </div>
-          <p class="footnote">Each check runs on one strong model out of the eleven we submitted, and the two that carry the most weight are run again on all eleven together.</p>
+          <p class="footnote">Each check runs on one strong member of the submitted ensemble; the two that carry the most weight are re-run on all eleven.</p>
         </div>
         <aside class="notes">
-          <p>Here is the scorecard. The recipe is the same every time. We want to say the model uses some part of the body, so we interfere with that part. We hide it, we add noise to it, or we edit how it moves, and then we look at whether the answer changes.</p>
-          <p>That gives six checks, each with a value and either a null or an interval beside it, so any of them could have come back the other way. Five come back positive. One comes back negative, and it gets a slide of its own, because a check that can only come back positive is worth nothing.</p>
-          <p>Two things about scope. All of this runs on the finished models, after training is over, so it costs no accuracy. And each check runs on one strong model out of the eleven we submitted, with the two that carry the most weight repeated on all eleven together.</p>
+          <p>Here is the scorecard, and the recipe behind every row of it. To say the model uses some part of the body, we interfere with that part. We hide it, add noise to it, or edit how it moves, and then see whether the prediction moves with it.</p>
+          <p>Each check carries a value and either a null or an interval, so any of them could have come back the other way. Five are positive. One is negative, and it gets a slide of its own, because a check that can only pass is worth nothing.</p>
+          <p>Two things about scope. All of it is post hoc, so it costs no accuracy. And each check runs on one strong member, with the two that matter most re-run on all eleven.</p>
         </aside>
       </section>
 
       <section class="slide" id="s-12-faithful-stable" data-title="Faithful and stable" data-tone="note">
-        <h2>The model really uses the parts it ranks high</h2>
+        <h2>The model uses the parts it ranks high</h2>
         <div class="body">
-          <p class="lead-in">Hiding the parts it ranks high costs more accuracy than hiding the parts it ranks low, and the ranking barely moves when we add noise.</p>
+          <p class="lead-in">Masking the parts it ranks high costs more accuracy than masking the parts it ranks low, and the ranking barely moves under noise.</p>
           <table class="table">
-            <caption>Measured on one strong model out of the eleven we submitted. The paper's explainability table lists all six checks.</caption>
+            <caption>One strong member of the submitted ensemble. The paper's explainability table carries all six checks.</caption>
             <thead>
               <tr>
                 <th scope="col">Check</th>
-                <th scope="col">What we measure</th>
+                <th scope="col">Metric</th>
                 <th scope="col">Value</th>
                 <th scope="col">Consistency</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Hiding parts</td>
-                <td>gap between hiding the important parts first and hiding them last</td>
+                <td>Part-masking</td>
+                <td>AUC gap, important order minus reverse</td>
                 <td>+0.124 ± 0.031</td>
-                <td>positive in all 10 runs</td>
+                <td>positive in all 10 folds</td>
               </tr>
               <tr>
-                <td>Adding noise</td>
-                <td>agreement between the rankings before and after</td>
+                <td>Stability</td>
+                <td>Spearman ρ under noise at σ = 0.02</td>
                 <td>+0.983 ± 0.039</td>
-                <td>the top part never changes</td>
+                <td>the top part never flips</td>
               </tr>
             </tbody>
           </table>
-          <p>Without these two, the match on the next slide would be a picture agreeing with itself.</p>
-          <p class="footnote">Six body regions here; all 25 tracked points instead gives +0.199, and the noise is σ = 0.02. Each value is a mean over the ten runs.</p>
+          <p>Without these two, the alignment on the next slide would be a picture agreeing with itself.</p>
+          <p class="footnote">Masking works over 6 body parts here and the next slide's alignment over 4 regions, two groupings for two checks. At the finer 25-joint resolution the gap grows to +0.199. Both values are 10-fold means.</p>
         </div>
         <aside class="notes">
-          <p>Everything after this depends on the first two checks.</p>
-          <p>The first asks whether the model uses the parts it points to. We sort the six body regions by how much the model leaned on them, hide them in that order, and compare that against hiding them in the opposite order. Accuracy falls further when the important regions go first. The gap between the two orders is 0.124, and it comes out positive in every one of the ten runs, each of which holds out a different group of performers. Split the body into all 25 tracked points instead of six regions and the gap grows to 0.199.</p>
-          <p>The second asks whether that ranking is a property of the model or an accident. Add a little noise to the motion, work the ranking out again, and it agrees with the first ranking at 0.98, where 1 would mean the same order. The region at the top never changes.</p>
-          <p>Without those two, the match I am about to show would just be a picture agreeing with itself.</p>
+          <p>Everything after this rests on the first two checks.</p>
+          <p>The first asks whether the model uses the parts it points to. We rank the six body parts by saliency, mask them in that order, and compare against masking them in reverse. Accuracy falls further when the important parts go first. The gap is 0.124, and it is positive in every fold. At the finer 25-joint resolution the gap grows to 0.199.</p>
+          <p>The second asks whether that ranking is a property or an accident. Add noise, rank again, and the two rankings agree at 0.98, with the top part never flipping.</p>
+          <p>Without those two, the alignment I am about to show would be a picture agreeing with itself.</p>
         </aside>
       </section>
 
       <section class="slide" id="s-13-laban" data-title="Laban alignment" data-tone="note">
         <h2>The model reads the body the way a movement analyst would</h2>
         <div class="body">
-          <p class="lead-in">Laban Movement Analysis is that analyst's vocabulary for how a body moves. People wrote it; nothing learned it from our recordings.</p>
+          <p class="lead-in">Laban Movement Analysis is a movement analyst's vocabulary for how a body moves. People wrote its rules; nothing learned them from our recordings.</p>
           <div class="cols cols--figure">
             <ul>
-              <li>The regions the model uses rank the way the Laban terms do: ρ = +0.500, where +1 would be the same order.</li>
-              <li>Speed and acceleration reach +0.033, about 15 times weaker.</li>
+              <li>Saliency over the four regions, head, arms, legs and torso, ranks the way the Laban attributes do: ρ = +0.500.</li>
+              <li>Classical kinematics, per-joint speed, acceleration, range of motion and energy, reaches +0.033, about 15 times weaker.</li>
               <li>Sadness reads as a bowed, sunken posture: head down, trunk leaning forward.</li>
             </ul>
             <div class="chart" data-chart="lma" data-src="lma"></div>
           </div>
-          <p class="footnote">One strong model of the eleven, four body regions. The twelve emotions are not independent, so the 95% interval [+0.150, +0.733] keeps each emotion whole, p &lt; 0.001. Positive for 10 of the 12 emotions (sign test p = 0.039, median ρ = +0.70).</p>
+          <p class="footnote">One strong member. The 12 emotions are not 12 independent observations, so the 95% CI [+0.150, +0.733] is an emotion-block bootstrap and the null permutes regions within an emotion, p &lt; 0.001. Positive for 10 of the 12 emotions (sign test p = 0.039, median ρ = +0.70).</p>
         </div>
         <aside class="notes">
-          <p>This is the main result. Movement professionals have a vocabulary for describing how a body moves, called Laban Movement Analysis: how far the head bows, how far the trunk leans, how high the body is carried. People wrote those rules down, and nothing learned them from our recordings.</p>
-          <p>So we have two rankings of the four body regions, which are head, arms, legs and torso. One ranking is how much the model leaned on each region. The other is what the Laban attributes say about that emotion. The two agree at 0.500, on a scale where 0 would mean unrelated and 1 would mean the same order. As a control we put the plain physical measures of the motion through the same test, per-joint speed, acceleration, range of motion and energy, and they reach 0.033. The Laban match is about fifteen times stronger.</p>
-          <p>We are careful with the statistics here, because the twelve emotions are not twelve independent observations. The interval keeps each emotion together as a block, and the null shuffles the regions within an emotion. The match comes out positive for ten of the twelve.</p>
+          <p>This is the main result. Laban Movement Analysis is the vocabulary movement professionals use for how a body moves: how far the head bows, how far the trunk leans, how high the body is carried. People wrote those rules down, and nothing in them learned from our recordings.</p>
+          <p>So we have two rankings of the four regions, head, arms, legs and torso. One is how much saliency the model puts on each region, the other is what the Laban attributes say for that emotion, and they agree at 0.500. The control is classical kinematics, per-joint speed, acceleration, range of motion and energy, through the identical pipeline, and it reaches 0.033, about fifteen times weaker.</p>
+          <p>The statistics respect the structure here, because the forty-eight pairs are twelve emotions of four regions. The interval resamples emotions and the null shuffles regions inside an emotion. Ten of the twelve come out positive.</p>
           <p>What I like about it is that it reads in plain language. For sadness the model uses what you would expect: the head bows, the body is carried lower, the trunk leans forward.</p>
         </aside>
       </section>
 
       <section class="slide" id="s-14-ensemble-edits" data-title="Ensemble and edits" data-tone="note">
-        <h2>The match holds for the system we submitted, and the edits move the answer</h2>
+        <h2>The alignment holds for the submitted ensemble, and the edits move the prediction</h2>
         <div class="body">
           <div class="cols cols--figure">
             <div class="kpi-row">
               <div class="kpi" data-tone="ok">
                 <span class="kpi__value">ρ = +0.517</span>
-                <span class="kpi__label">the same match, all eleven models</span>
-                <span class="kpi__note">95% interval [+0.333, +0.700], p = 0.001</span>
+                <span class="kpi__label">the same alignment, all eleven members</span>
+                <span class="kpi__note">95% CI [+0.333, +0.700], p = 0.001</span>
               </div>
               <div class="kpi" data-tone="em">
                 <span class="kpi__value">41%</span>
-                <span class="kpi__label">answers that change when we freeze the head</span>
-                <span class="kpi__note">biggest fall in the right emotion's probability, −0.0164</span>
+                <span class="kpi__label">predictions changed by freezing the head</span>
+                <span class="kpi__note">largest fall in true-class probability, −0.0164</span>
               </div>
               <div class="kpi" data-tone="note">
                 <span class="kpi__value">23.1%</span>
-                <span class="kpi__label">answers that change when we amplify an arm</span>
-                <span class="kpi__note">the parts rank as they did under hiding</span>
+                <span class="kpi__label">changed by amplifying one arm</span>
+                <span class="kpi__note">the parts rank as they did under masking</span>
               </div>
               <div class="kpi" data-tone="ok">
                 <span class="kpi__value">0 / 50</span>
@@ -161,19 +175,19 @@
               </div>
             </div>
             <figure class="fig">
-              <img src="assets/img/fig06_lma_counterfactual.png" alt="Panel A, the average Laban scores for each emotion beside a strip showing how much the model used each region. Panel B, the change in the right emotion's probability under each motion edit.">
-              <figcaption class="fig__cap">Panel A, the match from the previous slide. Panel B, the motion edits.</figcaption>
+              <img src="assets/img/fig06_lma_counterfactual.png" alt="Panel A, the average Laban scores for each emotion beside a strip showing the model's saliency over each region. Panel B, the change in true-class probability under each motion edit.">
+              <figcaption class="fig__cap">Panel A, the alignment from the previous slide. Panel B, the motion edits.</figcaption>
             </figure>
           </div>
           <div class="callout" data-tone="warn">
-            <p>These edits support the finding. They are not proof of cause, and the main evidence is still the +0.500 against +0.033 match.</p>
+            <p>These edits corroborate the finding. They are not causal proof, and the main evidence is still the +0.500 against +0.033 alignment.</p>
           </div>
         </div>
         <aside class="notes">
-          <p>Two more checks. First, we run the whole thing again on all eleven models together, which is the system we actually submitted, and the match comes out at 0.517, a little stronger if anything, with the whole interval above zero.</p>
-          <p>Second, on the right, we stop hiding parts and edit the movement itself. Freeze the head, and 41 percent of the answers change. Amplify one arm, and 23 percent change. The parts come out in the same order as they did under hiding, so two different kinds of interference agree with each other.</p>
-          <p>The fourth number is the written accounts. The system puts each decision into words on a card, citing the regions and the Laban attributes that card rests on, and we went through fifty of them looking for a sentence the measurements do not support. We found none.</p>
-          <p>I want to be precise about what all this gives us. The edits support the finding. They are not proof of cause, and the main evidence is still the 0.500 against 0.033 match.</p>
+          <p>Two more checks. First, we re-run the alignment on the eleven-way ensemble we actually submitted, and it comes out at 0.517, a little stronger if anything, with the whole interval above zero.</p>
+          <p>Second, we stop masking and edit the movement itself. Freeze the head and 41 percent of predictions change. Amplify one arm and 23 percent change, with the parts in the order masking already gave, so two different kinds of interference agree with each other.</p>
+          <p>The fourth number is the narration. The system puts each decision into words on a card, citing the regions and the Laban attributes that card rests on, and we read fifty of them looking for a sentence the measurements do not support. We found none.</p>
+          <p>I want to be precise about what this buys. The edits corroborate the finding. They are not causal proof, and the main evidence is still 0.500 against 0.033.</p>
         </aside>
       </section>
 
@@ -185,12 +199,12 @@
             <div class="chart" data-chart="temporal" data-src="saliency"></div>
             <div class="chart" data-chart="spatial" data-src="saliency"></div>
           </div>
-          <p class="footnote">The model reads a window of 64 frames, about half a second at 120 frames per second. Measured across frames, the gap between hiding in importance order and hiding in the opposite order is only about +0.002, against +0.124 ± 0.031 across body regions, and importance is spread across the frames 98.7% as evenly as it could be per recording, 99.5% averaged by emotion. Order still matters: playing the motion backwards moves accuracy, so this is a claim about picking out a frame.</p>
+          <p class="footnote">The window is 64 frames, about half a second at 120 fps. Across frames the important-versus-reverse gap is about +0.002, against +0.124 ± 0.031 across body parts, and frame saliency entropy is 98.7% of its maximum per clip, 99.5% as a class mean. Order still matters: time reversal moves accuracy, so this is a claim about locating a frame.</p>
         </div>
         <aside class="notes">
-          <p>This is the negative, and I think it is what makes the rest of this a test. Every model here reads a window of 64 frames, which is about half a second of movement. When we ask which frames inside that window matter, the answer is all of them, roughly equally.</p>
-          <p>Importance is spread across the frames about 98.7 percent as evenly as it possibly could be, and hiding the frames in importance order costs almost nothing more than hiding them in the opposite order, where the same measurement across body regions gave a clear positive. On the right you can see the other side of it: the head and neck dominate in all twelve emotions. The evidence is spread through time and concentrated in space.</p>
-          <p>To be precise, this is about picking out a single frame, not about time in general. Order still matters. Play the motion backwards and accuracy moves. We report the null rather than hiding it.</p>
-          <p>If someone asks about the fall at the ends of the curve: importance tapers over roughly the last eight frames and the first one, from about 0.018 down to 0.004 against a flat level of 0.0156. It is the edges of the window that fall away, not any frame inside it, and the spread stays at 99.5 percent of the most even it could be. That is why the claim rests on the spread and on the near-zero gap rather than on the shape of the curve.</p>
+          <p>This is the negative, and I think it is what makes the rest of this a test. Every model here reads a 64-frame window, about half a second of movement. Ask which frames inside it matter and the answer is all of them, roughly equally.</p>
+          <p>Frame saliency entropy is 98.7 percent of maximum, and masking frames in importance order costs almost nothing more than the reverse order, where the same measurement over body parts gave a clear positive. On the right is the other side of it: the head and neck dominate in all twelve emotions. The evidence is spread through time and concentrated in space.</p>
+          <p>To be precise, this is about locating a single frame, not about time in general. Order still matters, and time reversal moves accuracy. We report the null rather than hiding it.</p>
+          <p>If someone asks about the fall at the ends of the curve: saliency tapers over roughly the last eight frames and the first one, from about 0.018 to 0.004 against a flat 0.0156. The window edges fall away, no interior frame does, and the entropy stays at 99.5 percent. That is why the claim rests on the entropy and the gap rather than on the shape of the curve.</p>
         </aside>
       </section>

@@ -29,6 +29,11 @@ REQUIRED = [
 ]
 
 # Values and phrasings the brief bans outright.
+# One coincidence, so nobody "fixes" the data later: 35.78 also occurs in
+# docs/**/data/liftpath.* as fold 2 of the 7-way logit-mean per-fold scores,
+# which is a real value of a permitted series. The banned 35.78 is the 11-way
+# softmax-mean pooled score, a different quantity with the same digits. Data
+# directories are skipped below, so the two never collide.
 BANNED = [
     (r"33\.72", "softmax-mean absolute value, banned from every slide"),
     (r"35\.78", "softmax-mean absolute value, banned from every slide"),

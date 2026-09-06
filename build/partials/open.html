@@ -3,66 +3,74 @@
      principle the rest of the talk defends. The four content slides carry
      data-tone="em" (peach), which deck.css turns into the chapter hairline for
      the ensemble half of the talk.
+
+     The room is an ACII audience, so terms the field already shares (Macro-F1,
+     cross-validation, logits, pp) are named here and never explained. What is
+     explained is what belongs to this work: the contest, DIEM-A, the performer
+     split, the four body regions, and the phrases the paper coins. What a
+     slide has no room for is spoken instead, in the notes, whose length is
+     budgeted against the slide's share of twelve minutes.
      ======================================================================== -->
 
 <section class="slide title" id="s-01-title" data-title="Title">
   <h1>Orthogonal Ensembles and Tested Explanations for Performer-Independent Body-Motion Emotion Recognition</h1>
   <div class="body">
-    <p class="subtitle">The gain comes from models that make different mistakes, and every explanation is a test that could have come back negative.</p>
+    <p class="subtitle">A contest to name the emotion a performer is acting, from motion capture alone. The gain comes from models that make different mistakes, and every explanation is a test that could have come back negative.</p>
     <p class="byline">
       <span class="byline-name">Naoto Nishida and Yoshio Ishiguro</span>
       <span>The University of Tokyo</span>
     </p>
-    <p class="eyebrow">ACII 2026 · MMAC Challenge · DIEM-A · Oral</p>
+    <p class="eyebrow">MMAC Challenge at ACII 2026 · Oral</p>
   </div>
   <aside class="notes">
     <p>Good morning. I’m Naoto Nishida from the University of Tokyo, and this is joint work with Yoshio Ishiguro.</p>
-    <p>The paper is about reading emotion from body motion alone, and it has two halves that matter equally. The first is an ensemble that works because its members disagree with each other. The second is a set of explanations we tested, and every one of them could have come back negative.</p>
-    <p>At the end I’ll show that both halves come from the same structure in the data. This runs about twelve minutes, and then I’m happy to take questions.</p>
+    <p>The MMAC Challenge asks entrants to name the emotion in a motion-capture recording of a single performer. The organisers keep the test labels, so no entrant can score their own system on the test set.</p>
+    <p>The paper has two halves. The first is an ensemble that works because its members disagree with each other. The second is a set of explanations we tested, and every one of them could have come back negative. At the end I’ll show that both halves come from the same structure in the data. This runs about twelve minutes, and then I’m happy to take questions.</p>
   </aside>
 </section>
 
 <section class="slide" id="s-02-task" data-title="The task" data-tone="em">
   <h2>Reading emotion from body motion alone</h2>
   <div class="body">
-    <p class="lead-in">The model sees skeleton motion alone, with no face, no audio and no scene, and it names one of twelve acted emotions for performers it never trained on.</p>
+    <p class="lead-in">Entrants name the emotion in a motion-capture recording of a single performer. The system sees 24 joints on the body plus one point for where the body is in the room: no face, no sound, no scene.</p>
     <div class="kpi-row">
       <div class="kpi" data-tone="note">
         <span class="kpi__value">12</span>
-        <span class="kpi__label">acted emotions</span>
-        <span class="kpi__note">skeleton motion only</span>
+        <span class="kpi__label">emotions to choose from</span>
+        <span class="kpi__note">anger to pride, all acted</span>
       </div>
       <div class="kpi" data-tone="note">
         <span class="kpi__value">8.3%</span>
-        <span class="kpi__label">chance level</span>
-        <span class="kpi__note">12-way</span>
+        <span class="kpi__label">guessing gets this right</span>
+        <span class="kpi__note">one in twelve</span>
       </div>
       <div class="kpi" data-tone="em">
         <span class="kpi__value">74 / 18</span>
-        <span class="kpi__label">train / test performers</span>
-        <span class="kpi__note">no person is in both</span>
+        <span class="kpi__label">performers, train / test</span>
+        <span class="kpi__note">no one is in both</span>
       </div>
       <div class="kpi" data-tone="note">
         <span class="kpi__value">7,992</span>
-        <span class="kpi__label">training clips</span>
-        <span class="kpi__note">1,944 held out</span>
+        <span class="kpi__label">training recordings</span>
+        <span class="kpi__note">1,944 held back</span>
       </div>
     </div>
     <div class="cards" data-cols="2">
       <div class="card" data-tone="em">
         <h3>Orthogonal errors</h3>
-        <p>An ensemble gains when its members are wrong on different clips.</p>
+        <p>Combining models pays only when they are wrong on different recordings.</p>
       </div>
       <div class="card" data-tone="note">
         <h3>Tested explanations</h3>
-        <p>We test every claim about what the model reads, and the test can come back negative.</p>
+        <p>Every claim about what the model reads is a test that can come back negative.</p>
       </div>
     </div>
+    <p class="footnote">Each recording is one performer acting one emotion; every model here reads a fixed 64-frame window of it, about half a second. The recordings come from DIEM-A, the Diverse Intercultural E-Motion Database of Asian Performers.</p>
   </div>
   <aside class="notes">
-    <p>The task is to name one of twelve acted emotions from skeleton motion. There is no face, no audio and no scene, only how the body moves. The split is the hard part. Every test clip comes from a person the model never saw in training.</p>
-    <p>Chance is 8.3 percent, and a strong skeleton baseline only reaches about 25 percent. There is a lot of room above that, but the movement alone often does not settle which emotion it is.</p>
-    <p>There are two things I hope you take away. Ensembles win when their members make different mistakes, and you can test an explanation instead of only drawing it.</p>
+    <p>A performer acts one emotion, a motion-capture system tracks reflective markers on their body, and what the model gets is the skeleton that comes out of it: twenty-four joints in three dimensions, plus one point for where the body is in the room. Nothing else, so no face, no audio and no scene. The twelve run from anger, fear and joy to jealousy, shame, gratitude and pride, all of them acted.</p>
+    <p>The split is the hard part. Seventy-four performers in training, forty Japanese and thirty-four Taiwanese, give 7,992 recordings, evenly balanced at 666 per emotion. The test set is 1,944 recordings from eighteen other people, nine Japanese and nine Taiwanese. Nobody appears in both, so every test recording comes from a stranger.</p>
+    <p>Chance is 8.3 percent and a strong baseline only reaches about 25, because the movement alone often does not settle which emotion it is.</p>
   </aside>
 </section>
 
@@ -77,79 +85,77 @@
       </div>
       <div class="card">
         <h3>Every performer moves differently</h3>
-        <p>Under leave-performers-out, every test clip comes from a person the model never trained on.</p>
+        <p>The people in the test recordings never appear in training, so learning how one person moves buys nothing.</p>
       </div>
     </div>
     <div class="callout" data-tone="note">
-      <p>We reproduced the STGCN++ baseline on this split and it reaches <strong>25.73 ± 4.03%</strong> Macro-F1, against <strong>8.3%</strong> chance. A better architecture on its own gains little here.</p>
+      <p>We retrained the organisers’ reference model, STGCN++, on this split: <strong>25.73 ± 4.03%</strong> Macro-F1, against <strong>8.3%</strong> for guessing. A better network on its own gains little here.</p>
     </div>
-    <p class="footnote">Numbers are per-fold mean ± SD over 10-fold leave-performers-out cross-validation on the 74 training performers. Every later comparison uses the same split.</p>
+    <p class="footnote">Every score here comes from 10-fold leave-performers-out cross-validation over the 74 training performers, reported as the per-fold mean ± SD.</p>
   </div>
   <aside class="notes">
     <p>Two things make it hard. First, emotions that are close in meaning are close in movement, so jealousy and contempt look alike, and so do shame and guilt.</p>
-    <p>Second, everyone has a personal movement style, so the same emotion performed by two people can vary about as much as two different emotions performed by one person.</p>
-    <p>Under leave-performers-out, our reproduced STGCN++ baseline reaches 25.73 percent Macro-F1, plus or minus about four. Every later comparison uses that number, because we reproduced it on exactly the same 74-performer split. A single better architecture does not gain much here.</p>
+    <p>Second, everyone has a personal movement style, so the same emotion performed by two people can vary about as much as two different emotions performed by one person. That is why we hold performers out rather than recordings: if the same performer appeared on both sides, a model could score well by recognising the person.</p>
+    <p>On that split, the reference model the organisers give us reaches 25.73, plus or minus about four. Every later comparison uses that number, because we retrained it ourselves on exactly the same 74 performers. A single better architecture does not gain much here.</p>
   </aside>
 </section>
 
 <section class="slide" id="s-04-negatives" data-title="What did not work" data-tone="em">
   <h2>What did not work</h2>
   <div class="body">
-    <p class="lead-in">Under leave-performers-out, every obvious upgrade to a single model failed or made the score worse.</p>
+    <p class="lead-in">Every obvious upgrade to a single model failed or made the score worse.</p>
     <ul>
       <li>A supervised-contrastive head cost <strong>−11.53 pp</strong>.</li>
-      <li>Scenario-text alignment cost <strong>−1.42 pp</strong>, and its projection tracked performer identity.</li>
-      <li>A vision-language model ranked the true emotion last on skeletons with no face and no scene.</li>
+      <li>Aligning recordings to scene descriptions cost <strong>−1.42 pp</strong>: the projection collapsed onto performer identity, not emotion.</li>
+      <li>Distilling a vision-language model failed: on faceless stick figures it ranked the true emotion last.</li>
       <li>Post-hoc calibration moved the score by <strong>0 to −0.14 pp</strong>.</li>
     </ul>
     <div class="kpi-row">
       <div class="kpi" data-tone="warn">
         <span class="kpi__value">30.05 ± 3.48%</span>
         <span class="kpi__label">best single model</span>
-        <span class="kpi__note">the best any single model reached</span>
+        <span class="kpi__note">Macro-F1, same split</span>
       </div>
     </div>
-    <p class="footnote">All of these use the same 10-fold leave-performers-out protocol. The paper lists eight negative results, and they are why we stopped looking for one better architecture.</p>
+    <p class="footnote">All on the same ten-way performer split. The paper lists eight of these; they are why we stopped looking for one better network.</p>
   </div>
   <aside class="notes">
-    <p>We did try the obvious upgrades to a single model. A supervised-contrastive head cost eleven and a half points, because twelve classes in a batch of 128 leave too few positives per class. Scenario-text alignment ended up encoding who the performer was instead of the emotion. Distillation from a vision-language model ranked the true emotion last on skeleton renderings with no face. Post-hoc calibration moved nothing.</p>
-    <p>The best single model we could build tops out at about 30 percent.</p>
-    <p>We report these on purpose. They are the reason we stopped looking for one better architecture and went for diversity instead.</p>
+    <p>We did try the obvious upgrades to a single model. The contrastive head, which pulls same-emotion recordings together in training, cost eleven and a half points, because with twelve emotions in a batch of 128 there are too few same-emotion pairs to learn from. Aligning recordings against written descriptions of the scene ended up encoding who the performer was instead of the emotion. Distillation did not help either: shown a stick figure with no face and no scene, the teacher ranked the true emotion last.</p>
+    <p>The best single model we could build tops out at about 30 percent. We report the failures on purpose. They are the reason we stopped looking for one better architecture and went for diversity instead.</p>
   </aside>
 </section>
 
 <section class="slide" id="s-05-principle" data-title="The principle" data-tone="em">
   <h2>Combine models that make different mistakes</h2>
   <div class="body">
-    <p class="lead-in">We average the raw scores of four model families with different assumptions.</p>
+    <p class="lead-in">We average eleven models from four families with different assumptions.</p>
     <div class="cols cols--figure">
       <div>
-        <p>Each family assumes something different about how motion should be represented, so the families fail on different clips.</p>
+        <p>Each family represents motion differently, so they fail on different recordings.</p>
         <div class="kpi-row">
           <div class="kpi" data-tone="em">
             <span class="kpi__value">11</span>
-            <span class="kpi__label">ensemble members</span>
+            <span class="kpi__label">models in the ensemble</span>
             <span class="kpi__note">four families</span>
           </div>
           <div class="kpi" data-tone="note">
             <span class="kpi__value">12.98 M</span>
             <span class="kpi__label">trainable parameters</span>
-            <span class="kpi__note">11 forward passes</span>
+            <span class="kpi__note">one recording, 11 models</span>
           </div>
         </div>
         <div class="callout" data-tone="ok">
-          <p>We fit no fusion weights, so every member counts the same in the logit mean.</p>
+          <p>Nothing is fitted: every model counts the same, and we average logits rather than probabilities.</p>
         </div>
       </div>
       <figure class="fig">
-        <img src="assets/img/architecture.png" alt="Pipeline diagram. A 25-joint, 64-frame clip feeds eleven models grouped into four families: graph networks, attention, hybrid and MLP, and frozen external pretraining. Their logits go into an equal-weight 11-way mean, then a 12-class softmax over emotions.">
+        <img src="assets/img/architecture.png" alt="Pipeline diagram. A 25-node, 64-frame clip feeds eleven models grouped into four families: graph networks, attention, hybrid and MLP, and frozen external pretraining. Their logits go into an equal-weight 11-way mean, then a 12-class softmax over emotions.">
         <figcaption class="fig__cap">Eleven members make up four families, and we average their raw logits with equal weight.</figcaption>
       </figure>
     </div>
   </div>
   <aside class="notes">
-    <p>So the design is simple. We take four families that assume different things about motion: graph networks, an attention model, hybrid MLPs, and some frozen external pretraining. Then we average their raw pre-softmax scores. Every member counts the same, and there is nothing to fit.</p>
-    <p>There are eleven members and about thirteen million trainable parameters in total. Inference is eleven forward passes over a 64-frame clip, followed by a mean.</p>
+    <p>So the design is simple. Four families that assume different things about motion: graph networks, an attention model, hybrid MLPs, and some frozen external pretraining. Eleven models in total, about thirteen million trainable parameters, each reading the same half-second window, and we average their logits with equal weight. Nothing in the averaging is learned or tuned.</p>
     <p>We are betting that the gain comes from the members disagreeing rather than from the extra parameters. The next three slides are where I try to show that the bet is right.</p>
   </aside>
 </section>
