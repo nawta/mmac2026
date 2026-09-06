@@ -84,7 +84,10 @@ Rules:
 - 16:9. A slide that overflows is a bug; the runtime flags it in the console.
 
 Slide modifier classes: `.title` (opening), `.lead` (statement slide, centred),
-`.closing` (final slide), `.section` (divider between the two halves).
+`.closing` (final slide), `.section` (divider between the two halves), and
+`.both-halves` for a slide that belongs to neither half because it joins them.
+A `.both-halves` slide takes the full peach-to-sky spectrum instead of one
+half's tone, and declares no `data-tone`.
 
 ## Components
 

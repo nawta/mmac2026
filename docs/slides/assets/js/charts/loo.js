@@ -8,6 +8,14 @@
   // they cost, tinted by inductive-bias family, and the frozen external block
   // sits below a gap of its own because it is a different measurement, the
   // four external members leaving together rather than one at a time.
+  //
+  // Typography, and the same rule in all six chart modules: the body face
+  // throughout. The mono face belongs to the deck's chrome, to the slide
+  // number, the timer, the keycaps and code, and the slide content beside
+  // these charts sets its numbers in the display and body faces too, with
+  // tabular figures rather than a second family (deck.css, .kpi__value and
+  // .table). A chart reaching for mono would be the one thing on the stage
+  // doing it.
 
   var MINUS = '−';     // U+2212, the minus sign the paper prints
   var DELTA = 'Δ';
@@ -176,7 +184,7 @@
             top: 2,
             left: 'center',
             itemGap: 20,
-            itemWidth: 16,
+            itemWidth: 14,
             itemHeight: 11,
             icon: 'roundRect',
             selectedMode: false,
@@ -219,11 +227,11 @@
             axisTick: { show: false },
             axisLabel: {
               interval: 0,
-              fontSize: 15, color: ink, fontFamily: font, margin: 10,
+              fontSize: 14, color: ink, fontFamily: font, margin: 10,
               formatter: function (value) {
                 return value === block.member ? '{block|' + value + '}' : value;
               },
-              rich: { block: { fontSize: 15, fontWeight: 700, color: em, fontFamily: font } }
+              rich: { block: { fontSize: 14, fontWeight: 700, color: em, fontFamily: font } }
             }
           },
           series: series().map(function (s, i) {

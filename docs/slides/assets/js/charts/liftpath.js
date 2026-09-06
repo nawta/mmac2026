@@ -10,6 +10,14 @@
   // out-of-fold score, a second convention on the same system with its own
   // bootstrap interval, and the chart keeps it visibly apart from the per-fold
   // mean so the two are never read as one number.
+  //
+  // Typography, and the same rule in all six chart modules: the body face
+  // throughout. The mono face belongs to the deck's chrome, to the slide
+  // number, the timer, the keycaps and code, and the slide content beside
+  // these charts sets its numbers in the display and body faces too, with
+  // tabular figures rather than a second family (deck.css, .kpi__value and
+  // .table). A chart reaching for mono would be the one thing on the stage
+  // doing it.
 
   var PM = '±';        // plus-minus
   var TO = '–';        // en dash, used between two ends of a range
@@ -274,13 +282,13 @@
             axisLine: { lineStyle: { color: line } },
             axisLabel: {
               interval: 0,
-              fontSize: 15, lineHeight: 18, color: ink, fontFamily: font, margin: 12,
+              fontSize: 14, lineHeight: 18, color: ink, fontFamily: font, margin: 12,
               formatter: function (value, index) {
                 if (index !== last) return value;
                 // Rich text is parsed line by line, so each line gets its own tag.
                 return value.split('\n').map(function (row) { return '{hi|' + row + '}'; }).join('\n');
               },
-              rich: { hi: { fontSize: 15, lineHeight: 18, fontWeight: 700, color: em, fontFamily: font } }
+              rich: { hi: { fontSize: 14, lineHeight: 18, fontWeight: 700, color: em, fontFamily: font } }
             }
           },
           yAxis: {
@@ -293,7 +301,7 @@
             nameRotate: 90,
             nameGap: 44,
             nameTextStyle: { fontSize: 15, color: muted, fontFamily: font },
-            axisLabel: { fontSize: 15, color: muted, fontFamily: font },
+            axisLabel: { fontSize: 14, color: muted, fontFamily: font },
             splitLine: { show: true, lineStyle: { color: line } }
           },
           series: [

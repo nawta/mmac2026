@@ -10,6 +10,14 @@
   // the external column is the palest of them. The colour scale is stretched
   // over the observed range and the diagonal is kept out of it, since a row of
   // 1.00 cells would otherwise flatten every real difference into one shade.
+  //
+  // Typography, and the same rule in all six chart modules: the body face
+  // throughout. The mono face belongs to the deck's chrome, to the slide
+  // number, the timer, the keycaps and code, and the slide content beside
+  // these charts sets its numbers in the display and body faces too, with
+  // tabular figures rather than a second family (deck.css, .kpi__value and
+  // .table). A chart reaching for mono would be the one thing on the stage
+  // doing it.
 
   var RHO = 'ρ';
   var FAMILY_ORDER = ['graph', 'attention', 'hybrid', 'external'];
@@ -252,7 +260,9 @@
             inRange: { color: [mix(peach, surface, 0.62), peach, em] },
             text: [f2(data.max), f2(data.min)],
             textGap: 8,
-            textStyle: { fontSize: 13, color: muted, fontFamily: font }
+            // The two ends of the scale are tick labels on a colour axis, so
+            // they are set like every other tick label in the deck.
+            textStyle: { fontSize: 14, color: muted, fontFamily: font }
           },
           series: [
             {

@@ -9,6 +9,14 @@
      class mean and a single emotion. Companion to panel B of Figure 5 in the
      paper.
 
+     Typography, and the same rule in all six chart modules: the body face
+     throughout. The mono face belongs to the deck's chrome, to the slide
+     number, the timer, the keycaps and code, and the slide content beside
+     these charts sets its numbers in the display and body faces too, with
+     tabular figures rather than a second family (deck.css, .kpi__value and
+     .table). A chart reaching for mono would be the one thing on the stage
+     doing it.
+
      Data: window.DeckData.saliency, written by scripts/build_site_data.py.
      assets/js/charts/temporal.js draws the other half of the same object.
      Interface and colour tokens: build/CONTRACT.md. */
@@ -92,7 +100,6 @@
       var sky = css('--sky', '#C4E0F9');
       var em = css('--em', '#B25A3C');
       var body = family('--font-body', 'Outfit, system-ui, sans-serif');
-      var mono = family('--font-mono', 'PlemolJP, ui-monospace, Menlo, monospace');
 
       var emotions = data.emotions || [];
       var joints = data.joints || [];
@@ -164,7 +171,7 @@
               distance: 8,
               formatter: 'uniform',
               color: ink,
-              fontFamily: mono,
+              fontFamily: body,
               fontSize: 14,
               backgroundColor: surface,
               borderColor: em,
@@ -196,7 +203,10 @@
       selected[MEAN] = true;
       emotions.forEach(function (name) { selected[name] = false; });
 
-      var tick = { fontSize: 12, fontFamily: mono };
+      // The deck's tick size, the same one the frame axis beside this chart is
+      // set in. Twenty-five upright names cost height rather than width, so
+      // the extra two pixels come out of the plot and not out of a neighbour.
+      var tick = { fontSize: 14, fontFamily: body };
       chart.setOption({
         animation: false,
         textStyle: { color: ink, fontFamily: body },
@@ -204,17 +214,23 @@
         // the right for the reference line's label. What the y axis measures is
         // in the caption, so the axis itself does not spend a line on a name.
         grid: { left: 8, right: 88, top: 68, bottom: 58, containLabel: true },
+        // Set at the deck's legend size, with the chip the other charts use.
+        // The colour is the one thing this legend does differently, and for
+        // the reason the deck tints anything: only one of the thirteen is
+        // being drawn, so that one is ink and the twelve that are not are
+        // muted. itemGap stays tighter than elsewhere because thirteen names
+        // have to reach the end of the second row and no further.
         legend: {
           top: 4,
           left: 'center',
           selectedMode: 'single',
           selected: selected,
           icon: 'roundRect',
-          itemWidth: 11,
+          itemWidth: 14,
           itemHeight: 11,
           itemGap: 14,
           inactiveColor: muted,
-          textStyle: { color: ink, fontSize: 13, fontFamily: body },
+          textStyle: { color: ink, fontSize: 14, fontFamily: body },
         },
         tooltip: {
           trigger: 'axis',
@@ -262,7 +278,7 @@
           axisLabel: {
             color: muted,
             fontSize: 14,
-            fontFamily: mono,
+            fontFamily: body,
             formatter: function (v) { return v.toFixed(2); },
           },
           splitLine: { lineStyle: { color: line } },

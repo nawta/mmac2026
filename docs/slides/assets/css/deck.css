@@ -338,9 +338,13 @@ body[data-mode="slide"] .slide.is-active {
 .slide.section > h2,
 .slide.closing > h2 { justify-self: center; }
 
-/* Title. The byline stays quiet and a peach-to-sky bar runs across the top,
-   standing for the talk's two halves. */
-.slide.title::before {
+/* A peach-to-sky bar across the top, standing for the talk's two halves. The
+   title and closing slides span the whole talk, and so does the slide that
+   fuses its two results, so all three take the full spectrum rather than one
+   half's tone. */
+.slide.title::before,
+.slide.closing::before,
+.slide.both-halves::before {
   content: "";
   position: absolute;
   top: 0;
@@ -436,16 +440,6 @@ body[data-mode="slide"] .slide.is-active {
 }
 
 /* Closing. Reads like the title slide, so the talk ends where it started. */
-.slide.closing::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: linear-gradient(90deg, var(--peach) 0%, var(--lemon) 34%,
-                              var(--mint) 67%, var(--sky) 100%);
-}
 .slide.closing h2 {
   font-size: var(--fs-h1);
   max-width: 24ch;
@@ -831,3 +825,11 @@ body.is-blanked::after {
   outline-offset: -4px;
 }
 body.is-capturing .slide.has-overflow { outline: none; }
+
+/* A both-halves slide declares no data-tone, so its heading rule would fall
+   back to sky and read as second-half. Give it the same spectrum as its
+   strip, at the width of the heading. */
+.slide.both-halves h2::after {
+  background: linear-gradient(90deg, var(--peach) 0%, var(--lemon) 34%,
+                              var(--mint) 67%, var(--sky) 100%);
+}

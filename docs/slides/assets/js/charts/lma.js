@@ -10,6 +10,14 @@
      how that aggregate is spread across emotions. Companion to panel A of
      Figure 6 in the paper.
 
+     Typography, and the same rule in all six chart modules: the body face
+     throughout. The mono face belongs to the deck's chrome, to the slide
+     number, the timer, the keycaps and code, and the slide content beside
+     these charts sets its numbers in the display and body faces too, with
+     tabular figures rather than a second family (deck.css, .kpi__value and
+     .table). A chart reaching for mono would be the one thing on the stage
+     doing it.
+
      Data: window.DeckData.lma, written by scripts/build_site_data.py.
      Interface and colour tokens: build/CONTRACT.md. */
 
@@ -23,13 +31,33 @@
     return css(name, fallback).replace(/"/g, '');
   }
 
-  // Sign first, so a negative correlation reads as negative at a glance. The
-  // real minus, not a hyphen, because every number here is set in mono.
+  // The paper's minus sign, not the ASCII hyphen toFixed hands back. Every
+  // number this module prints goes through signed() or fixed(), so the axis
+  // and the annotations agree on the glyph.
+  var MINUS = '−';   // U+2212
+
+  // Sign first, so a negative correlation reads as negative at a glance.
   function signed(value, digits) {
     var magnitude = Math.abs(value).toFixed(digits);
     if (value > 0) return '+' + magnitude;
-    if (value < 0) return '−' + magnitude;
+    if (value < 0) return MINUS + magnitude;
     return magnitude;
+  }
+
+  // The axis wants the sign only where there is one, so its ticks read 0.4 and
+  // −0.4 rather than +0.4 and −0.4.
+  function fixed(value, digits) {
+    if (value < 0) return MINUS + Math.abs(value).toFixed(digits);
+    return value.toFixed(digits);
+  }
+
+  // Measured rather than guessed, so the three columns of the key line up in
+  // whatever the reader's machine resolves --font-body to.
+  function textWidth(text, font) {
+    var canvas = textWidth.canvas || (textWidth.canvas = document.createElement('canvas'));
+    var context = canvas.getContext('2d');
+    context.font = font;
+    return context.measureText(text).width;
   }
 
   // assets/js/echarts-theme.js registers the deck theme under the name 'mmac'.
@@ -97,7 +125,6 @@
       var sky = css('--sky', '#C4E0F9');
       var lavender = css('--lavender', '#D8C4F0');
       var body = family('--font-body', 'Outfit, system-ui, sans-serif');
-      var mono = family('--font-mono', 'PlemolJP, ui-monospace, Menlo, monospace');
 
       var rows = data.perEmotion || [];
       var head = data.headline || {};
@@ -110,41 +137,152 @@
         + 'and Laban attributes; grey is the classical-kinematics control. '
         + 'Dashed lines mark the overall levels.';
 
-      // Both aggregates sit inside the same plot as the bars they summarise, in
-      // a filled box so the label stays legible wherever a bar runs under it.
-      function level(value, label, colour) {
+      // The two aggregate levels, sorted the way they stack in the plot so the
+      // key below runs in the same order as the lines it names.
+      var levels = [
+        {
+          value: head.memberRho,
+          colour: accent,
+          name: 'explained member',
+          number: rho + ' = ' + signed(head.memberRho, 3),
+        },
+        {
+          value: head.kinematicsRho,
+          colour: muted,
+          name: 'classical kinematics',
+          number: rho + ' = ' + signed(head.kinematicsRho, 3),
+        },
+      ].sort(function (a, b) { return b.value - a.value; });
+
+      function reference(level) {
         return {
-          yAxis: value,
-          lineStyle: { color: colour, width: 2, type: 'dashed' },
-          label: {
-            show: true,
-            position: 'insideEndTop',
-            distance: 6,
-            formatter: label,
-            color: ink,
-            fontFamily: mono,
-            fontSize: 14,
-            backgroundColor: surface,
-            borderColor: colour,
-            borderWidth: 1,
-            borderRadius: 4,
-            padding: [4, 8],
-          },
+          yAxis: level.value,
+          lineStyle: { color: level.colour, width: 2, type: 'dashed' },
+          label: { show: false },
         };
+      }
+
+      // Where the two levels are named. Their labels used to sit on the lines
+      // themselves, which put an opaque box over the right quarter of the plot
+      // and cut shame, guilt, gratitude and pride in half. There is nowhere
+      // inside this plot for a label this long: the bars all start at zero, so
+      // every band above the axis is crossed by one. The key goes above the
+      // plot instead, under the legend, where it covers nothing and still puts
+      // the two numbers in a column of their own, which is the comparison the
+      // slide turns on. The dashed sample carries the colour, so each row
+      // still points at its own line.
+      var KEY_SWATCH = 26;   // length of the dashed sample
+      var KEY_GAP = 9;       // between sample, name and number
+      var KEY_SPAN = 26;     // between the two levels when they share a row
+      var KEY_ROW = 21;      // one row of the key
+      var KEY_TOP = 27;      // clear of the legend above it
+      var KEY_NAME = '14px ' + body;
+      var KEY_NUMBER = '700 15px ' + body;
+      // What the y axis writes above its own top left corner, in the sizes the
+      // axis below is given: the widest tick, then the axis name beside it.
+      // The key stays right of this, whichever shape it takes.
+      var KEY_GUARD = 8 + textWidth(fixed(-1, 1), '14px ' + body) + 8
+        + textWidth('Spearman ' + rho, '15px ' + body) + 16;
+
+      function keyRow(level, i, left, top, nameColumn) {
+        return [
+          {
+            id: 'key-rule-' + i,
+            type: 'line',
+            silent: true,
+            left: left,
+            top: top + 9,
+            shape: { x1: 0, y1: 0, x2: KEY_SWATCH, y2: 0 },
+            style: { stroke: level.colour, lineWidth: 2, lineDash: [5, 4] },
+          },
+          {
+            id: 'key-name-' + i,
+            type: 'text',
+            silent: true,
+            left: left + KEY_SWATCH + KEY_GAP,
+            top: top,
+            style: { text: level.name, fill: ink, font: KEY_NAME },
+          },
+          {
+            id: 'key-number-' + i,
+            type: 'text',
+            silent: true,
+            // A shade larger and bolder than the name it belongs to: this is
+            // the pair of numbers the slide is about.
+            left: left + KEY_SWATCH + KEY_GAP + nameColumn + KEY_GAP,
+            top: top - 1,
+            style: { text: level.number, fill: ink, font: KEY_NUMBER },
+          },
+        ];
+      }
+
+      // One row if the two levels fit on one clear of the axis name, which
+      // sets the two numbers side by side and reads as a second row of the
+      // legend. Two rows when the container is too narrow for that, stacked in
+      // the order the lines stack and with the names and the numbers each in a
+      // column of their own. At the width this slide gives the chart it takes
+      // the two-row shape.
+      function keyLayout(width) {
+        var measured = levels.map(function (level) {
+          return {
+            level: level,
+            name: textWidth(level.name, KEY_NAME),
+            number: textWidth(level.number, KEY_NUMBER),
+          };
+        });
+        var span = measured.map(function (m) {
+          return KEY_SWATCH + KEY_GAP + m.name + KEY_GAP + m.number;
+        });
+        var inline = span.reduce(function (total, one) { return total + one; }, 0)
+          + KEY_SPAN * (span.length - 1);
+
+        var items = [];
+        var rows = 1;
+        if (inline <= width - 10 - KEY_GUARD) {
+          var x = width - 10 - inline;
+          measured.forEach(function (m, i) {
+            items = items.concat(keyRow(m.level, i, x, KEY_TOP, m.name));
+            x += span[i] + KEY_SPAN;
+          });
+        } else {
+          rows = measured.length;
+          var nameColumn = 0;
+          var numberColumn = 0;
+          measured.forEach(function (m) {
+            nameColumn = Math.max(nameColumn, m.name);
+            numberColumn = Math.max(numberColumn, m.number);
+          });
+          var block = KEY_SWATCH + KEY_GAP + nameColumn + KEY_GAP + numberColumn;
+          var left = Math.max(8, width - 10 - block);
+          measured.forEach(function (m, i) {
+            items = items.concat(
+              keyRow(m.level, i, left, KEY_TOP + i * KEY_ROW, nameColumn));
+          });
+        }
+        return { items: items, top: KEY_TOP + rows * KEY_ROW + 8 };
       }
 
       chart.setOption({
         animation: false,
         textStyle: { color: ink, fontFamily: body },
-        grid: { left: 8, right: 16, top: 58, bottom: 58, containLabel: true },
+        // The top margin carries the legend and, under it, the key naming the
+        // two reference lines. refresh() re-reads the height on every resize,
+        // since the key stacks when the container is too narrow for one row.
+        grid: {
+          left: 8,
+          right: 16,
+          top: keyLayout(chart.getWidth()).top,
+          bottom: 58,
+          containLabel: true,
+        },
         legend: {
           top: 4,
           left: 'center',
-          itemGap: 22,
+          itemGap: 20,
           itemWidth: 14,
-          itemHeight: 14,
+          itemHeight: 11,
           icon: 'roundRect',
-          textStyle: { color: ink, fontSize: 15, fontFamily: body },
+          textStyle: { color: muted, fontSize: 14, fontFamily: body },
         },
         tooltip: {
           trigger: 'axis',
@@ -189,8 +327,8 @@
           axisLabel: {
             color: muted,
             fontSize: 14,
-            fontFamily: mono,
-            formatter: function (v) { return v.toFixed(1); },
+            fontFamily: body,
+            formatter: function (v) { return fixed(v, 1); },
           },
           splitLine: { lineStyle: { color: line } },
         },
@@ -209,23 +347,11 @@
               // the drawn position, not just the label.
               precision: 6,
               emphasis: { disabled: true },
-              data: [
-                {
-                  yAxis: 0,
-                  lineStyle: { color: ink, width: 1.5, type: 'solid' },
-                  label: { show: false },
-                },
-                level(
-                  head.memberRho,
-                  'explained member  ' + rho + ' = ' + signed(head.memberRho, 3),
-                  accent
-                ),
-                level(
-                  head.kinematicsRho,
-                  'classical kinematics  ' + rho + ' = ' + signed(head.kinematicsRho, 3),
-                  muted
-                ),
-              ],
+              data: [{
+                yAxis: 0,
+                lineStyle: { color: ink, width: 1.5, type: 'solid' },
+                label: { show: false },
+              }].concat(levels.map(reference)),
             },
           },
           {
@@ -254,10 +380,12 @@
         // Twelve emotion names read best flat, and run into each other once a
         // group is narrower than the longest of them.
         var slot = (width - 60) / Math.max(1, rows.length);
+        var key = keyLayout(chart.getWidth());
         chart.setOption({
-          grid: { bottom: 12 + captionRows(caption, width) * 17 },
+          grid: { top: key.top, bottom: 12 + captionRows(caption, width) * 17 },
           xAxis: { axisLabel: { rotate: slot < 74 ? 30 : 0 } },
-          graphic: captionGraphic(caption, width, muted, '13px ' + body),
+          graphic: key.items
+            .concat(captionGraphic(caption, width, muted, '13px ' + body)),
         });
       }
       refresh();

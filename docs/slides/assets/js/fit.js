@@ -6,9 +6,14 @@
   // whatever window it is being shown in, with a CSS transform: layout stays at
   // the design size, so nothing reflows between a laptop and a projector and a
   // chart never has to be redrawn for a new width.
+  //
+  // The stage is 1280x720, declared by deck.css as --stage-w and --stage-h.
+  // The constants below are the last resort, for a page that has neither a
+  // laid-out slide to measure nor those tokens, and they carry the same pair of
+  // numbers so all three sources agree.
 
-  var DESIGN_W = 1920;
-  var DESIGN_H = 1080;
+  var DESIGN_W = 1280;
+  var DESIGN_H = 720;
 
   var stage = null;      // the element that gets the transform, if there is one
   var slides = [];
@@ -28,11 +33,11 @@
   function designWidth(el) {
     // The element's own layout width is the truth when there is one; the tokens
     // are the fallback for the moment before the stylesheet has applied.
-    return el && el.offsetWidth > 0 ? el.offsetWidth : tokenSize('--slide-w', DESIGN_W);
+    return el && el.offsetWidth > 0 ? el.offsetWidth : tokenSize('--stage-w', DESIGN_W);
   }
 
   function designHeight(el) {
-    return el && el.offsetHeight > 0 ? el.offsetHeight : tokenSize('--slide-h', DESIGN_H);
+    return el && el.offsetHeight > 0 ? el.offsetHeight : tokenSize('--stage-h', DESIGN_H);
   }
 
   function place(el) {

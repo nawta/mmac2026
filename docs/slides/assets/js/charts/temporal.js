@@ -8,6 +8,14 @@
      about locating a frame, not about time; the slide carries that distinction
      in its footnote and notes. Companion to panel A of Figure 5 in the paper.
 
+     Typography, and the same rule in all six chart modules: the body face
+     throughout. The mono face belongs to the deck's chrome, to the slide
+     number, the timer, the keycaps and code, and the slide content beside
+     these charts sets its numbers in the display and body faces too, with
+     tabular figures rather than a second family (deck.css, .kpi__value and
+     .table). A chart reaching for mono would be the one thing on the stage
+     doing it.
+
      Data: window.DeckData.saliency, written by scripts/build_site_data.py.
      assets/js/charts/spatial.js draws the other half of the same object.
      Interface and colour tokens: build/CONTRACT.md. */
@@ -80,7 +88,6 @@
       var sky = css('--sky', '#C4E0F9');
       var em = css('--em', '#B25A3C');
       var body = family('--font-body', 'Outfit, system-ui, sans-serif');
-      var mono = family('--font-mono', 'PlemolJP, ui-monospace, Menlo, monospace');
 
       var emotions = data.emotions || [];
       var curves = data.temporal || [];
@@ -158,7 +165,7 @@
               distance: 8,
               formatter: 'uniform',
               color: ink,
-              fontFamily: mono,
+              fontFamily: body,
               fontSize: 14,
               backgroundColor: surface,
               borderColor: em,
@@ -202,7 +209,7 @@
           axisLabel: {
             color: muted,
             fontSize: 14,
-            fontFamily: mono,
+            fontFamily: body,
             interval: function (i) { return i % 8 === 0 || i === frames - 1; },
           },
         },
@@ -220,7 +227,7 @@
           axisLabel: {
             color: muted,
             fontSize: 14,
-            fontFamily: mono,
+            fontFamily: body,
             formatter: function (v) { return v.toFixed(3); },
           },
           splitLine: { lineStyle: { color: line } },

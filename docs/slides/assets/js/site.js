@@ -3,7 +3,8 @@
 
   // The chrome around the slides: where you are in the deck, how far through
   // it you have got, the key that blanks the screen, the button that opens the
-  // presenter window, and the clock that says how long you have been talking.
+  // presenter window, the clock that says how long you have been talking, and
+  // the number each slide carries on paper.
   //
   // The markup is built here rather than written into index.html because none
   // of it is content. A page that does supply its own chrome keeps it: if any
@@ -101,6 +102,46 @@
     bar.appendChild(track);
     bar.appendChild(row);
     document.body.appendChild(bar);
+  }
+
+  // ---- Slide numbers -----------------------------------------------------
+
+  // A printed deck is something people cite by page, and #deck-counter cannot
+  // carry that. It sits in the chrome bar, which is one fixed element at the
+  // foot of the window and does not print at all. A number has to live inside
+  // each slide to travel with it onto its own page.
+  //
+  // On screen the number would only repeat what the bar is already showing, so
+  // it is built for print and hidden for the projector. site.css and print.css
+  // both already style `.slide .slide-number`; the element is what was missing.
+  function numberSlides() {
+    var slides = document.querySelectorAll('#deck .slide');
+    for (var i = 0; i < slides.length; i++) {
+      // A slide that was authored with its own number keeps it, the same way
+      // the chrome bar defers to a page that supplies one.
+      if (slides[i].querySelector(':scope > .slide-number')) continue;
+      var el = make('span', null, 'slide-number', (i + 1) + ' / ' + slides.length);
+      // The runtime flags a slide whose content ran past the stage. This is not
+      // content, it is out of flow, and on screen it has no box at all, so it
+      // stays out of that measurement.
+      el.setAttribute('data-overflow-ignore', '');
+      // Position in the deck is something a screen reader gives its own way, so
+      // the number is decoration even on a page that chooses to show it.
+      el.setAttribute('aria-hidden', 'true');
+      slides[i].appendChild(el);
+    }
+  }
+
+  // Appended last rather than inserted first, because this one rule does have
+  // to beat site.css. It is scoped to screen, so print.css still gets the
+  // number, and to `#deck .slide >` so a number written into a page by hand,
+  // or a fixed one outside the deck, is left alone.
+  function hideSlideNumbersOnScreen() {
+    if (document.getElementById('deck-slide-number-screen')) return;
+    var style = document.createElement('style');
+    style.id = 'deck-slide-number-screen';
+    style.textContent = '@media screen{#deck .slide > .slide-number{display:none;}}';
+    (document.head || document.documentElement).appendChild(style);
   }
 
   function collect() {
@@ -284,7 +325,9 @@
     if (event.metaKey || event.ctrlKey || event.altKey) return;
     switch (event.key) {
       case 'b': case 'B': toggleBlank(); break;
-      case 's': openPresenter(); break;
+      // Both cases, like blank above. Caps lock during a talk should not be the
+      // difference between the presenter window opening and nothing happening.
+      case 's': case 'S': openPresenter(); break;
       case 't': toggleTimer(); break;
       // Reset sits on the shifted key. A stray press of the key next to it
       // should not cost the only record of how long the talk has run.
@@ -307,6 +350,8 @@
       if (document.getElementById(IDS[i])) authored = true;
     }
     if (!authored) build();
+    hideSlideNumbersOnScreen();
+    numberSlides();
     collect();
 
     var minutes = Number(deckEl.getAttribute('data-talk-minutes'));

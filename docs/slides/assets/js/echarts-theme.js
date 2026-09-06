@@ -50,10 +50,16 @@
     var accent = token('--accent');
     var font = token('--font-body');
 
+    // One type scale for all six charts, so a reader moving between them is
+    // not asked to read the same kind of label at three sizes. What an axis
+    // measures is 15px, the labels along it are 14, a legend is 14, and the
+    // caption a chart carries under its plot is 13. Colour follows what the
+    // label is: the names of things are ink, because they are the data, and
+    // everything that frames them is muted.
     var axis = {
       axisLine: { show: true, lineStyle: { color: line } },
       axisTick: { show: false },
-      axisLabel: { color: muted, fontFamily: font, fontSize: 15 },
+      axisLabel: { color: muted, fontFamily: font, fontSize: 14 },
       splitLine: { show: false, lineStyle: { color: line, type: 'solid' } },
       nameTextStyle: { color: muted, fontFamily: font, fontSize: 15 }
     };
@@ -90,7 +96,14 @@
       valueAxis: JSON.parse(JSON.stringify(axis)),
       logAxis: JSON.parse(JSON.stringify(axis)),
       timeAxis: JSON.parse(JSON.stringify(axis)),
-      legend: { textStyle: { color: ink, fontFamily: font, fontSize: 15 }, icon: 'roundRect' },
+      // A legend names the series rather than carrying the reading, so it is
+      // set at the size and colour of the axis labels beside it. Chip geometry
+      // stays with each chart: liftpath's legend draws the mark shapes
+      // themselves and needs a wider box than a colour chip does.
+      legend: {
+        textStyle: { color: muted, fontFamily: font, fontSize: 14 },
+        icon: 'roundRect'
+      },
       tooltip: {
         backgroundColor: surface,
         borderColor: line,

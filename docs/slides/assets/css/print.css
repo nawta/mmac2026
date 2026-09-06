@@ -92,9 +92,9 @@
   body.is-blanked::after { display: none !important; }
 
   /* The slide number is the one piece of chrome worth keeping, since a printed
-     deck is something people cite by page. It goes back to plain type in the
-     corner of the stage. Display is left alone so the title, lead, and section
-     slides stay without a number, the way they are on screen. */
+     deck is something people cite by page. site.js gives every slide one and
+     hides it on screen, where the counter in the chrome bar already says where
+     the deck is; here it goes back to plain type in the corner of the stage. */
   .slide-number {
     position: absolute !important;
     right: var(--stage-pad-x) !important;
@@ -105,11 +105,62 @@
     font-size: 18px !important;
   }
 
-  /* Charts and figures are deliberately left alone. The printed page is the
-     same 1280x720 stage the deck is authored on, only scaled, so a chart that
-     was told to be 340px tall on screen is already the right height here.
-     Forcing it to fill its parent would squeeze whatever shares the column
-     with it down to nothing. */
+  /* The title, lead, and section slides too. site.css leaves those three
+     unnumbered, which was right while the number was something the projector
+     showed. On paper the number is what a reader counts by, so a page without
+     one breaks the count for every page after it. */
+  .slide.title .slide-number,
+  .slide.lead .slide-number,
+  .slide.section .slide-number {
+    display: inline-flex !important;
+  }
+
+  /* Charts and most figures are deliberately left alone. The printed page is
+     the same 1280x720 stage the deck is authored on, only scaled, so a chart
+     that was told to be 340px tall on screen is already the right height here.
+     Forcing it to fill its parent would squeeze whatever shares the column with
+     it down to nothing.
+
+     Two figures are the exception, because they carry type of their own that a
+     reader has to be able to read: the cells of the confusion matrix on slide 9
+     and the panel labels of the Laban and counterfactual figure on slide 14. On
+     screen a reader clicks either one and lightbox.js fills the window with it.
+     Paper has no lightbox, so on paper each one has to be as large as its own
+     slide can make it.
+
+     Both are bound by height rather than width, so the room comes out of the
+     vertical gaps around them and out of nothing else: the gap under the
+     heading, the gaps down the body, and the gap between a figure and its
+     caption. No type changes size, no column changes width, and no line break
+     on either slide moves, so the printed page still reads as the slide the
+     audience saw. The matrix goes from 94.7 to 104.2mm across, a little over
+     the 97.4mm its own 300dpi artwork was drawn for, and the Laban figure from
+     130.2 to 138.9mm, where it fills its column exactly and the next millimetre
+     would have to come out of the four numbers printed beside it. */
+  #s-09-error-structure,
+  #s-14-ensemble-edits { row-gap: 10px !important; }
+  #s-09-error-structure .body,
+  #s-14-ensemble-edits .body { gap: 10px !important; }
+  #s-09-error-structure .fig,
+  #s-14-ensemble-edits .fig { gap: 4px !important; }
+  #s-09-error-structure .fig__cap,
+  #s-14-ensemble-edits .fig__cap { line-height: 1.2 !important; }
+
+  /* What the rules above do not fix, written down so the next person does not
+     spend an afternoon finding out the same way. Slide 14's figure is still too
+     small to read and nothing in this file can change that.
+
+     It is not resolution. Both images print above the 300dpi they were drawn
+     at, 280 for the matrix and 372 for the Laban figure, so asking for more
+     pixels would change nothing on the page.
+
+     It is width. fig06 is a two-panel double-column paper figure, and its
+     smallest labels are 18 to 22 pixels tall in the source, which comes to 1.2
+     to 1.5mm on paper, under 4.5pt, at 138.9mm across. Reaching a 7pt reading
+     size needs about 250mm. The page is 297mm wide and the four kpi blocks have
+     to sit somewhere, so no arrangement of slide 14 gets there: the figure needs
+     a slide to itself, or one panel per slide. That is a change to
+     build/partials/xai.html, not to this file. */
 
   /* A link in a printed deck cannot be clicked, so it should read as text. */
   .slide a {

@@ -265,6 +265,16 @@
         // delivery at the end of the frame, which is why the flag is held
         // until then rather than dropped when the loop ends.
         if (auditing) return;
+        // Every chart but the one on screen sits in a slide that is
+        // display:none, and an observer's first delivery reports that as a box
+        // of nothing. Resizing a chart to fit nothing is how the Laban chart
+        // and both saliency charts used to arrive at the printer with no
+        // height: the observer undid the size they were mounted at, and no
+        // second delivery ever came, because nothing about a hidden slide
+        // changes again until someone navigates to it. A chart is only ever
+        // measured against a box that is there; the slide it belongs to
+        // resizes it on arrival, and settleCharts() does it for print.
+        if (!el.clientWidth || !el.clientHeight) return;
         call(record, 'resize');
       }).observe(el);
     }
@@ -315,6 +325,46 @@
         record.entered = false;
         call(record, 'onLeave');
       }
+    }
+  }
+
+  // Three of the deck's charts take their height from the row they sit in
+  // rather than from an inline style, and those three can come back from
+  // echarts.init with no height at all: the mount reads the container while
+  // the slide is still display:none, and the row height it is waiting for is
+  // not there yet.
+  //
+  // On screen the miss repairs itself, because arriving at the slide resizes
+  // the chart before anyone sees it. Printing arrives nowhere. Every slide is
+  // laid out at once and each chart prints at the size it was given, so a deck
+  // exported to PDF without walking it first lost the Laban chart on slide 13
+  // and both saliency charts on slide 15, which left the reported negative as
+  // a heading over an empty page.
+  //
+  // So once the page has settled, every chart is measured again inside the
+  // same borrowed layout the audit uses, through the module's own resize
+  // rather than the ECharts one: a caption is wrapped to a particular width
+  // and the grid is sized around it, and both have to be recomputed with it.
+  // The audit's guard is held for the same reason the audit holds it, since
+  // the borrowed box and the zero it goes back to reach the resize observer
+  // as one delivery at the end of the frame.
+  function settleCharts() {
+    auditing = true;
+    try {
+      for (var i = 0; i < slides.length; i++) {
+        var group = [];
+        for (var j = 0; j < charts.length; j++) {
+          if (slides[i].contains(charts[j].el)) group.push(charts[j]);
+        }
+        if (!group.length) continue;
+        measurable(slides[i], (function (records) {
+          return function () {
+            for (var k = 0; k < records.length; k++) call(records[k], 'resize');
+          };
+        })(group));
+      }
+    } finally {
+      releaseAudit();
     }
   }
 
@@ -484,7 +534,14 @@
 
     mountCharts();
     updateChartLifecycle();
-    afterSettled(audit);
+    // Both wait for the same moment, the one where the web fonts have landed
+    // and nothing is going to move again. The charts are settled first, since
+    // a chart that has just been given its real height changes what the audit
+    // measures.
+    afterSettled(function () {
+      settleCharts();
+      audit();
+    });
   }
 
   if (document.readyState === 'loading') {
