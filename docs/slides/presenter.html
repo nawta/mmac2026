@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Presenter — MMAC ACII 2026</title>
+    <link rel="icon" href="data:,">
+    <style>
+      /* The speaker console for the second screen. It shows nothing the
+         projector already shows, so there is no slide preview here: the room
+         gets the slide, and this window gets what the slide cannot say, which
+         is the notes at a readable size, how long the talk has been running,
+         and what is coming next.
+
+         Every panel is filled by assets/js/notes.js over the deck channel, so
+         this file holds no copy of the talk. The ids below are the ones that
+         file looks for; the pv- ids are this page's own additions.
+
+         Styles are self-contained on purpose. The window has to work when it
+         is the only thing the browser managed to load, and system faces are
+         legible from a lectern the moment the page opens. The colour tokens
+         keep the names the deck uses, so the small default stylesheet that
+         notes.js injects picks up this window's palette through var(). */
+
+      :root {
+        color-scheme: dark;
+
+        --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
+        --font-display: system-ui, -apple-system, "Segoe UI", sans-serif;
+        --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+        /* Dark by default: a lit white window at a lectern is the brightest
+           thing in a dark room and it is pointed at the speaker's face. */
+        --bg: #121419;
+        --surface: #1B1F27;
+        --raised: #242A34;
+        --ink: #ECEAE5;
+        --muted: #97A1AF;
+        --line: #2D323C;
+        --accent: #7FB2EA;
+        --em: #F2A88E;
+        --ok: #8FD9B6;
+        --sky: #C4E0F9;
+        --mint: #C4F0DC;
+        --lemon: #F5F0C4;
+        --peach: #FFD4C4;
+      }
+
+      /* The bright room, for a lectern with a lamp on it. Same token names,
+         the deck's own values. */
+      :root[data-theme="light"] {
+        color-scheme: light;
+        --bg: #FBF9F6;
+        --surface: #FFFFFF;
+        --raised: #F2EFEA;
+        --ink: #333333;
+        --muted: #6B7280;
+        --line: #E3E0DA;
+        --accent: #3D6EA5;
+        --em: #B25A3C;
+        --ok: #2E7D5B;
+      }
+
+      /* notes.js stores the notes size in rem and restores it on every open,
+         so the root size sets how large "one step larger" actually is. 18px
+         puts the first-run notes at about 22px, which reads from a metre
+         away. */
+      html { font-size: 18px; }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        height: 100vh;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font-body);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      #presenter-root {
+        height: 100vh;
+        padding: 12px;
+        display: grid;
+        gap: 12px;
+        grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.9fr);
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        background: var(--bg);
+      }
+
+      .pv-panel {
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        padding: 12px 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+      }
+
+      .pv-label {
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .pv-head {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .pv-spacer { flex: 1; }
+
+      /* ---- status bar ---- */
+
+      .pv-bar {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        align-items: center;
+        gap: 24px;
+        padding: 12px 18px;
+      }
+
+      .pv-where {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .pv-count {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+
+      #presenter-position { font-size: 40px; line-height: 1; }
+      #presenter-total { font-size: 17px; color: var(--muted); }
+
+      #presenter-step {
+        align-self: flex-start;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--raised);
+        color: var(--ink);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+      /* A slide with no fragments has no step to report, so the pill goes. */
+      #presenter-step:empty { display: none; }
+
+      .pv-mid {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .pv-track {
+        height: 6px;
+        border-radius: 3px;
+        background: var(--raised);
+        overflow: hidden;
+      }
+
+      #presenter-progress {
+        height: 100%;
+        width: 0;
+        background: var(--accent);
+        transition: width 0.18s ease;
+      }
+
+      /* The link line is the one place that says whether this window is still
+         hearing from the deck. It is quiet while the link holds and loud when
+         it does not. */
+      .pv-link {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 9px;
+        margin: 0;
+        min-width: 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .pv-dot {
+        flex: 0 0 auto;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--muted);
+      }
+
+      .pv-link[data-state="live"] .pv-dot { background: var(--ok); }
+      .pv-link[data-state="lost"] .pv-dot { background: var(--em); }
+      .pv-link[data-state="lost"] { color: var(--em); font-weight: 600; }
+      .pv-link:not([data-state="lost"]) .pv-onlylost { display: none; }
+
+      #pv-open-deck {
+        flex: 0 0 auto;
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: none;
+        border-bottom: 1px solid currentColor;
+      }
+
+      .pv-clock {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+      }
+
+      #presenter-elapsed {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: 40px;
+        line-height: 1;
+      }
+      /* notes.js adds is-over once the elapsed time passes the deck's target. */
+      #presenter-elapsed.is-over { color: var(--em); }
+
+      .pv-clockmeta {
+        display: flex;
+        gap: 12px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .pv-timer-buttons { display: flex; gap: 8px; }
+      .pv-timer-buttons button { min-width: 84px; }
+
+      /* ---- notes ---- */
+
+      #presenter-title {
+        flex: 0 0 auto;
+        margin: 0 0 10px;
+        font-family: var(--font-display);
+        font-size: 26px;
+        line-height: 1.2;
+        font-weight: 650;
+      }
+
+      #presenter-notes {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        /* notes.js sets the size inline from what the speaker last chose. */
+        font-size: 1.2rem;
+        line-height: 1.6;
+      }
+
+      #presenter-notes > :first-child { margin-top: 0; }
+      #presenter-notes > :last-child { margin-bottom: 0; }
+      #presenter-notes p { margin: 0 0 0.7em; }
+      /* Notes are one paragraph per beat, so the first one is the line that
+         opens the slide. */
+      #presenter-notes > p:first-child { font-weight: 600; }
+      #presenter-notes ul,
+      #presenter-notes ol { margin: 0 0 0.7em; padding-left: 1.2em; }
+      #presenter-notes li { margin: 0 0 0.3em; }
+      #presenter-notes strong,
+      #presenter-notes b { color: var(--em); font-weight: 700; }
+      #presenter-notes em, #presenter-notes i { font-style: italic; }
+      #presenter-notes code {
+        font-family: var(--font-mono);
+        font-size: 0.9em;
+        padding: 0 0.25em;
+        border-radius: 4px;
+        background: var(--raised);
+      }
+
+      /* ---- the right column: what is coming, and where everything is ---- */
+
+      .pv-now { grid-column: 1; grid-row: 2; }
+
+      .pv-side {
+        grid-column: 2;
+        grid-row: 2;
+        min-height: 0;
+        display: grid;
+        gap: 12px;
+        grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+      }
+
+      #presenter-next-title {
+        flex: 0 0 auto;
+        margin: 0 0 8px;
+        font-family: var(--font-display);
+        font-size: 18px;
+        line-height: 1.25;
+        font-weight: 650;
+      }
+
+      #pv-next-notes {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        font-size: 0.94rem;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+
+      #pv-next-notes > :first-child { margin-top: 0; }
+      #pv-next-notes > :last-child { margin-bottom: 0; }
+      #pv-next-notes p { margin: 0 0 0.6em; }
+      #pv-next-notes ul, #pv-next-notes ol { margin: 0 0 0.6em; padding-left: 1.2em; }
+      #pv-next-notes strong, #pv-next-notes b { color: var(--ink); font-weight: 700; }
+
+      #presenter-outline {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      /* notes.js builds these buttons and each one sends the deck to that
+         slide, which is how a question about slide 8 gets answered. */
+      #presenter-outline button {
+        display: flex;
+        align-items: baseline;
+        gap: 9px;
+        width: 100%;
+        padding: 6px 8px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        font-size: 14px;
+        text-align: left;
+        cursor: pointer;
+      }
+      #presenter-outline button:hover { background: var(--raised); }
+      #presenter-outline button.is-current {
+        background: var(--accent);
+        color: var(--bg);
+        font-weight: 600;
+      }
+      #presenter-outline .pp__num {
+        flex: 0 0 1.8em;
+        text-align: right;
+        font-family: var(--font-mono);
+        font-size: 0.85em;
+        color: var(--muted);
+      }
+      #presenter-outline button.is-current .pp__num { color: var(--bg); }
+
+      /* ---- buttons and controls ---- */
+
+      #presenter-root button {
+        padding: 7px 12px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: var(--raised);
+        color: var(--ink);
+        font-family: var(--font-display);
+        font-size: 14px;
+        cursor: pointer;
+      }
+      #presenter-root button:hover:not(:disabled) { border-color: var(--accent); }
+      #presenter-root button[disabled] { opacity: 0.4; cursor: default; }
+
+      .pv-controls {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+      }
+
+      /* One row of same-sized targets: at a lectern the button is found by
+         where it sits, not by reading it. */
+      #presenter-root .pv-controls button {
+        flex: 1 1 0;
+        padding: 13px 16px;
+        font-size: 16px;
+      }
+      /* Next is the filled one because it is the button pressed a hundred
+         times; Prev is its outline pair. */
+      #presenter-root .pv-controls button.is-next {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--bg);
+        font-weight: 650;
+      }
+      #presenter-root .pv-controls button.is-prev {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      /* Blank paints the projector black, so the button says so while it is
+         on. The selector matches the one notes.js injects, and wins by coming
+         later. */
+      #presenter-root #presenter-blank[aria-pressed="true"] {
+        background: var(--lemon);
+        border-color: var(--lemon);
+        color: #14161A;
+        font-weight: 650;
+      }
+
+      .pv-keys {
+        grid-column: 1 / -1;
+        margin: -4px 2px 0;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      /* A narrow or short window drops to one column rather than crushing the
+         notes, which are the reason the window is open. */
+      @media (max-width: 900px), (max-height: 620px) {
+        #presenter-root {
+          grid-template-columns: minmax(0, 1fr);
+          grid-template-rows: auto minmax(0, 1.4fr) minmax(0, 1fr) auto;
+        }
+        .pv-now { grid-column: 1; grid-row: 2; }
+        .pv-side { grid-column: 1; grid-row: 3; grid-template-rows: minmax(0, 1fr); }
+        .pv-outline-panel { display: none; }
+        .pv-bar { flex-wrap: wrap; gap: 14px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="presenter-root">
+      <header class="pv-panel pv-bar">
+        <div class="pv-where">
+          <span class="pv-label">Slide</span>
+          <span class="pv-count">
+            <span id="presenter-position">–</span><span id="presenter-total"></span>
+          </span>
+          <span id="presenter-step"></span>
+        </div>
+
+        <div class="pv-mid">
+          <div class="pv-track"><div id="presenter-progress"></div></div>
+          <p id="pv-link" class="pv-link" data-state="waiting">
+            <span class="pv-dot" aria-hidden="true"></span>
+            <span id="pv-link-text">Looking for the deck window</span>
+            <!-- Opened by name and with the opener kept, so the deck window
+                 can talk straight back to this one even from a file:// copy
+                 on a laptop with no server running. -->
+            <a id="pv-open-deck" class="pv-onlylost" href="index.html" target="mmac-deck">Open the deck</a>
+          </p>
+        </div>
+
+        <div class="pv-clock">
+          <div id="presenter-elapsed">0:00</div>
+          <div class="pv-clockmeta">
+            <span id="pv-target"></span>
+            <span id="presenter-clock">--:--</span>
+          </div>
+          <div class="pv-timer-buttons">
+            <button id="presenter-timer-toggle" type="button">Start</button>
+            <button id="presenter-timer-reset" type="button">Reset</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="pv-panel pv-now">
+        <div class="pv-head">
+          <span class="pv-label">Now</span>
+          <span class="pv-spacer"></span>
+          <button id="presenter-font-smaller" type="button" title="Smaller notes">A-</button>
+          <button id="presenter-font-larger" type="button" title="Larger notes">A+</button>
+          <button id="pv-theme" type="button" title="Switch this window between dark and light">Light</button>
+        </div>
+        <h1 id="presenter-title">–</h1>
+        <div id="presenter-notes">Waiting for the deck window.</div>
+      </section>
+
+      <div class="pv-side">
+        <section class="pv-panel pv-next">
+          <div class="pv-head"><span class="pv-label">Next</span></div>
+          <h2 id="presenter-next-title">–</h2>
+          <div id="pv-next-notes">–</div>
+        </section>
+
+        <section class="pv-panel pv-outline-panel">
+          <div class="pv-head"><span class="pv-label">Slides</span></div>
+          <div id="presenter-outline"></div>
+        </section>
+      </div>
+
+      <footer class="pv-panel pv-controls">
+        <button id="presenter-first" type="button">First</button>
+        <button id="presenter-prev" class="is-prev" type="button">&larr; Prev</button>
+        <button id="presenter-next" class="is-next" type="button">Next &rarr;</button>
+        <button id="presenter-last" type="button">Last</button>
+        <button id="presenter-blank" type="button" aria-pressed="false">Blank</button>
+      </footer>
+
+      <p class="pv-keys">
+        Keys in this window: &rarr; or space next &middot; &larr; back &middot; Home first
+        &middot; End last &middot; b blank &middot; t start or pause the clock
+        &middot; shift+R reset it &middot; + and - resize the notes
+      </p>
+    </div>
+
+    <script src="assets/js/notes.js"></script>
+    <script>
+      (function () {
+        'use strict';
+
+        // notes.js fills every panel that carries the deck's own words. This
+        // block adds the three things the deck has no message for: whether the
+        // link is alive, what the next slide's notes say, and which of the two
+        // palettes this window is using.
+
+        var CHANNEL = 'mmac-deck';
+        var STORAGE_KEY = 'mmac-deck-sync';
+        var THEME_KEY = 'mmac-presenter-theme';
+
+        // The deck answers a hello with its outline and its current state, so
+        // a hello every few seconds doubles as a heartbeat. Two missed replies
+        // and the link is reported as gone.
+        var PING_MS = 5000;
+        var LOST_MS = 13000;
+        var GRACE_MS = 5000;
+
+        var selfId = 'pv' + Math.random().toString(36).slice(2, 10);
+        var seq = 0;
+
+        var startedAt = Date.now();
+        var lastSeen = 0;
+        var linkState = '';
+        var current = null;
+        var lastIndex = -1;
+        var noteCache = {};
+        var deckCopy = null;
+        var copyAttempts = 0;
+        var keptScroll = 0;
+
+        function $(id) { return document.getElementById(id); }
+
+        var notesEl = $('presenter-notes');
+        var nextNotesEl = $('pv-next-notes');
+        var linkEl = $('pv-link');
+        var linkTextEl = $('pv-link-text');
+        var targetEl = $('pv-target');
+        var themeBtn = $('pv-theme');
+
+        // ---- talking to the deck ------------------------------------------
+
+        // The same three transports notes.js uses, for the same reason: a
+        // BroadcastChannel covers a deck served over http, and two file://
+        // windows need localStorage and a direct postMessage instead.
+
+        var bc = (function () {
+          try { return new BroadcastChannel(CHANNEL); } catch (error) { return null; }
+        })();
+
+        function opener() {
+          try { return window.opener && !window.opener.closed ? window.opener : null; }
+          catch (error) { return null; }
+        }
+
+        function targetOrigin() {
+          return location.protocol === 'file:' ? '*' : location.origin;
+        }
+
+        function send(msg) {
+          var envelope = { channel: CHANNEL, from: selfId, seq: ++seq, msg: msg };
+          if (bc) {
+            try { bc.postMessage(envelope); } catch (error) { /* channel closed */ }
+          }
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(envelope));
+          } catch (error) { /* private mode; the other transports still carry it */ }
+          var deck = opener();
+          if (deck) {
+            try { deck.postMessage(envelope, targetOrigin()); } catch (error) { /* gone */ }
+          }
+        }
+
+        function accept(envelope, trusted) {
+          if (!envelope || envelope.channel !== CHANNEL || envelope.from === selfId) return;
+          // Notes from an untrusted origin are read as text by notes.js and
+          // are never cached here, because this file writes what it caches
+          // back into the page as markup.
+          if (!trusted || !envelope.msg) return;
+          var msg = envelope.msg;
+          if (msg.type === 'state') onState(msg);
+          else if (msg.type === 'outline') lastSeen = Date.now();
+        }
+
+        if (bc) {
+          bc.addEventListener('message', function (event) { accept(event.data, true); });
+        }
+
+        window.addEventListener('storage', function (event) {
+          if (event.key !== STORAGE_KEY || !event.newValue) return;
+          // A storage event only ever comes from a same-origin document.
+          try { accept(JSON.parse(event.newValue), true); } catch (error) { /* not ours */ }
+        });
+
+        window.addEventListener('message', function (event) {
+          if (!event.data || event.data.channel !== CHANNEL) return;
+          var trusted = event.origin === location.origin ||
+            (event.origin === 'null' && location.protocol === 'file:');
+          accept(event.data, trusted);
+        });
+
+        // ---- the next slide's notes ---------------------------------------
+
+        // The state message carries the current slide only, so the notes for
+        // the slide after it come from the deck document itself. The open deck
+        // window is the best source because it is always current, including
+        // after a reload. A same-origin copy of the deck file is the fallback,
+        // and what has already come over the channel is the last resort, which
+        // is what a talk given from a folder of files ends up using.
+
+        function liveDeck() {
+          var deck = opener();
+          if (!deck) return null;
+          try {
+            var doc = deck.document;
+            return doc && doc.getElementById('deck') ? doc : null;
+          } catch (error) { return null; }
+        }
+
+        function deckUrl() {
+          var deck = opener();
+          if (deck) {
+            try { if (deck.location.href) return deck.location.href; } catch (error) { /* cross-origin */ }
+          }
+          return new URL('index.html', location.href).href;
+        }
+
+        function loadDeckCopy() {
+          if (deckCopy || copyAttempts >= 3 || liveDeck()) return;
+          copyAttempts += 1;
+          try {
+            fetch(deckUrl(), { credentials: 'same-origin' })
+              .then(function (response) { return response.ok ? response.text() : null; })
+              .then(function (html) {
+                if (!html) return;
+                deckCopy = new DOMParser().parseFromString(html, 'text/html');
+                paintNext();
+              })
+              .catch(function () { /* file:// or offline; the cache still fills */ });
+          } catch (error) { /* no fetch here */ }
+        }
+
+        // null means "this window cannot see that slide", an empty string
+        // means "that slide has no notes". The two say different things to
+        // the speaker, so they are kept apart.
+        function notesIn(doc, index) {
+          if (!doc) return null;
+          var slides = doc.querySelectorAll('#deck .slide');
+          if (!slides || !slides[index]) return null;
+          var aside = slides[index].querySelector('aside.notes');
+          return aside ? aside.innerHTML.trim() : '';
+        }
+
+        function notesFor(index) {
+          var fromDoc = notesIn(liveDeck() || deckCopy, index);
+          if (fromDoc !== null) return fromDoc;
+          if (typeof noteCache[index] === 'string') return noteCache[index];
+          return null;
+        }
+
+        function paintNext() {
+          if (!nextNotesEl) return;
+          if (!current) {
+            nextNotesEl.textContent = '–';
+            return;
+          }
+          var index = current.index + 1;
+          if (index >= current.total) {
+            nextNotesEl.textContent = 'This is the last slide.';
+            return;
+          }
+          var html = notesFor(index);
+          if (html === null) {
+            nextNotesEl.textContent = 'The next slide’s notes are not readable from this ' +
+              'window. They appear here once the deck has been to that slide.';
+          } else if (html === '') {
+            nextNotesEl.textContent = 'The next slide carries no notes.';
+          } else {
+            nextNotesEl.innerHTML = html;
+          }
+          nextNotesEl.scrollTop = 0;
+        }
+
+        // ---- state ---------------------------------------------------------
+
+        function onState(msg) {
+          lastSeen = Date.now();
+          current = msg;
+          if (typeof msg.notes === 'string') noteCache[msg.index] = msg.notes;
+          if (targetEl) {
+            var minutes = msg.timer && msg.timer.targetMinutes;
+            targetEl.textContent = minutes > 0 ? 'target ' + minutes + ' min' : '';
+          }
+          // notes.js sends the notes back to the top on every render, which is
+          // right when the slide changed and wrong when the same slide was
+          // simply resent, by a heartbeat or by the clock starting. Restoring
+          // afterwards keeps a half-read note where the speaker left it.
+          var resent = msg.index === lastIndex;
+          lastIndex = msg.index;
+          if (resent) window.setTimeout(restoreScroll, 0);
+          else keptScroll = 0;
+          paintNext();
+          paintLink();
+        }
+
+        function restoreScroll() {
+          if (!notesEl || keptScroll <= 0) return;
+          if (notesEl.scrollTop === 0) notesEl.scrollTop = keptScroll;
+        }
+
+        if (notesEl) {
+          notesEl.addEventListener('scroll', function () { keptScroll = notesEl.scrollTop; });
+        }
+
+        // ---- is the deck still there ---------------------------------------
+
+        function paintLink() {
+          var quiet = Date.now() - (lastSeen || startedAt);
+          var state;
+          if (lastSeen && quiet <= LOST_MS) state = 'live';
+          else if (!lastSeen && quiet < GRACE_MS) state = 'waiting';
+          else state = 'lost';
+          if (state === linkState) return;
+          var wasLost = linkState === 'lost';
+          linkState = state;
+          if (linkEl) linkEl.setAttribute('data-state', state);
+          if (linkTextEl) {
+            if (state === 'live') linkTextEl.textContent = 'Deck connected';
+            else if (state === 'waiting') linkTextEl.textContent = 'Looking for the deck window';
+            else if (lastSeen) {
+              linkTextEl.textContent = 'No answer from the deck window. It reconnects on its own.';
+            } else {
+              linkTextEl.textContent = 'No deck window is answering.';
+            }
+          }
+          if (state === 'lost' && !lastSeen) explainNoDeck();
+          // A deck that has just come back may be a reloaded one, so a copy
+          // fetched before the reload is worth replacing.
+          if (state === 'live' && wasLost) {
+            deckCopy = null;
+            copyAttempts = 0;
+            loadDeckCopy();
+          }
+        }
+
+        // An empty panel would leave the speaker guessing, so the panel says
+        // what is wrong and what to do about it.
+        function explainNoDeck() {
+          if (!notesEl || lastSeen) return;
+          notesEl.textContent = 'This window has not heard from a deck window. ' +
+            'Open the deck in another window, put it on the projector, and the ' +
+            'notes appear here. Nothing is lost while the two are apart: this ' +
+            'window keeps asking, and it fills in as soon as the deck answers.';
+          if (nextNotesEl) nextNotesEl.textContent = 'Nothing yet.';
+        }
+
+        // ---- the notes size control also sizes the next panel ---------------
+
+        function mirrorFontSize() {
+          if (!notesEl || !nextNotesEl) return;
+          var size = parseFloat(notesEl.style.fontSize);
+          if (size > 0) nextNotesEl.style.fontSize = (Math.round(size * 78) / 100) + 'rem';
+        }
+
+        if (notesEl && window.MutationObserver) {
+          new MutationObserver(mirrorFontSize).observe(notesEl, {
+            attributes: true, attributeFilter: ['style']
+          });
+        }
+
+        // ---- palette --------------------------------------------------------
+
+        function applyTheme(name) {
+          document.documentElement.setAttribute('data-theme', name);
+          if (themeBtn) themeBtn.textContent = name === 'dark' ? 'Light' : 'Dark';
+          try { localStorage.setItem(THEME_KEY, name); } catch (error) { /* private mode */ }
+        }
+
+        (function () {
+          var saved = null;
+          try { saved = localStorage.getItem(THEME_KEY); } catch (error) { /* private mode */ }
+          applyTheme(saved === 'light' ? 'light' : 'dark');
+        })();
+
+        if (themeBtn) {
+          themeBtn.addEventListener('click', function () {
+            applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+            themeBtn.blur();
+          });
+        }
+
+        // ---- run ------------------------------------------------------------
+
+        function ping() { send({ type: 'hello' }); }
+
+        loadDeckCopy();
+        mirrorFontSize();
+        paintNext();
+        paintLink();
+        ping();
+
+        window.setInterval(function () {
+          if (document.visibilityState !== 'hidden') ping();
+        }, PING_MS);
+        window.setInterval(paintLink, 1000);
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'visible') ping();
+        });
+      })();
+    </script>
+  </body>
+</html>

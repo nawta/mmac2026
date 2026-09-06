@@ -1,0 +1,58 @@
+/* ===========================================================================
+   Slides 01-05. deck.css already carries every component these slides use, so
+   what is left is a handful of fits, each scoped to one slide id.
+   ========================================================================== */
+
+/* The talk's title is a long sentence. deck.css holds an h1 to 24ch, which
+   breaks this one across four lines and splits "Body-Motion" over two of them;
+   28ch balances it in three and keeps the compound whole. */
+#s-01-title h1 { max-width: 28ch; }
+
+/* deck.css tints a KPI only when the whole row carries the tone, which is the
+   right default for a row that means one thing. These three rows each have one
+   number the slide is actually about, so the tone goes on the single .kpi and
+   the rest of the row stays white. */
+#s-02-task .kpi[data-tone],
+#s-04-negatives .kpi[data-tone],
+#s-05-principle .kpi[data-tone] {
+  background: var(--tone-soft);
+  border-color: var(--tone);
+}
+#s-02-task .kpi[data-tone] .kpi__value,
+#s-04-negatives .kpi[data-tone] .kpi__value,
+#s-05-principle .kpi[data-tone] .kpi__value {
+  color: var(--tone-ink);
+}
+
+/* The task slide is four numbers and two takeaways, which leaves about a
+   hundred pixels of stage under them. The two blocks take that space rather
+   than leaving it as a gap along the bottom edge. */
+#s-02-task .kpi-row,
+#s-02-task .cards { flex: 1 1 auto; }
+#s-02-task .card { justify-content: center; }
+
+/* Same on the slide that follows, where a footnote holds the bottom edge and
+   the two reason cards would otherwise leave a band of empty stage above it. */
+#s-03-hard-setting .cards { flex: 1 1 auto; }
+#s-03-hard-setting .card { justify-content: center; }
+
+/* One KPI in a row of its own would otherwise stretch the full 1152px of the
+   stage and read as a banner rather than a number. */
+#s-04-negatives .kpi-row {
+  grid-auto-columns: minmax(0, 560px);
+  justify-content: center;
+}
+
+/* The left column of the figure split: three blocks stacked on the body's own
+   rhythm. The figure beside them takes the height the row gives it, which is
+   what keeps the pipeline diagram legible from the back of the room. */
+#s-05-principle .cols > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+/* Two KPIs share half the stage here instead of the whole of it, so the value
+   drops a step to keep "12.98 M" on one line inside its card. */
+#s-05-principle .kpi__value { font-size: 44px; }

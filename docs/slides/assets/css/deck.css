@@ -1,0 +1,833 @@
+/* ============================================================================
+   deck.css — tokens, base type, the slide frame, and every shared component.
+
+   The deck is authored against a fixed 1280x720 stage. Sizes here are the real
+   pixels a projector shows, so 26px body text is 26px on the stage and the
+   runtime scales the whole stage to whatever screen it lands on. Per-slide
+   layout lives in slide.css and uses the same pixel canvas.
+
+   Two colour families carry the two halves of the talk: peach for the ensemble
+   result, sky for the explainability result. Mint marks a verdict that passes
+   and lemon marks the one negative the talk reports on purpose.
+
+   No dark-mode block. The deck is projected onto a white screen and exported
+   to PDF, and both want the same warm off-white ground, so a second palette
+   would only add a way for the two halves to drift apart. :root declares
+   color-scheme: light so a browser in dark mode leaves the page alone.
+
+   What the runtime has to set for these styles to work:
+
+     body[data-mode="slide"]     presenting; one slide shows at a time and the
+                                 page ground goes dark behind the stage
+     .slide.is-active            the slide being shown, which the runtime also
+                                 gives an inline transform that scales the
+                                 1280x720 stage into the window
+     [data-fragment].is-visible  a fragment that has been revealed
+     body.is-blanked             the b key, covering the stage in black
+     body.is-capturing           taking a PNG of the slide, so chrome hides
+     .slide.has-overflow         content ran past the stage, flagged in red
+
+   With none of that, every slide still renders as a 1280x720 card down a
+   scrolling page, so the deck reads and prints without its JavaScript.
+
+   Load order: fonts.css, deck.css, slide.css, site.css, then print.css with
+   media="print". slide.css comes after this file so per-slide layout can
+   override a component default.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- tokens --*/
+
+:root {
+  color-scheme: light;
+
+  /* Palette. These five pastels are the site's categories, in the order the
+     charts use them. */
+  --peach: #FFD4C4;
+  --sky: #C4E0F9;
+  --mint: #C4F0DC;
+  --lavender: #D8C4F0;
+  --lemon: #F5F0C4;
+
+  --ink: #333333;
+  --muted: #6B7280;
+  --line: #E3E0DA;
+  --bg: #FBF9F6;
+  --surface: #FFFFFF;
+  --accent: #3D6EA5;
+  --em: #B25A3C;
+
+  /* Each pastel gets a paler fill for backgrounds and a darker ink for text
+     set on that fill. The pastels themselves are too light to read as text and
+     too strong to sit behind a paragraph, so components use this pair instead
+     of the raw hue. Borders and rules keep the raw hue. */
+  --peach-soft: #FFEAE2;
+  --sky-soft: #E2F0FC;
+  --mint-soft: #E2F8EE;
+  --lavender-soft: #ECE2F8;
+  --lemon-soft: #FAF8E2;
+
+  --peach-ink: var(--em);
+  --sky-ink: var(--accent);
+  --mint-ink: #2E7D5B;
+  --lavender-ink: #6B4E9B;
+  --lemon-ink: #8A6D2F;
+
+  /* The ground behind the stage. Dark in slide mode so the letterbox reads as
+     a frame, light on the scrolling page so the slides read as cards. */
+  --surround: #EFEAE2;
+  --surround-slide: #1A1917;
+
+  /* Fonts. Outfit and PlemolJP are bundled under assets/vendor/fonts and
+     declared in assets/fonts.css. Japanese comes from the reader's own system,
+     which is why no Japanese webfont is loaded. */
+  --font-display: "Outfit", system-ui, sans-serif;
+  --font-body: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "PlemolJP", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-ja: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic",
+             "Noto Sans JP", sans-serif;
+
+  /* The stage. */
+  --stage-w: 1280px;
+  --stage-h: 720px;
+  --stage-pad-x: 64px;
+  --stage-pad-top: 44px;
+  --stage-pad-bottom: 52px;
+
+  /* Type scale, in stage pixels. Only the title and lead slides carry an h1,
+     and a conference title is a long sentence, so the h1 size is set where
+     four balanced lines still fit above the byline. */
+  --fs-h1: 46px;
+  --fs-h2: 40px;
+  --fs-h3: 27px;
+  --fs-lead: 30px;
+  --fs-body: 26px;
+  --fs-small: 21px;
+  --fs-fine: 18px;
+  --fs-kpi: 54px;
+
+  /* Space scale. Slide layouts should reach for these rather than new values,
+     which is what keeps two slides written a week apart looking related. */
+  --space-xs: 6px;
+  --space-sm: 12px;
+  --space-md: 18px;
+  --space-lg: 28px;
+  --space-xl: 44px;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-pill: 999px;
+  --hairline: 1px solid var(--line);
+
+  /* Default tone. Anything that reads data-tone falls back to sky, so a
+     component without the attribute still looks finished. */
+  --tone: var(--sky);
+  --tone-soft: var(--sky-soft);
+  --tone-ink: var(--sky-ink);
+}
+
+/* The tone map from the contract: ok is mint, warn is lemon, note is sky, em
+   is peach. Setting the three custom properties on the element lets every
+   child read them, so a tone on .kpi-row tints the .kpi blocks inside it. */
+[data-tone="ok"] {
+  --tone: var(--mint);
+  --tone-soft: var(--mint-soft);
+  --tone-ink: var(--mint-ink);
+}
+[data-tone="warn"] {
+  --tone: var(--lemon);
+  --tone-soft: var(--lemon-soft);
+  --tone-ink: var(--lemon-ink);
+}
+[data-tone="note"] {
+  --tone: var(--sky);
+  --tone-soft: var(--sky-soft);
+  --tone-ink: var(--sky-ink);
+}
+[data-tone="em"] {
+  --tone: var(--peach);
+  --tone-soft: var(--peach-soft);
+  --tone-ink: var(--peach-ink);
+}
+
+/* ------------------------------------------------------------------ base --*/
+
+* { box-sizing: border-box; }
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background: var(--surround);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+svg { max-width: 100%; }
+
+/* ------------------------------------------------------------ slide frame --*/
+
+/* Without the runtime the slides simply stack down the page, each one still a
+   true 1280x720 stage, so the deck is readable as a document and prints
+   correctly even if the JavaScript never boots. */
+.slide {
+  position: relative;
+  width: var(--stage-w);
+  height: var(--stage-h);
+  margin: var(--space-lg) auto;
+  padding: var(--stage-pad-top) var(--stage-pad-x) var(--stage-pad-bottom);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  row-gap: var(--space-md);
+  overflow: hidden;
+  background: var(--bg);
+  border: var(--hairline);
+  border-radius: var(--radius);
+}
+
+/* Slide mode. One slide at a time, pinned to the top-left corner, with the
+   runtime writing the transform that scales and centres it. */
+body[data-mode="slide"] {
+  background: var(--surround-slide);
+  overflow: hidden;
+}
+body[data-mode="slide"] .slide { display: none; }
+body[data-mode="slide"] .slide.is-active {
+  display: grid;
+  position: fixed;
+  top: 0;
+  left: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  transform-origin: top left;
+}
+
+/* Speaker notes belong to the presenter window and never render here. */
+.slide aside.notes { display: none; }
+
+/* Headings. One h2 per slide, except the title and lead slides, which carry an
+   h1 instead. The short rule under a heading is tinted by the slide's tone, so
+   the ensemble half and the explainability half read as different chapters. */
+.slide h1,
+.slide h2 {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+}
+.slide h1 {
+  font-size: var(--fs-h1);
+  line-height: 1.15;
+}
+.slide h2 {
+  font-size: var(--fs-h2);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.slide h2::after,
+.slide.lead h1::after,
+.slide.title h1::after {
+  content: "";
+  display: block;
+  width: 1.5em;
+  height: 4px;
+  margin-top: 0.3em;
+  border-radius: var(--radius-pill);
+  background: var(--tone);
+}
+
+/* A slide that declares a tone also carries it as a hairline across the top of
+   the stage, which is the cheapest possible chapter marker. */
+.slide[data-tone]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--tone);
+}
+
+/* The body column. Everything is spaced by the gap, so block elements carry no
+   margins of their own and a layout in slide.css can predict its own height.
+   :where() keeps the reset at zero specificity, easy to override. */
+.slide .body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-height: 0;
+  overflow: hidden;
+  font-size: var(--fs-body);
+  line-height: 1.55;
+}
+.slide :where(p, ul, ol, h3, figure, table, dl) { margin: 0; }
+.slide h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink);
+}
+.slide :where(ul, ol) { padding-left: 1.2em; }
+.slide li { margin: 0; }
+.slide li + li { margin-top: 10px; }
+.slide li::marker { color: var(--accent); }
+
+/* Two levels of emphasis. <strong> is the everyday one and takes the warm
+   emphasis colour, which is how the source deck already marks its numbers.
+   <em> is the quieter one and stays in the heading blue.
+
+   Both are defaults for running text, so :where() holds them at the specificity
+   of the .slide class alone. A component that gives its own <strong> a colour,
+   the way .callout and .verdict below do, then wins on specificity rather than
+   on which rule happens to come last. */
+.slide :where(strong) {
+  font-weight: 600;
+  color: var(--em);
+}
+.slide :where(em) {
+  font-style: italic;
+  font-weight: inherit;
+  color: var(--accent);
+}
+.slide mark {
+  padding: 0.05em 0.25em;
+  border-radius: var(--radius-sm);
+  background: var(--peach-soft);
+  color: inherit;
+}
+.slide a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+}
+.slide code,
+.slide kbd,
+.slide samp {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+}
+.slide abbr[title] { text-decoration: none; }
+
+/* --------------------------------------------------------- slide modifiers */
+
+/* The four centred slide types share one rule for their vertical rhythm: the
+   rows size to their content and the whole group is centred on the stage. A
+   1fr heading row would collapse to nothing the moment the rest of the slide
+   grew past the free space, and the heading would then bleed over the text
+   below it. */
+.slide.title,
+.slide.lead,
+.slide.section,
+.slide.closing {
+  grid-template-rows: auto;
+  align-content: center;
+  text-align: center;
+}
+.slide.title > h1,
+.slide.lead > h1,
+.slide.section > h2,
+.slide.closing > h2 { justify-self: center; }
+
+/* Title. The byline stays quiet and a peach-to-sky bar runs across the top,
+   standing for the talk's two halves. */
+.slide.title::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--peach) 0%, var(--lemon) 34%,
+                              var(--mint) 67%, var(--sky) 100%);
+}
+.slide.title h1 {
+  max-width: 24ch;
+  text-wrap: balance;
+}
+.slide.title h1::after {
+  margin-left: auto;
+  margin-right: auto;
+}
+/* A title slide carries more separate pieces than any other, so it spaces them
+   a step tighter than the body default and they all fit above the fold. */
+.slide.title .body { gap: var(--space-sm); }
+/* Conventional children of a title slide. They are optional, and styling them
+   here means the slide looks finished whichever of them the markup uses. */
+.slide.title .eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--em);
+}
+.slide.title .subtitle {
+  margin: var(--space-sm) auto 0;
+  font-size: var(--fs-lead);
+  line-height: 1.35;
+  color: var(--muted);
+  max-width: 40ch;
+}
+.slide.title .byline {
+  margin-top: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--fs-small);
+  line-height: 1.4;
+  color: var(--muted);
+}
+.slide.title .byline-name { color: var(--ink); }
+
+/* Lead. One statement, centred, nothing else on the slide. */
+.slide.lead h1 {
+  line-height: 1.22;
+  max-width: 26ch;
+  text-wrap: balance;
+}
+.slide.lead h1::after {
+  margin-left: auto;
+  margin-right: auto;
+}
+.slide.lead .body {
+  align-items: center;
+  text-align: center;
+}
+
+/* Section. The divider between the two halves, on a tinted ground so the
+   audience sees the chapter change before they read it. Peach by default,
+   which is the ensemble half; give the explainability divider data-tone="note"
+   and it turns sky. */
+.slide.section:not([data-tone]) {
+  --tone: var(--peach);
+  --tone-soft: var(--peach-soft);
+  --tone-ink: var(--peach-ink);
+}
+.slide.section { background: var(--tone-soft); }
+.slide.section h2 {
+  /* Larger than an h1, because a divider has one job and the room should read
+     it from the back without trying. */
+  font-size: 52px;
+  max-width: 20ch;
+  color: var(--tone-ink);
+  text-wrap: balance;
+}
+.slide.section h2::after {
+  margin-left: auto;
+  margin-right: auto;
+  background: var(--tone-ink);
+}
+.slide.section .body {
+  align-items: center;
+  text-align: center;
+  font-size: var(--fs-lead);
+  color: var(--muted);
+}
+
+/* Closing. Reads like the title slide, so the talk ends where it started. */
+.slide.closing::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--peach) 0%, var(--lemon) 34%,
+                              var(--mint) 67%, var(--sky) 100%);
+}
+.slide.closing h2 {
+  font-size: var(--fs-h1);
+  max-width: 24ch;
+  text-wrap: balance;
+}
+.slide.closing h2::after {
+  margin-left: auto;
+  margin-right: auto;
+}
+.slide.closing .body { text-align: center; }
+
+/* ------------------------------------------------------------ components --*/
+
+/* One sentence under the heading, a step larger than the body. It states the
+   claim the rest of the slide backs up. */
+.lead-in {
+  font-size: var(--fs-lead);
+  line-height: 1.35;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+/* A horizontal split. .cols--figure gives the right column the extra room a
+   figure wants and keeps the text on the left. */
+.cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-lg);
+  align-items: start;
+  /* Takes the height the slide has left, which is what lets a figure column
+     fill the stage instead of sitting at its natural size with dead space
+     under it. */
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.cols > * { min-width: 0; }
+.cols--figure { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
+.cols--figure > .fig { align-self: stretch; }
+/* A chart takes the height of its row in any .cols, the plain one included.
+   Its height comes either from an inline style or from the row, and the flex
+   sizing on .chart does neither in a grid, so a chart given no height of its
+   own in a plain .cols collapses to nothing. */
+.cols > .chart { align-self: stretch; }
+
+/* A white surface on the off-white ground. Hairline border, no shadow. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 0;
+  padding: var(--space-md) 22px;
+  background: var(--surface);
+  border: var(--hairline);
+  border-radius: var(--radius);
+}
+.card h3 { color: var(--accent); }
+.card > :where(p, ul, ol) { font-size: 0.92em; }
+.card[data-tone] {
+  background: var(--tone-soft);
+  border-color: var(--tone);
+}
+.card[data-tone] h3 { color: var(--tone-ink); }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+  align-items: stretch;
+}
+.cards[data-cols="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cards[data-cols="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cards[data-cols="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.cards[data-cols="4"] .card { padding: var(--space-sm) var(--space-md); }
+
+/* One number, large enough to read from the back of the room. The value keeps
+   tabular figures so a row of them lines up. */
+.kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  padding: var(--space-md) var(--space-sm);
+  text-align: center;
+  background: var(--surface);
+  border: var(--hairline);
+  border-radius: var(--radius);
+}
+.kpi__value {
+  font-family: var(--font-display);
+  font-size: var(--fs-kpi);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.kpi__label {
+  font-size: var(--fs-small);
+  line-height: 1.25;
+  color: var(--ink);
+}
+.kpi__note {
+  font-size: var(--fs-fine);
+  line-height: 1.3;
+  color: var(--muted);
+}
+
+/* A row of them. A tone on the row tints every .kpi inside it, because the
+   three tone variables inherit. */
+.kpi-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  align-items: stretch;
+}
+.kpi-row[data-tone] .kpi {
+  background: var(--tone-soft);
+  border-color: var(--tone);
+}
+.kpi-row[data-tone] .kpi__value { color: var(--tone-ink); }
+
+/* A tone on the block instead of the row, for a row whose numbers are three
+   different things rather than three of the same thing. The row rule above
+   stays for the case where they are, and the two agree wherever both apply. */
+.kpi[data-tone] {
+  background: var(--tone-soft);
+  border-color: var(--tone);
+}
+.kpi[data-tone] .kpi__value { color: var(--tone-ink); }
+
+/* A number inside a sentence. */
+.stat {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--em);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* A tinted box for a caveat, a scope note, or a result worth boxing. The fill
+   is the pale version of the tone and the bar down the left is its ink. */
+.callout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: 14px 20px;
+  border-radius: var(--radius);
+  /* The bar takes the darker ink rather than the pastel, which disappears
+     against the pale fill it sits on. */
+  border-left: 5px solid var(--tone-ink);
+  background: var(--tone-soft);
+  font-size: 0.95em;
+  line-height: 1.45;
+  /* Ranged left even on the centred slide types, because the bar down the left
+     edge is where the box starts and centred lines pull away from it. */
+  text-align: left;
+}
+.callout strong { color: var(--tone-ink); }
+
+/* An inline label. */
+.pill {
+  display: inline-block;
+  padding: 0.1em 0.7em;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--tone);
+  background: var(--tone-soft);
+  color: var(--tone-ink);
+  font-size: 0.82em;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+/* A figure. The image grows into whatever height the slide has left and never
+   crops, so a wide paper figure and a square heatmap both behave. */
+.fig {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+}
+.fig img {
+  display: block;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: var(--radius-sm);
+}
+.fig__cap {
+  flex: 0 0 auto;
+  font-size: var(--fs-fine);
+  line-height: 1.35;
+  color: var(--muted);
+  text-align: center;
+  text-wrap: pretty;
+}
+.fig--wide {
+  width: 100%;
+  grid-column: 1 / -1;
+}
+
+/* A chart mount. ECharts measures this element, so it carries no padding. The
+   height comes from the inline style the markup sets. */
+.chart {
+  width: 100%;
+  flex: 0 0 auto;
+  min-width: 0;
+  min-height: 0;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* A paper table. Rules run across the table only, in the booktabs manner: one
+   above the header, one under it, one at the foot. The first column is the
+   label and stays left; every other column is a number and goes right. The
+   selectors cover both a <table class="table"> and a wrapper around one. */
+.table,
+.table > table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 22px;
+  line-height: 1.35;
+}
+.table th,
+.table td {
+  padding: 9px 14px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  border: none;
+}
+.table th:first-child,
+.table td:first-child {
+  text-align: left;
+  font-variant-numeric: normal;
+}
+.table thead th {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--accent);
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+.table tbody tr + tr td { border-top: var(--hairline); }
+.table tbody tr:last-child td { border-bottom: 2px solid var(--ink); }
+.table tbody tr[data-tone] td { background: var(--tone-soft); }
+.table caption {
+  caption-side: bottom;
+  padding-top: 10px;
+  font-size: var(--fs-fine);
+  color: var(--muted);
+  text-align: left;
+}
+.table--compact,
+.table--compact > table { font-size: 19px; }
+.table--compact th,
+.table--compact td { padding: 6px 10px; }
+
+/* The six-verdict scorecard. A verdict that passes is mint with a check; the
+   one the talk reports as negative is lemon with a cross, and it is meant to
+   look deliberate rather than broken. */
+.verdicts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-md);
+  align-items: stretch;
+}
+.verdict {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px 18px 14px 56px;
+  border-radius: var(--radius);
+  border: 1px solid var(--tone);
+  background: var(--tone-soft);
+  font-size: var(--fs-fine);
+  line-height: 1.35;
+  color: var(--muted);
+}
+.verdict::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--tone);
+  color: var(--tone-ink);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+}
+/* The verdict's name, in the tone of the verdict rather than the warm red the
+   rest of the deck gives a <strong>. Named plainly rather than through
+   :where(), so the rule outranks the running-text default above. */
+.verdict b,
+.verdict strong {
+  font-family: var(--font-display);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--tone-ink);
+}
+.verdict[data-result="pass"] {
+  --tone: var(--mint);
+  --tone-soft: var(--mint-soft);
+  --tone-ink: var(--mint-ink);
+}
+.verdict[data-result="pass"]::before { content: "\2713"; }
+.verdict[data-result="reported-negative"] {
+  --tone: var(--lemon);
+  --tone-soft: var(--lemon-soft);
+  --tone-ink: var(--lemon-ink);
+}
+.verdict[data-result="reported-negative"]::before { content: "\2717"; }
+
+/* Small print. It sits on the last line of the slide, held there by the auto
+   margin, with a hairline separating it from the argument above. */
+.footnote {
+  flex: 0 0 auto;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: var(--hairline);
+  font-size: var(--fs-fine);
+  line-height: 1.35;
+  color: var(--muted);
+  text-wrap: pretty;
+  /* Ranged left for the same reason as the callout: the hairline above it runs
+     the full width, so the first word should start where the line does. */
+  text-align: left;
+}
+.footnote a { color: var(--muted); }
+
+/* ------------------------------------------------------------- fragments --*/
+
+/* Fragments only hide while the deck is being presented. On the scrolling page
+   and in print the whole slide is there to read at once. */
+body[data-mode="slide"] [data-fragment] {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 220ms ease, transform 220ms ease;
+  pointer-events: none;
+}
+body[data-mode="slide"] [data-fragment].is-visible {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  body[data-mode="slide"] [data-fragment] { transition: none; }
+}
+
+/* ------------------------------------------------------------ deck states --*/
+
+/* Blanking covers the stage instead of hiding it, so the deck keeps its place
+   and any running chart keeps running. */
+body.is-blanked::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #000;
+}
+
+/* The runtime marks a slide whose content runs past the stage. That is a bug
+   in the slide, and this makes it impossible to miss while authoring. It never
+   reaches a capture or a printed page. */
+.slide.has-overflow {
+  outline: 4px solid #D64545;
+  outline-offset: -4px;
+}
+body.is-capturing .slide.has-overflow { outline: none; }

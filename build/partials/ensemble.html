@@ -1,0 +1,112 @@
+      <!-- ==================================================================
+           Slides 6 to 9 — the ensemble half of the talk.
+
+           Six states the result, seven shows where the gain accumulates,
+           eight gives the mechanism behind it, and nine checks what the
+           system still gets wrong. All four carry data-tone="em", the peach
+           the site uses for the ensemble half, so the chapter is visible in
+           the hairline across the top of the stage before anyone reads the
+           heading.
+
+           Layout that deck.css does not already provide lives in
+           build/partials/ensemble.css, scoped to these four slide ids.
+           =================================================================== -->
+
+      <section class="slide lead" id="s-06-headline" data-title="Headline result" data-tone="em">
+        <h1>+11.07 pp over a baseline we reproduced on the same split</h1>
+        <div class="body">
+          <div class="kpi-row">
+            <div class="kpi" data-tone="em">
+              <span class="kpi__value">36.80 ± 4.00%</span>
+              <span class="kpi__label">11-way logit-mean ensemble</span>
+              <span class="kpi__note">10-fold leave-performers-out</span>
+            </div>
+            <div class="kpi" data-tone="note">
+              <span class="kpi__value">25.73 ± 4.03%</span>
+              <span class="kpi__label">reproduced STGCN++ baseline</span>
+              <span class="kpi__note">same 74-performer split</span>
+            </div>
+            <div class="kpi" data-tone="ok">
+              <span class="kpi__value">+43%</span>
+              <span class="kpi__label">relative gain</span>
+              <span class="kpi__note">+11.07 pp absolute</span>
+            </div>
+          </div>
+          <p>The improvement excludes zero in 10 of 10 paired folds, and it stays above zero when we resample whole performers.</p>
+          <div class="callout" data-tone="warn">
+            <p>This is 10-fold cross-validation on the labeled training performers. The hidden-test result is still pending.</p>
+          </div>
+          <p class="footnote">95% CI on the gain: [9.86, 12.33] pp by fold and [9.14, 12.17] pp by performer. The official 92-performer baseline, 25.21 ± 4.49%, sits within one SD of our reproduction; we quote it for reference and do not measure the gain against it.</p>
+        </div>
+        <aside class="notes">
+          <p>The eleven-model ensemble reaches 36.80 percent Macro-F1, against 25.73 for the baseline on the same split. That is eleven points and change, a relative gain of about 43 percent.</p>
+          <p>This is not noise. The paired improvement excludes zero in all ten folds, and it stays positive when we resample whole performers instead of folds.</p>
+          <p>This is cross-validation on the training performers, so treat it as a development result. The hidden-test number is still pending. We quote the official baseline for reference only. Our reproduction sits within one standard deviation of it, and we measure the gain against the reproduction, on the same split.</p>
+        </aside>
+      </section>
+
+      <section class="slide" id="s-07-lift-path" data-title="Lift path" data-tone="em">
+        <h2>The gain builds one family at a time</h2>
+        <div class="body">
+          <p class="lead-in">The score climbs through four stages: 25.7 → 30.1 → 33.9 → 36.8%.</p>
+          <div class="cols cols--figure">
+            <div class="card">
+              <p>Ensembling beats the best single model by <strong>+6.8 pp</strong>. Averaging logits instead of probabilities adds another <strong>+1.15 pp</strong> at no extra cost.</p>
+              <p>That is not a scaling artifact. Z-scoring the members first keeps <strong>+0.99 pp</strong> of it, and Borda fusion on ranks alone keeps <strong>+0.69 pp</strong>.</p>
+            </div>
+            <div class="chart" data-chart="liftpath" data-src="liftpath" style="height:380px"></div>
+          </div>
+          <p class="footnote">Each bar is the mean over 10 leave-performers-out folds, each dot is one of those folds, and the pooled out-of-fold score sits beside each bar. The 7-way stage is the trained members, before the frozen external branches join.</p>
+        </div>
+        <aside class="notes">
+          <p>The chart shows the gain in stages: the reproduced baseline, the best single model, a seven-way ensemble, and the eleven-way system we submitted. Each family we add moves the score up.</p>
+          <p>Ensembling beats the best single model by almost seven points, which is more than any architecture change gave us. Averaging the logits rather than the probabilities is worth another point and a bit, and it costs nothing.</p>
+          <p>That is not a scaling trick. If we z-score the members first we keep most of it, and if we throw away the magnitudes and fuse ranks we still keep about two thirds.</p>
+        </aside>
+      </section>
+
+      <section class="slide" id="s-08-orthogonality" data-title="Orthogonal errors" data-tone="em">
+        <h2>The members rarely fail on the same clip</h2>
+        <div class="body">
+          <div class="cols">
+            <div class="fig">
+              <div class="chart" data-chart="membercorr" data-src="membercorr" style="height:392px"></div>
+              <p class="fig__cap">Pairwise error correlations stay between <strong>0.15 and 0.43</strong>, and they are lowest for the frozen external branches.</p>
+            </div>
+            <div class="fig">
+              <div class="chart" data-chart="loo" data-src="loo" style="height:392px"></div>
+              <p class="fig__cap">Removing one member costs <strong>−0.84 to −0.09 pp</strong>, and removing all four external members at once costs <strong>−2.91 pp</strong>.</p>
+            </div>
+          </div>
+          <p class="footnote">Correlations are Pearson coefficients over per-sample error indicators on 7,992 out-of-fold clips. Leave-one-out deltas are pooled out-of-fold Macro-F1 against a base of 36.94%.</p>
+        </div>
+        <aside class="notes">
+          <p>Averaging only cancels a mistake the members do not make together. The matrix on the left shows every pair of members, coloured by how often the two are wrong on the same clip. Everything sits between 0.15 and 0.43, which is low. The lowest column is the frozen external pretraining, the branch least like the others.</p>
+          <p>The chart on the right shows what happens when you take one member out. Every bar is negative, from about four fifths of a point down to a tenth, so no member dominates and none is dead weight. Take the whole external block out at once and you lose almost three points, so the gain sits across all the branches.</p>
+          <p>If someone asks about the two correlated MAMP models, moderate correlation does not mean redundancy: that pair still gives the largest single contribution.</p>
+        </aside>
+      </section>
+
+      <section class="slide" id="s-09-error-structure" data-title="Where errors go" data-tone="em">
+        <h2>The errors fall between confusable emotions</h2>
+        <div class="body">
+          <p class="lead-in">Jealousy reads as contempt and guilt as sadness; top confidence sits near 62%.</p>
+          <div class="cols cols--figure">
+            <div class="callout" data-tone="warn">
+              <p><strong>The country difference is not a cultural finding.</strong></p>
+              <p>Japan and Taiwan differ (35.3 vs 38.9%). The split is a dataset stratum, tangled with capture era and performer style.</p>
+              <p>Dropping the seven earliest Japanese training performers moves the score by −0.44 pp.</p>
+            </div>
+            <div class="fig">
+              <img src="assets/img/fig03_confusion_jptw_panelA.png" alt="Row-normalised 12-by-12 confusion matrix for the 11-way ensemble, with the five strongest off-diagonal cells boxed">
+              <p class="fig__cap">Row-normalised out-of-fold confusion over 12 classes, with the five strongest off-diagonal cells boxed.</p>
+            </div>
+          </div>
+          <p class="footnote">The era check gives 36.50 vs 36.94% pooled out-of-fold. The same skeleton features also classify performer country at roughly 69.8%, which is another reason not to read the country split as culture.</p>
+        </div>
+        <aside class="notes">
+          <p>The errors that are left sit between emotions that are easy to confuse. Jealousy goes to contempt, and guilt goes to sadness or shame. That matches the model's top confidence, which stays around 62 percent.</p>
+          <p>The Japanese and Taiwanese performers score differently, but we do not read that as culture. It is a dataset stratum, tangled with capture era and individual movement style.</p>
+          <p>As an era check, we drop the seven earliest Japanese training performers, and the score moves by less than half a point. These same skeleton features also decode performer country far better than they decode emotion. We disclose that as a re-identification risk; it is not a cultural signal.</p>
+        </aside>
+      </section>

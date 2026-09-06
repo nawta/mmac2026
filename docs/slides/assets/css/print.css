@@ -1,0 +1,132 @@
+/* ============================================================================
+   print.css — the deck as a PDF, one slide to a page.
+
+   Link this with media="print". Everything below is inside @media print, so a
+   stray link tag without the attribute still costs the screen deck nothing.
+
+   The page is 297x167mm, which is 16:9 landscape and the same shape as the
+   1280x720 stage the deck is authored on. 297mm is 1122.5 CSS pixels at the
+   96dpi print resolution, so the stage has to come down by a factor of about
+   0.877 to fit. This uses zoom rather than transform because zoom changes the
+   box the printer paginates on, while a transform would leave a 1280px box
+   behind and the printer would spill it onto extra pages.
+   ========================================================================== */
+
+@page {
+  size: 297mm 167mm;
+  margin: 0;
+}
+
+@media print {
+
+  /* Pastel fills carry meaning in this deck, so they have to survive the
+     printer's default of dropping backgrounds. */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html,
+  body {
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #FFFFFF !important;
+  }
+
+  /* Every slide prints, including the ones the runtime has hidden, and each
+     one starts a page. The last one does not, or the PDF ends on a blank. */
+  .slide,
+  body[data-mode="slide"] .slide,
+  body[data-mode="slide"] .slide.is-active {
+    display: grid !important;
+    /* Relative rather than static, which both undoes the fixed positioning of
+       slide mode and keeps the slide as the containing block for the slide
+       number inside it. Static would send every number to the first page. */
+    position: relative !important;
+    transform: none !important;
+    /* 0.873 of the 1280x720 stage is 295.7 x 166.3mm, which leaves the page a
+       little under a millimetre of slack on each axis so rounding in the
+       printer cannot clip an edge. */
+    zoom: 0.873;
+    width: 1280px !important;
+    height: 720px !important;
+    margin: 0 auto !important;
+    border: none !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+  }
+  .slide:last-of-type {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  /* A printed slide is the whole slide. Nothing waits for a keypress. */
+  [data-fragment],
+  body[data-mode="slide"] [data-fragment] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    pointer-events: auto !important;
+  }
+
+  /* Chrome, notes, authoring marks, and the blanking cover all stay out. */
+  .progress,
+  .timer,
+  .title-actions,
+  .title-keys,
+  aside.notes,
+  .overflow-warning { display: none !important; }
+
+  .slide.has-overflow { outline: none !important; }
+
+  body.is-blanked::after { display: none !important; }
+
+  /* The slide number is the one piece of chrome worth keeping, since a printed
+     deck is something people cite by page. It goes back to plain type in the
+     corner of the stage. Display is left alone so the title, lead, and section
+     slides stay without a number, the way they are on screen. */
+  .slide-number {
+    position: absolute !important;
+    right: var(--stage-pad-x) !important;
+    bottom: 18px !important;
+    padding: 0 !important;
+    border: none !important;
+    background: none !important;
+    font-size: 18px !important;
+  }
+
+  /* Charts and figures are deliberately left alone. The printed page is the
+     same 1280x720 stage the deck is authored on, only scaled, so a chart that
+     was told to be 340px tall on screen is already the right height here.
+     Forcing it to fill its parent would squeeze whatever shares the column
+     with it down to nothing. */
+
+  /* A link in a printed deck cannot be clicked, so it should read as text. */
+  .slide a {
+    text-decoration: none !important;
+    color: var(--ink) !important;
+  }
+
+  /* Browsers without zoom would otherwise print the stage cropped. Scaling by
+     transform shows all of it, at the cost of a blank page after each slide on
+     those browsers. */
+  @supports not (zoom: 1) {
+    .slide,
+    body[data-mode="slide"] .slide,
+    body[data-mode="slide"] .slide.is-active {
+      zoom: normal;
+      transform: scale(0.873) !important;
+      transform-origin: top left !important;
+    }
+  }
+}

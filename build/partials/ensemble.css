@@ -1,0 +1,79 @@
+/* ============================================================================
+   ensemble.css — layout for slides 6 to 9, the ensemble half of the talk.
+
+   deck.css carries almost all of it. What is left is the handful of decisions
+   a shared stylesheet cannot make for one slide: how three numbers that are
+   not one category get tinted, how tall a caption may be before it steals a
+   chart's height, and where a column of text sits against the figure beside
+   it. Every rule is scoped to one of these four slide ids, so nothing here can
+   reach another author's slide.
+   ========================================================================== */
+
+/* --------------------------------------------------- 06 · headline result --*/
+
+/* A lead slide centres its body, which sizes every block to its own content.
+   The KPI row would then shrink to the width of its widest number and sit
+   narrower than the paragraph under it, so the slide would read as three
+   different column widths stacked up. Stretching the blocks gives one column;
+   the text inside them stays centred, which is what .lead is for. */
+#s-06-headline .body {
+  align-items: stretch;
+  justify-content: center;
+}
+
+/* --fs-kpi is sized for a bare number. These three carry a ± and a unit as
+   well, and at 54px "36.80 ± 4.00%" is wider than the card it sits in. The
+   value is set to nowrap, so the overflow would leave the stage rather than
+   wrap. Two steps down fits all three with room to spare. */
+#s-06-headline .kpi__value { font-size: 42px; }
+
+/* deck.css tints KPI cards through a tone on the whole row, which assumes one
+   row means one category. Here the three numbers are three different things:
+   the submitted ensemble, the baseline it is measured against, and the gain
+   between them. Each card carries its own tone and has to paint itself. */
+#s-06-headline .kpi[data-tone] {
+  background: var(--tone-soft);
+  border-color: var(--tone);
+}
+#s-06-headline .kpi[data-tone] .kpi__value { color: var(--tone-ink); }
+
+/* Two runs of prose long enough to wrap. Centred, they would break into ragged
+   lines either side of the callout's left bar, so they range left and let the
+   big numbers above them hold the centre. */
+#s-06-headline .callout,
+#s-06-headline .footnote { text-align: left; }
+
+/* ------------------------------------------------------- 07 · lift path ----*/
+
+/* .cols ranges its columns from the top, which is right when both sides are
+   text. Here the right side is a 380px chart and the left is a short card, so
+   ranging from the top hangs the card off the heading with a hand's width of
+   empty slide under it. Centring it against the bars reads as one row. */
+#s-07-lift-path .card { align-self: center; }
+
+/* ---------------------------------------------------- 08 · orthogonality ---*/
+
+/* The two charts here are the argument, and the line under each one is the
+   claim it settles rather than a note about a picture. So the captions take
+   body ink and range left, where the muted centred caption style deck.css
+   uses under a photograph would read as small print and get skipped. */
+#s-08-orthogonality .fig__cap {
+  font-size: 20px;
+  color: var(--ink);
+  text-align: left;
+}
+
+/* --------------------------------------------------- 09 · error structure --*/
+
+/* The confusion panel is 1150x974, wider than it is tall, so at the default
+   figure split it would use about two thirds of its column and leave the rest
+   empty while the text beside it wrapped every few words. Giving the text the
+   wider column costs the image nothing: it is height-bound either way. */
+#s-09-error-structure .cols {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+}
+
+/* The figure beside it is stretched to the full height of the row, so a caveat
+   ranged from the top would sit against the top edge of the matrix and leave
+   its own column open underneath. Centred, the two columns share a middle. */
+#s-09-error-structure .callout { align-self: center; }

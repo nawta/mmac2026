@@ -1,0 +1,175 @@
+      <section class="slide section" id="s-10-tested-explanations" data-title="Tested explanations" data-tone="note">
+        <h2>Explanations you can test</h2>
+        <div class="body">
+          <p class="lead-in">A heatmap cannot come back wrong. A test can come back negative.</p>
+          <p>The second half of the talk asks what the model reads, then checks every answer against the prediction.</p>
+        </div>
+        <aside class="notes">
+          <p>That was the first half of the talk: where the number comes from and why it works.</p>
+          <p>The second half is the one I care more about. Most explainability work in this area draws a heatmap and asserts that it means something. A heatmap that means nothing looks the same as one that means something, so the picture can never be wrong.</p>
+          <p>We wanted claims that could come back negative, so we built the explanations as a set of checks, each one with a value and a null beside it. It is the same system, with no retraining. One of the checks does come back negative.</p>
+        </aside>
+      </section>
+
+      <section class="slide" id="s-11-six-verdicts" data-title="Six verdicts" data-tone="note">
+        <h2>Six checks, five positive and one negative</h2>
+        <div class="body">
+          <p class="lead-in">When we say the model uses a body region, we change that region and check whether the prediction moves.</p>
+          <div class="verdicts">
+            <div class="verdict" data-result="pass">
+              <strong>Faithful</strong>
+              <span>AUC gap +0.124 ± 0.031</span>
+            </div>
+            <div class="verdict" data-result="pass">
+              <strong>Stable</strong>
+              <span>ρ = +0.983 ± 0.039 under noise</span>
+            </div>
+            <div class="verdict" data-result="pass">
+              <strong>Semantically grounded</strong>
+              <span>ρ = +0.500 against +0.033</span>
+            </div>
+            <div class="verdict" data-result="pass">
+              <strong>Behaviourally corroborated</strong>
+              <span>freezing the head flips 41%</span>
+            </div>
+            <div class="verdict" data-result="pass">
+              <strong>Grounded narration</strong>
+              <span>0 of 50 cards unsupported</span>
+            </div>
+            <div class="verdict" data-result="reported-negative">
+              <strong>Frame localization</strong>
+              <span>reported negative, AUC gap ≈ +0.002</span>
+            </div>
+          </div>
+          <div class="callout" data-tone="ok">
+            <p>All of this runs on the finished models, so nothing is retrained and no accuracy is lost.</p>
+          </div>
+          <p class="footnote">Each check runs on a strong member of the submitted ensemble, and we re-run the two main ones on the 11-way system itself.</p>
+        </div>
+        <aside class="notes">
+          <p>Here is the scorecard. When we want to say the model uses some body region, we change that region. We mask it, add noise to it, or edit its motion, and then we look at whether the prediction moves.</p>
+          <p>That gives six checks, each with a value and either a null or a confidence interval beside it. Five come back positive, and one comes back negative. We report the negative, because a check that can only come back positive can never be wrong.</p>
+          <p>All of this runs on the finished models, so it costs no accuracy. Each check runs on a strong member of the ensemble we submitted, and we re-run the two that matter most on the full eleven-way system.</p>
+        </aside>
+      </section>
+
+      <section class="slide" id="s-12-faithful-stable" data-title="Faithful and stable" data-tone="note">
+        <h2>The model uses the regions it calls important</h2>
+        <div class="body">
+          <p class="lead-in">Masking the parts the model ranks high hurts more than masking the parts it ranks low, and the ranking barely moves when we add noise.</p>
+          <table class="table">
+            <caption>Rows 1 and 3 of the paper's explainability table, measured on a strong member of the submitted ensemble.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Check</th>
+                <th scope="col">Metric</th>
+                <th scope="col">Value</th>
+                <th scope="col">Spread and null</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Part-masking</td>
+                <td>AUC gap, important − reverse</td>
+                <td>+0.124 ± 0.031</td>
+                <td>positive in all 10 folds</td>
+              </tr>
+              <tr>
+                <td>Stability</td>
+                <td>Spearman ρ under noise at σ = 0.02</td>
+                <td>+0.983 ± 0.039</td>
+                <td>top-ranked part never flips</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>Without these two, the alignment on the next slide would be a picture agreeing with itself.</p>
+          <p class="footnote">At the finer 25-joint resolution the faithfulness gap grows to +0.199. Both values are 10-fold means with their standard deviation.</p>
+        </div>
+        <aside class="notes">
+          <p>Everything after this depends on the first two checks.</p>
+          <p>The first is faithfulness. We rank the body parts by saliency, mask them in that order, and compare that against masking them in reverse order. The gap is positive, about 0.124, and it is positive in every one of the ten folds. At the finer 25-joint resolution it grows to 0.199.</p>
+          <p>The second is stability. Add noise to the input and the ranking barely moves, with a rank correlation of 0.98, and the top part never changes.</p>
+          <p>Without these two, the Laban alignment I am about to show would just be a picture agreeing with itself.</p>
+        </aside>
+      </section>
+
+      <section class="slide" id="s-13-laban" data-title="Laban alignment" data-tone="note">
+        <h2>The model reads the body in Laban terms</h2>
+        <div class="body">
+          <p class="lead-in">Laban Movement Analysis is how a movement analyst describes body motion.</p>
+          <div class="cols cols--figure">
+            <ul>
+              <li>Saliency matches the Laban attributes at ρ = +0.500 and classical kinematics at +0.033, about 15 times stronger.</li>
+              <li>It is positive for 10 of the 12 emotions, with a bootstrap interval of [+0.150, +0.733].</li>
+              <li>Sadness reads as a bowed, sunken posture: head down, trunk leaning forward.</li>
+            </ul>
+            <div class="chart" data-chart="lma" data-src="lma"></div>
+          </div>
+          <p class="footnote">Measured on a strong member of the submitted ensemble. The emotions are not independent, so we bootstrap the interval over emotion blocks and permute region scores within each emotion, p &lt; 0.001. Sign test over emotions p = 0.039, median per-emotion ρ = +0.70.</p>
+        </div>
+        <aside class="notes">
+          <p>This is the main result. We take the salient regions and ask whether they line up with Laban Movement Analysis, which is the vocabulary a movement analyst uses to describe how a body moves.</p>
+          <p>They do. The correlation is 0.500, against 0.033 for classical kinematics, about fifteen times stronger.</p>
+          <p>We are careful with the statistics here, because the twelve emotions are not twelve independent observations. We bootstrap the interval over emotion blocks and permute within emotions, and the alignment comes out positive for ten of the twelve.</p>
+          <p>What I like about it is that it reads in plain language. For sadness the model looks where you would expect: bowed head, lowered height, trunk leaning forward.</p>
+        </aside>
+      </section>
+
+      <section class="slide" id="s-14-ensemble-edits" data-title="Ensemble and edits" data-tone="note">
+        <h2>The alignment holds for the ensemble we submitted, and the edits move the prediction</h2>
+        <div class="body">
+          <div class="cols cols--figure">
+            <div class="kpi-row">
+              <div class="kpi" data-tone="ok">
+                <span class="kpi__value">ρ = +0.517</span>
+                <span class="kpi__label">Laban alignment, 11-way ensemble</span>
+                <span class="kpi__note">CI [+0.333, +0.700], p = 0.001</span>
+              </div>
+              <div class="kpi" data-tone="em">
+                <span class="kpi__value">41%</span>
+                <span class="kpi__label">predictions flipped by freezing the head</span>
+                <span class="kpi__note">Δp(true) = −0.0164, the largest of the edits</span>
+              </div>
+              <div class="kpi" data-tone="note">
+                <span class="kpi__value">23.1%</span>
+                <span class="kpi__label">flipped by amplifying an arm</span>
+                <span class="kpi__note">same part ranking as masking</span>
+              </div>
+              <div class="kpi" data-tone="ok">
+                <span class="kpi__value">0 / 50</span>
+                <span class="kpi__label">audited cards with an unsupported claim</span>
+                <span class="kpi__note">narration grounding</span>
+              </div>
+            </div>
+            <figure class="fig">
+              <img src="assets/img/fig06_lma_counterfactual.png" alt="Panel A, mean Laban attribute scores per emotion beside the saliency strip. Panel B, the change in true-class probability under each motion edit.">
+              <figcaption class="fig__cap">Panel A, the alignment from the previous slide. Panel B, the motion edits.</figcaption>
+            </figure>
+          </div>
+          <div class="callout" data-tone="warn">
+            <p>These edits corroborate the finding. They are not causal proof, and the main evidence is still the +0.500 against +0.033 alignment.</p>
+          </div>
+        </div>
+        <aside class="notes">
+          <p>Here are two more checks. First, we re-run the whole thing on the eleven-way ensemble we submitted, and the alignment comes out at 0.517, a little stronger if anything, with the whole interval above zero.</p>
+          <p>Second, on the right, we edit the motion itself. Freeze the head and 41 percent of the predictions flip. Amplify an arm and 23 percent flip, and the ranking of parts matches what masking told us.</p>
+          <p>I want to be precise about what that gives us. The edits corroborate the finding. They do not prove the model causally reads those regions, and the main evidence is still the 0.500 against 0.033 alignment.</p>
+        </aside>
+      </section>
+
+      <section class="slide" id="s-15-reported-negative" data-title="Reported negative" data-tone="note">
+        <h2>The negative we report</h2>
+        <div class="body">
+          <p class="lead-in">Saliency is flat from frame to frame, and concentrated on the head and neck across the body.</p>
+          <div class="cols">
+            <div class="chart" data-chart="temporal" data-src="saliency"></div>
+            <div class="chart" data-chart="spatial" data-src="saliency"></div>
+          </div>
+          <p class="footnote">Across frames the important-versus-reverse AUC gap is about +0.002, against +0.124 ± 0.031 across body regions. Frame saliency entropy is 98.7% of log T per sample and 99.5% as a class mean. Order still matters: time reversal moves accuracy, so this is a claim about locating a frame.</p>
+        </div>
+        <aside class="notes">
+          <p>This is the negative, and I think it is what makes the rest of this a test. When we ask which frames inside the window matter, the answer is all of them, roughly equally.</p>
+          <p>The saliency entropy is about 98.7 percent of the maximum, and the gap between important and reverse frames is close to zero, where the same measurement across body regions gave a clear positive. The head and neck dominate spatial saliency in all twelve emotions, so the evidence is spread through time and concentrated in space.</p>
+          <p>To be precise, this is about locating a frame, not about time in general. Order still matters, and reversing time does move accuracy. We report the null instead of hiding it.</p>
+        </aside>
+      </section>

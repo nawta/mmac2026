@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Orthogonal Ensembles and Tested Explanations · ACII 2026 MMAC Challenge</title>
+<meta name="description" content="ACII 2026 MMAC Challenge oral: an eleven-model ensemble whose members make different mistakes gains +11.07 pp Macro-F1 over a protocol-matched reproduction, and its explanations are tested rather than drawn." />
+<link rel="canonical" href="https://nawta.github.io/mmac2026/" />
+<link rel="alternate" hreflang="en" href="https://nawta.github.io/mmac2026/" />
+<link rel="alternate" hreflang="ja" href="https://nawta.github.io/mmac2026/ja/" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Orthogonal Ensembles and Tested Explanations for Performer-Independent Body-Motion Emotion Recognition" />
+<meta property="og:description" content="ACII 2026 MMAC Challenge oral. The gain comes from members whose errors are orthogonal: +11.07 pp over a protocol-matched reproduction. The explanations are tested, with six verdicts, five positive and one reported negative." />
+<meta property="og:url" content="https://nawta.github.io/mmac2026/" />
+<meta name="twitter:card" content="summary" />
+<script>
+  /* Apply a stored theme choice before the first paint. Nothing is written to
+     the root element when no choice is stored, so the CSS media query keeps
+     following the reader's system setting. */
+  (function () {
+    try {
+      var stored = localStorage.getItem("mmac-theme");
+      if (stored === "light" || stored === "dark") {
+        document.documentElement.setAttribute("data-theme", stored);
+      }
+    } catch (e) {}
+  })();
+</script>
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<a class="skip" href="#summary">Skip to the summary</a>
+
+<nav class="topbar" aria-label="Page">
+  <div class="topbar__inner">
+    <a class="topbar__mark" href="#top">MMAC · ACII 2026</a>
+    <div class="topbar__nav">
+      <a href="#summary">Summary</a>
+      <a href="#results">Results</a>
+      <a href="#orthogonality">Why it works</a>
+      <a href="#explanations">Explanations</a>
+      <a href="#limits">Limits</a>
+      <a href="#cite">Cite</a>
+    </div>
+    <div class="topbar__right">
+      <a class="lang-switch" href="ja/" hreflang="ja" lang="ja" title="日本語版">日本語</a>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch between the light and dark theme">◐</button>
+    </div>
+  </div>
+</nav>
+
+<header class="site-header wrap" id="top">
+  <p class="eyebrow">ACII 2026 · MMAC Challenge · Oral presentation</p>
+  <h1>Orthogonal Ensembles and Tested Explanations for Performer-Independent Body-Motion Emotion Recognition</h1>
+  <p class="byline"><strong>Naoto Nishida</strong> and <strong>Yoshio Ishiguro</strong></p>
+  <p class="affiliation">The University of Tokyo</p>
+  <p class="venue">MMAC Challenge at ACII 2026: Cross-Cultural Emotion Recognition from Body Movements, DIEM-A subset.</p>
+
+  <div class="hero-links">
+    <a class="btn" href="slides/">Talk slides</a>
+    <span class="btn" aria-disabled="true">Paper · ACII 2026 Workshops, link pending</span>
+    <a class="btn ghost" href="#cite">Cite this work</a>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi" data-tone="em">
+      <span class="kpi__value">36.80 ± 4.00%</span>
+      <span class="kpi__label">Macro-F1 of the submitted 11-way ensemble</span>
+      <span class="kpi__note">10-fold leave-performers-out cross-validation</span>
+    </div>
+    <div class="kpi" data-tone="ok">
+      <span class="kpi__value">+11.07 pp</span>
+      <span class="kpi__label">over the reproduced baseline on the same split</span>
+      <span class="kpi__note">+43% relative, chance is 8.3%</span>
+    </div>
+    <div class="kpi" data-tone="note">
+      <span class="kpi__value">ρ = +0.500 vs +0.033</span>
+      <span class="kpi__label">saliency against Laban attributes, compared with a kinematics control</span>
+      <span class="kpi__note">about 15× stronger; ρ = +0.517 for the submitted ensemble</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="summary">
+    <h2>What this work is</h2>
+    <p class="section-lede">A challenge system that names one of twelve acted emotions from body motion, and two findings about why it works and which parts of the body it reads.</p>
+
+    <p>
+      The task is to name one of twelve acted emotions from skeleton motion alone, with no face, no audio and no scene,
+      and to do it for performers the model never saw during training. That last condition is the hard one.
+      Emotions close in meaning share kinematics, so the model takes jealousy for contempt and guilt for sadness or shame.
+      Every performer also moves in their own way, so the spread between people can be wider than the spread between emotions.
+      Chance is 8.3%. A reproduced STGCN++ baseline reaches <span class="num">25.73 ± 4.03%</span> Macro-F1 under the
+      10-fold leave-performers-out protocol used everywhere on this page, over the 74 training performers
+      (7,992 training clips, 1,944 test clips from 18 held-out performers).
+    </p>
+
+    <p>
+      The submitted system reaches <strong>36.80 ± 4.00%</strong> Macro-F1, which is <strong>+11.07 pp</strong> above that
+      reproduction on the same split, a relative gain of <strong>+43%</strong>. The gain comes from disagreement among the
+      members. We combine eleven models from four families of inductive bias (graph convolution, attention, hybrid MLP, and
+      frozen external pretraining) by averaging their raw logits, with no fitted fusion weights.
+      Their per-sample error correlations sit between 0.15 and 0.43, so the members tend to be wrong on different clips,
+      and averaging cancels mistakes instead of reinforcing them. Adding capacity to one model did not produce the same gain:
+      the best single model we could train tops out at 30.05 ± 3.48%.
+    </p>
+
+    <p>
+      The second half of the work tests its explanations instead of drawing them. Whenever the system claims that the model
+      uses a body region, we mask that region, perturb it, or edit its motion, and check whether the prediction moves.
+      The suite returns six verdicts and we report all six: five positive and one negative. The central positive result is
+      that region saliency lines up with rule-based Laban Movement Analysis attributes at Spearman <strong>ρ = +0.500</strong>,
+      against <strong>+0.033</strong> for a classical-kinematics control, roughly fifteen times stronger, and the same
+      alignment holds for the submitted ensemble at <strong>ρ = +0.517</strong>. For sadness the model attends to the
+      regions a movement analyst would name: a bowed head, lowered head height, and a forward trunk lean.
+    </p>
+
+    <p>
+      The work claims less than the numbers on their own might suggest. The headline is cross-validation on the labeled
+      training performers rather than a leaderboard placement, and the hidden-test result is still pending. An absolute
+      Macro-F1 near 37% is low, and we do not defend it as good. The Laban result is semantic alignment, and we test whether
+      the model depends on a region separately, by masking that region and by checking the ranking under noise. The counterfactual motion edits corroborate that the
+      model relies on that motion without proving causation. The difference between the Japanese and Taiwanese performers is
+      a dataset stratum tangled up with capture era and individual movement style, and we do not read it as a cultural finding.
+      <a href="#limits">The limits section</a> states each of these with the check that bounds it.
+    </p>
+  </section>
+
+  <section id="results">
+    <h2>Results</h2>
+    <p class="section-lede">Every row below is scored on the same 10-fold leave-performers-out split, so the numbers compare directly.</p>
+
+    <p>
+      The whole ensemble has 12.98 M trainable parameters. One inference is eleven forward passes over a 64-frame clip and
+      then an average with no fitted weights. Averaging the raw logits rather than the probabilities is worth
+      <strong>+1.15 pp</strong> on its own, and that gain does not come from the scale of the logits, since z-scoring the members
+      first retains +0.99 pp and a rank-only Borda fusion retains +0.69 pp.
+    </p>
+
+    <figure class="chart-figure" id="tbl-results">
+      <div class="table-scroll">
+        <table class="table" id="results-table">
+          <caption class="sr-only">Main results table</caption>
+          <thead data-results-head></thead>
+          <tbody data-results-body>
+            <tr class="is-placeholder"><td>Loading the results table from assets/data/results.json …</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="footnote" data-results-notes></div>
+      <figcaption>
+        <b>Table 1.</b> Macro-F1 and accuracy for the reproduced baseline, the strongest single model, and the two ensembles.
+        The +11.07 pp is the difference between the reproduced baseline row and the submitted ensemble row.
+        We quote the official baseline from the challenge on the 92-performer full leave-performers-out protocol and did not
+        re-evaluate it, so it stands as an outside reference point rather than a result of ours. The deck reads this table from
+        the same generated file.
+      </figcaption>
+    </figure>
+
+    <figure class="chart-figure" id="fig-liftpath">
+      <div class="chart" id="chart-liftpath" data-chart="liftpath" data-src="liftpath" role="img"
+           aria-label="Bar chart of Macro-F1 at four stages: reproduced STGCN++ 25.73 percent, best single model 30.05, seven-way ensemble 33.86, eleven-way logit-mean ensemble 36.80 percent."></div>
+      <figcaption>
+        <b>Figure 1.</b> The gain arrives in stages. Bars are the per-fold mean Macro-F1 with the standard deviation across
+        the ten folds. The blue marker beside each bar is the pooled out-of-fold score with its bootstrap 95% confidence
+        interval, which is a second convention on the same system and not the same number. Ensembling beats the best single
+        model by about 6.8 pp, and the improvement over the reproduced baseline excludes zero in all ten folds
+        (paired-fold 95% CI [9.86, 12.33] pp, and [9.14, 12.17] pp when we resample whole performers).
+      </figcaption>
+    </figure>
+
+    <div class="callout" data-tone="warn">
+      <p>
+        <span class="pill" data-tone="warn">Scope</span>
+        36.80 ± 4.00% is 10-fold leave-performers-out cross-validation on the labeled training performers.
+        It is not a leaderboard placement, and the hidden-test result is pending.
+      </p>
+    </div>
+  </section>
+
+  <section id="orthogonality">
+    <h2>Why the ensemble works</h2>
+    <p class="section-lede">The members rarely fail on the same clip, and no single member carries the result.</p>
+
+    <p>
+      Pairwise per-sample error correlations across the eleven members fall in [0.15, 0.43], and the lowest ones belong to
+      the frozen external-pretraining branch, which differs most from the rest. Moderate correlation does not mean
+      redundancy: the two MAMP members correlate with each other and still supply the largest single contribution.
+      Removing the whole frozen external block at once costs <strong>−2.91 pp</strong> of pooled out-of-fold Macro-F1,
+      so the gain is spread across the branches rather than coming from one of them.
+    </p>
+
+    <figure class="chart-figure" id="fig-loo">
+      <div class="chart" id="chart-loo" data-chart="loo" data-src="loo" role="img"
+           aria-label="Horizontal bar chart of the change in pooled out-of-fold Macro-F1 when each of the eleven ensemble members is removed. Every change is negative, from minus 0.84 percentage points for MAMP-NTU60 to minus 0.09 for CTR-GCN."></div>
+      <figcaption>
+        <b>Figure 2.</b> Removing any one member costs accuracy. Each bar is the change in pooled out-of-fold Macro-F1 when that member
+        leaves the logit mean, against a base of 36.94%. All eleven changes are negative, from −0.84 pp to −0.09 pp,
+        so every member contributes and none of them dominates. The two smallest losses belong to graph-convolutional members,
+        which are the most redundant with each other. Dropping all four frozen external members together costs −2.91 pp,
+        more than any single member and more than the graph-convolutional losses added together.
+      </figcaption>
+    </figure>
+
+    <p>
+      The errors that remain fall where the task itself is ambiguous, between semantically confusable emotions: jealousy into
+      contempt, guilt into sadness or shame. That matches a low maximum confidence of about 62%. Inter-performer Macro-F1
+      varies by roughly a factor of four, and that variation splits into about half intrinsic difficulty and about half error
+      specific to an architecture. The architecture-specific half is what the ensemble cancels, and the explanations
+      below examine that same disagreement among the members.
+    </p>
+  </section>
+
+  <section id="explanations">
+    <h2>Explanations that were tested</h2>
+    <p class="section-lede">Every explanation here comes with a test that could have failed, and one of the six did.</p>
+
+    <p>
+      A saliency map that is only drawn cannot be wrong, since a decorative attribution looks the same as a real one.
+      So we pair every claim with a check that can fail: mask a region and see whether accuracy drops more than it does for an
+      unimportant one, add noise and see whether the ranking survives, edit the motion and see whether the prediction moves.
+      The suite runs on a strong member of the submitted ensemble after training, costs 0 pp of Macro-F1 and needs no
+      retraining, and we re-run its two most important checks on the submitted 11-way ensemble itself.
+    </p>
+
+    <div class="verdicts" id="verdicts">
+      <div class="verdict" data-result="pass">
+        <h3>Faithful <span class="verdict__result">pass</span></h3>
+        <p>Masking the parts the model calls important costs more accuracy than masking the parts it calls unimportant. The AUC gap is
+          <span class="num">+0.124 ± 0.031</span> over six body parts, positive in every fold, and +0.199 at 25-joint resolution.</p>
+      </div>
+      <div class="verdict" data-result="pass">
+        <h3>Stable <span class="verdict__result">pass</span></h3>
+        <p>The part ranking survives input noise, at Spearman <span class="num">ρ = +0.983 ± 0.039</span> for σ = 0.02,
+          and the top-ranked part never flips. If the ranking moved under noise, the alignment below would mean nothing.</p>
+      </div>
+      <div class="verdict" data-result="pass">
+        <h3>Semantically grounded <span class="verdict__result">pass</span></h3>
+        <p>Region saliency agrees with rule-based Laban attributes at <span class="num">ρ = +0.500</span> against
+          <span class="num">+0.033</span> for the kinematics control. The emotion-block bootstrap CI is
+          <span class="num">[+0.150, +0.733]</span> and the within-emotion permutation null gives p &lt; 0.001.</p>
+      </div>
+      <div class="verdict" data-result="pass">
+        <h3>Behaviorally corroborated <span class="verdict__result">pass</span></h3>
+        <p>Editing the motion moves the prediction. Freezing the head is the most disruptive edit
+          (<span class="num">Δp_true = −0.0164</span>, and <span class="num">41%</span> of predictions flip) and amplifying an
+          arm flips <span class="num">23.1%</span>. Masking and motion edits are two different kinds of perturbation, and both
+          rank the head and neck region first.</p>
+      </div>
+      <div class="verdict" data-result="pass">
+        <h3>Grounded narration <span class="verdict__result">pass</span></h3>
+        <p>Of 50 audited explanation cards, <span class="num">0</span> contain a claim the underlying scores do not support.
+          The cards are qualitative, so we report grounding for them and no accuracy number.</p>
+      </div>
+      <div class="verdict" data-result="reported-negative">
+        <h3>Frame localization <span class="verdict__result">reported negative</span></h3>
+        <p>Frame importance inside a window is close to uniform. Per-sample entropy is about 98.7% of log T, the class mean is
+          99.5%, and the important-minus-reverse AUC gap is about <span class="num">+0.002</span> against +0.124 in space.
+          The model's evidence is spatial, and no single frame carries it. This is a claim about locating frames and not about
+          time in general, since reversing a clip does move accuracy.</p>
+      </div>
+    </div>
+
+    <p>
+      On the submitted 11-way ensemble the Laban alignment is <strong>ρ = +0.517</strong> (CI [+0.333, +0.700],
+      p = 0.001) and the part-masking gap stays positive in all ten folds, so the finding describes the system we submitted and
+      not only one member of it. The motion edits corroborate that the model relies on that motion without proving causation,
+      and the agreement between masking and editing is itself only suggestive at ρ = 0.49 over n = 6, p = 0.33. The claim
+      therefore rests on the 0.500 against 0.033 contrast, which has the sample size to support it.
+    </p>
+
+    <figure class="chart-figure" id="fig-lma">
+      <div class="chart" id="chart-lma" data-chart="lma" data-src="lma" role="img"
+           aria-label="Grouped horizontal bar chart of per-emotion Spearman correlation between region saliency and Laban attributes, for a single member and for the submitted ensemble, against a classical-kinematics control. Alignment is positive for 10 of 12 emotions for the member and for 11 of 12 for the ensemble."></div>
+      <figcaption>
+        <b>Figure 3.</b> Per-emotion alignment between where the model looks and how a movement analyst would describe the
+        motion. Each row is a Spearman correlation over four body regions, so one row takes only a few discrete values and none
+        of them carries the claim on its own. Pooled over the twelve emotions the alignment is ρ = +0.500 for the member and
+        ρ = +0.517 for the submitted ensemble, against ρ = +0.033 for the classical-kinematics control. It is positive
+        for 10 of 12 emotions for the member (sign test p = 0.039, median ρ = +0.70) and for 11 of 12 for the ensemble
+        (p = 0.001). For sadness this reads as a bowed, sunken posture: head bow up, head height down, trunk lean forward.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section id="limits">
+    <h2>What this work does not claim</h2>
+    <p class="section-lede">Each limit below comes with the check that bounds it.</p>
+
+    <ul class="limits">
+      <li>
+        <b>The headline is cross-validation, not a leaderboard result.</b> 36.80 ± 4.00% is 10-fold leave-performers-out
+        cross-validation on the 74 labeled training performers, and the hidden-test result is pending. Every comparison on this
+        page uses the same split, so the +11.07 pp gain is protocol-matched even though the absolute number is a development
+        finding.
+      </li>
+      <li>
+        <b>We did not re-evaluate the official baseline.</b> The challenge reports 25.21 ± 4.49% on the 92-performer
+        protocol, which we quote as an outside reference point. Our own reproduction of 25.73 ± 4.03% sits within one
+        standard deviation of it, and we measure every improvement against that reproduction rather than against the official
+        figure.
+      </li>
+      <li>
+        <b>The absolute score is low.</b> Macro-F1 near 37% on twelve classes is not good in isolation and we never argue that it
+        is. Against a chance level of 8.3% it is about 4.4 times chance, the gain is +43% relative to the matched reproduction,
+        and all twelve classes improve.
+      </li>
+      <li>
+        <b>Laban alignment is semantic, not causal.</b> It shows that the attributions carry meaning a movement analyst would
+        recognize. Whether the model depends on a region is a separate question, which we test by part masking
+        (+0.124 ± 0.031) and by stability under noise (ρ = +0.983 ± 0.039).
+      </li>
+      <li>
+        <b>Counterfactual edits corroborate rather than prove.</b> The edits move predictions in the same part ranking that
+        masking produces, which is agreement between two methods rather than a causal account. That agreement rests on n = 6
+        (ρ = 0.49, p = 0.33), so the claim leans on the 0.500 against 0.033 contrast instead.
+      </li>
+      <li>
+        <b>The Japan and Taiwan difference is a dataset stratum.</b> It is entangled with capture era and individual movement
+        style, and we do not read it as a cultural effect. Performer country is decodable from the motion features at 69.8%,
+        which is why we treat it as a confound. Dropping the seven earliest Japanese training performers moves pooled
+        out-of-fold Macro-F1 by −0.44 pp (36.50% against 36.94%).
+      </li>
+      <li>
+        <b>The explanation results describe two specific systems.</b> They cover a strong member of the submitted ensemble and
+        the submitted 11-way ensemble itself, not skeleton emotion models in general.
+      </li>
+    </ul>
+
+    <div class="callout" data-tone="note">
+      <p>
+        The negative results are part of the record too. Supervised-contrastive heads, mixture-of-experts fusion, scenario-text
+        alignment, vision-language distillation and post-hoc calibration all failed or regressed under this protocol. We report
+        them in the paper with their configurations, since they are the reason the design went after diversity instead of a
+        better single architecture.
+      </p>
+    </div>
+  </section>
+
+  <section id="cite">
+    <h2>Citation</h2>
+    <p class="section-lede">We will add pages and a DOI once the proceedings are published.</p>
+
+    <div class="bibtex-wrap">
+      <button class="copy-btn" type="button" data-copy-target="bibtex">Copy</button>
+<pre class="bibtex" id="bibtex">@inproceedings{nishida2026orthogonal,
+  title     = {Orthogonal Ensembles and Tested Explanations for
+               Performer-Independent Body-Motion Emotion Recognition},
+  author    = {Nishida, Naoto and Ishiguro, Yoshio},
+  booktitle = {2026 International Conference on Affective Computing and
+               Intelligent Interaction Workshops and Demos (ACIIW)},
+  year      = {2026},
+  note      = {MMAC Challenge: Cross-Cultural Emotion Recognition from
+               Body Movements}
+}</pre>
+    </div>
+    <p class="footnote">
+      The paper appears in the ACII 2026 Workshops proceedings for the MMAC Challenge. We will add a link here once it is public.
+    </p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>
+      Naoto Nishida and Yoshio Ishiguro, The University of Tokyo.
+      MMAC Challenge at ACII 2026, Cross-Cultural Emotion Recognition from Body Movements.
+      <a href="slides/">Talk slides</a> · <a href="ja/" hreflang="ja" lang="ja">日本語</a>
+    </p>
+    <p>
+      Every number on this page comes from the paper's tables and figures, through the generated data files in
+      <code>assets/data/</code>. Charts read the same files as the deck.
+    </p>
+    <p>
+      Bundled third-party work, all served from this site and never from a CDN:
+      <a href="https://echarts.apache.org/">Apache ECharts</a> 5.6.0 under the Apache License 2.0,
+      and the <a href="https://github.com/Outfitio/Outfit-Fonts">Outfit</a> and
+      <a href="https://github.com/yuru7/PlemolJP">PlemolJP</a> typefaces under the SIL Open Font License 1.1.
+      Full texts sit in <a href="assets/vendor/LICENSES/">assets/vendor/LICENSES/</a>:
+      <a href="assets/vendor/LICENSES/ECharts-Apache-2.0.txt">ECharts</a>,
+      <a href="assets/vendor/LICENSES/ECharts-NOTICE.txt">ECharts NOTICE</a>,
+      <a href="assets/vendor/LICENSES/Outfit-OFL-1.1.txt">Outfit</a>,
+      <a href="assets/vendor/LICENSES/PlemolJP-OFL-1.1.txt">PlemolJP</a>.
+      The Japanese page uses a font from the reader's own system, so no Japanese webfont is shipped.
+    </p>
+  </div>
+</footer>
+
+<script src="assets/vendor/echarts.min.js"></script>
+<script src="assets/js/charts.js"></script>
+</body>
+</html>

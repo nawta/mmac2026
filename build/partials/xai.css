@@ -1,0 +1,86 @@
+/* Slides 10 to 15, the explainability half. deck.css already carries the
+   section divider, the verdict scorecard, the table, the KPI blocks and the
+   figure, so what is left here is the handful of places where those defaults
+   do not fit the content: a narrower measure on the divider, a table with two
+   rows that can afford to breathe, a 2x2 block of KPIs beside a figure, and a
+   pair of charts that has to share one row.
+
+   Every rule is scoped to one of these six slide ids so nothing reaches a
+   slide someone else wrote. */
+
+/* ---- 10, the divider ------------------------------------------------- */
+
+/* .slide.section centres its body, so the measure is set here rather than by
+   the column width. Two short lines read as a statement; a full 1152px line
+   reads as a paragraph that happens to be centred. */
+#s-10-tested-explanations .body p {
+  max-width: 44ch;
+}
+
+/* ---- 11, the scorecard ----------------------------------------------- */
+
+/* deck.css colours a verdict's name with its own tone, mint for a check that
+   passes and lemon for the one reported as negative, but .slide strong is the
+   more specific selector and paints all six the same warm red. Naming the
+   element restores the tone the scorecard is built around. */
+#s-11-six-verdicts .verdict strong {
+  color: var(--tone-ink);
+}
+
+/* ---- 12, faithful and stable ----------------------------------------- */
+
+/* Two rows and four short columns leave most of the stage empty at the
+   default row height, so the rows take the space instead of the slide ending
+   in a band of nothing. */
+#s-12-faithful-stable .table th,
+#s-12-faithful-stable .table td {
+  padding: 22px 14px;
+}
+
+/* ---- 14, the ensemble and the edits ---------------------------------- */
+
+/* Four numbers beside a two-panel figure. .kpi-row lays its blocks out in one
+   row, which would give each of them 130px next to a figure, so they wrap to
+   2x2 and the type steps down to match the narrower block. */
+#s-14-ensemble-edits .kpi-row {
+  grid-auto-flow: row;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-self: start;
+}
+#s-14-ensemble-edits .kpi {
+  padding: 12px 14px;
+}
+#s-14-ensemble-edits .kpi__value {
+  font-size: 34px;
+}
+#s-14-ensemble-edits .kpi__label {
+  font-size: 19px;
+}
+#s-14-ensemble-edits .kpi__note {
+  font-size: 16px;
+}
+
+/* deck.css tints a .kpi through its row. These four carry a tone each, so the
+   same two declarations are made to read from the block's own data-tone. */
+#s-14-ensemble-edits .kpi[data-tone] {
+  background: var(--tone-soft);
+  border-color: var(--tone);
+}
+#s-14-ensemble-edits .kpi[data-tone] .kpi__value {
+  color: var(--tone-ink);
+}
+
+/* ---- 15, the reported negative --------------------------------------- */
+
+/* The two charts are the argument: frame saliency is flat, region saliency is
+   not. .cols aligns its columns to the top, which would leave both charts at
+   whatever height they were given; stretching them instead lets the pair take
+   the height the slide has left, so a line more or less of text above changes
+   the charts rather than pushing them off the stage. */
+#s-15-reported-negative .cols {
+  align-items: stretch;
+}
+#s-15-reported-negative .chart {
+  min-height: 0;
+}

@@ -1,0 +1,272 @@
+/* ============================================================================
+   site.css — the chrome around the slides.
+
+   Everything here is furniture the talk itself does not contain: which slide
+   you are on, how far through the deck you are, the buttons that start a
+   presentation, and the clock the speaker watches. All of it disappears under
+   body.is-capturing, so a captured PNG is the slide and nothing else, and all
+   of it disappears in print.
+
+   The markup this expects:
+
+     <span class="slide-number">7 / 16</span>      inside a .slide, or loose in
+                                                   the page for a fixed chip
+     <div class="progress"><div class="progress__bar"></div></div>
+         the runtime sets --deck-progress on .progress, from 0 to 1
+     <div class="title-actions"> <button>…</button> <a href="…">…</a> </div>
+         inside .slide.title; a link is the one that leaves the deck, so it
+         takes the filled treatment
+     <div class="timer"><span class="timer__value">00:00</span></div>
+         with .is-running, .is-paused, or .is-over on .timer
+
+   Sizes inside a slide are in stage pixels, because the runtime scales the
+   whole 1280x720 stage. Sizes on fixed chrome are real screen pixels.
+   ========================================================================== */
+
+/* ---------------------------------------------------------- slide number --*/
+
+/* The usual case: the number lives inside the slide and scales with it. Bottom
+   right, where nothing else on the stage reaches. */
+.slide .slide-number {
+  position: absolute;
+  right: var(--stage-pad-x);
+  bottom: 18px;
+  /* Undoes the chip the fallback rule below draws; inside a slide the number
+     sits straight on the slide's own ground. */
+  padding: 0;
+  border: none;
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+/* A short peach tick beside it, the same mark the deck uses elsewhere. */
+.slide .slide-number::before {
+  content: "";
+  width: 4px;
+  height: 1em;
+  border-radius: 2px;
+  background: var(--peach);
+}
+.slide.title .slide-number,
+.slide.lead .slide-number,
+.slide.section .slide-number { display: none; }
+
+/* The fallback: a number that sits in the page rather than in a slide. It
+   needs its own surface, because it has to read over the dark letterbox in
+   slide mode and over the light ground on the scrolling page. */
+.slide-number {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 40;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  border: var(--hairline);
+  background: var(--surface);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+/* -------------------------------------------------------------- progress --*/
+
+/* A hairline across the foot of the window. It reads over both grounds because
+   the track is a translucent grey and the fill is the deck's own two colours,
+   peach running into sky as the talk moves from the ensemble half to the
+   explainability half. */
+.progress {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 45;
+  height: 4px;
+  background: rgba(127, 127, 127, 0.28);
+  pointer-events: none;
+}
+.progress__bar {
+  height: 100%;
+  width: calc(var(--deck-progress, 0) * 100%);
+  background: linear-gradient(90deg, var(--peach) 0%, var(--sky) 100%);
+  transition: width 220ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress__bar { transition: none; }
+}
+
+/* --------------------------------------------------- title-slide buttons --*/
+
+.slide.title .title-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.slide.title .title-actions button,
+.slide.title .title-actions a,
+.slide a.btn,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45em 1.3em;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  line-height: normal;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease,
+              background-color 150ms ease;
+}
+.slide.title .title-actions button:hover,
+.slide a.btn:hover,
+.btn:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+/* A link is the one control that leaves the deck, so it gets the filled
+   treatment while the buttons that set up a talk stay quiet. */
+.slide.title .title-actions a,
+.slide a.btn--primary,
+.btn--primary {
+  border-color: var(--em);
+  background: var(--peach-soft);
+  color: var(--em);
+}
+.slide.title .title-actions a:hover,
+.btn--primary:hover {
+  background: var(--peach);
+  color: var(--em);
+}
+
+.slide.title .title-actions :focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* The key map some decks print under the buttons for a reader who arrived by
+   link rather than by walking into the room. */
+.slide.title .title-keys {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7em 1.5em;
+  margin-top: var(--space-sm);
+  font-size: var(--fs-fine);
+  color: var(--muted);
+}
+.slide.title .title-keys > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  white-space: nowrap;
+}
+.slide.title .title-keys kbd {
+  display: inline-block;
+  min-width: 2em;
+  padding: 0.2em 0.5em;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  line-height: 1.25;
+  text-align: center;
+}
+
+/* ----------------------------------------------------------------- timer --*/
+
+/* Top right. The slide number sits bottom right and .footnote runs along the
+   bottom edge, so this is the corner a slide is least likely to reach into.
+   The chip carries its own surface, which keeps it legible over the dark
+   letterbox in slide mode and over the light page in scroll mode. */
+.timer {
+  position: fixed;
+  right: 18px;
+  top: 18px;
+  z-index: 40;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.6em;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  border: var(--hairline);
+  background: var(--surface);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+.timer__value {
+  font-size: 19px;
+  color: var(--ink);
+}
+.timer__label {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.timer.is-running {
+  border-color: var(--mint);
+  background: var(--mint-soft);
+}
+.timer.is-running .timer__value { color: var(--mint-ink); }
+.timer.is-paused {
+  border-color: var(--line);
+  background: var(--surface);
+  opacity: 0.7;
+}
+/* Past the slot. Lemon first would be too quiet at the back of a room, so the
+   over state takes the emphasis colour outright. */
+.timer.is-over {
+  border-color: var(--em);
+  background: var(--peach-soft);
+}
+.timer.is-over .timer__value { color: var(--em); }
+
+/* ------------------------------------------------------ hiding the chrome --*/
+
+/* A capture is of the slide alone. */
+body.is-capturing .slide-number,
+body.is-capturing .progress,
+body.is-capturing .timer,
+body.is-capturing .title-actions,
+body.is-capturing .title-keys { display: none !important; }
+
+/* print.css owns the printed deck. This repeats the part that matters in case
+   the deck is printed without that stylesheet linked. */
+@media print {
+  .progress,
+  .timer,
+  .title-actions,
+  .title-keys { display: none !important; }
+  .slide-number {
+    position: absolute;
+    border: none;
+    background: none;
+  }
+}

@@ -1,0 +1,84 @@
+# The generated data files under docs/assets/data/ and docs/slides/assets/data/
+# are committed on purpose: GitHub Pages serves them straight from the branch.
+# Nothing below may match them, and the negations at the end of this file are
+# there to keep a later rule from doing so by accident.
+
+# macOS
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+.fseventsd
+Icon?
+
+# Windows and Linux file managers
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.directory
+
+# Editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.swp
+*.swo
+*~
+\#*\#
+.\#*
+
+# Python, for scripts/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Node, if a tool ever needs it here
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# Local server and tooling noise
+*.log
+.cache/
+.tmp/
+tmp/
+
+# Too large to belong in a talk site: model weights, raw and intermediate
+# arrays, capture data, video and archives. The paper's numbers reach this
+# repository as the small files scripts/build_site_data.py writes, never as
+# the sources those files were computed from.
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.pkl
+*.pickle
+*.joblib
+*.npy
+*.npz
+*.parquet
+*.bvh
+*.c3d
+*.fbx
+*.mp4
+*.mov
+*.avi
+*.webm
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# The published data files, again: whatever a rule above says, these stay.
+!docs/assets/data/
+!docs/assets/data/*.json
+!docs/slides/assets/data/
+!docs/slides/assets/data/*.js

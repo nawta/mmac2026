@@ -1,0 +1,67 @@
+      <section class="slide" id="s-16-one-idea" data-title="One idea">
+        <h2>One idea behind both halves</h2>
+        <div class="body">
+          <p class="lead-in">Performance varies <strong>about fourfold</strong> across performers, and the spread splits in two.</p>
+          <div class="cards" data-cols="2">
+            <div class="card">
+              <h3>Half is intrinsic difficulty</h3>
+              <p>Some performers are hard for every member.</p>
+            </div>
+            <div class="card">
+              <h3>Half is model-specific error</h3>
+              <p>Averaging orthogonal members cancels this half. The explanations describe the same structure.</p>
+            </div>
+          </div>
+          <div class="callout" data-tone="warn">
+            <p><strong>Where we are honest</strong></p>
+            <ul>
+              <li>Absolute Macro-F1 is low, so we claim a <strong>+43%</strong> relative gain over the baseline we reproduced.</li>
+              <li>The headline is ten-fold cross-validation on training performers, and the hidden test is pending.</li>
+              <li>Laban alignment is a match in vocabulary. Masking and motion edits test dependence separately.</li>
+            </ul>
+          </div>
+          <p class="footnote">We have not released the rationale dataset while consent and licensing are under review.</p>
+        </div>
+        <aside class="notes">
+          <p>Let me put the two halves of the talk together. Performance varies by roughly a factor of four from one performer to the next. About half of that variation is difficulty every model shares, because some performers are hard for all of them. The other half is specific to one model: a performer that one architecture happens to fail on.</p>
+          <p>That second half is what averaging cancels, because the members fail on different people. It is also the same structure the explanations describe, so both halves of the talk come from one mechanism.</p>
+          <p>I want to be clear about the limits. The absolute score is low, so what I am claiming is a relative gain, forty-three percent over a baseline we reproduced on the same split. The headline comes from ten-fold cross-validation on the training performers, and the hidden test result is still pending. And the Laban alignment is a match in vocabulary rather than a proof of dependence. We test dependence separately, with masking and motion edits.</p>
+        </aside>
+      </section>
+
+      <section class="slide closing" id="s-17-close" data-title="Takeaways">
+        <h2>Orthogonal errors win, and explanations can be tested</h2>
+        <div class="body">
+          <ol class="takeaways">
+            <li>On underdetermined body-motion tasks, look for members that fail on different clips.</li>
+            <li>Test the explanations, and report the checks that come back negative.</li>
+            <li>Our system reads body regions in Laban terms, and for sadness that is a bowed, sunken posture.</li>
+          </ol>
+          <div class="kpi-row">
+            <div class="kpi" data-tone="em">
+              <div class="kpi__value">+11.07 pp</div>
+              <div class="kpi__label">gain on the same split</div>
+              <div class="kpi__note">36.80 ± 4.00% vs 25.73 ± 4.03%</div>
+            </div>
+            <div class="kpi" data-tone="note">
+              <div class="kpi__value">ρ = +0.500</div>
+              <div class="kpi__label">Laban alignment, against +0.033 for kinematics</div>
+              <div class="kpi__note">submitted ensemble ρ = +0.517</div>
+            </div>
+            <div class="kpi" data-tone="ok">
+              <div class="kpi__value">6 checks</div>
+              <div class="kpi__label">five pass, one reported negative</div>
+              <div class="kpi__note">post hoc, at no accuracy cost</div>
+            </div>
+          </div>
+          <div class="signoff">
+            <p class="signoff__thanks">Thank you. I am happy to take questions.</p>
+            <p class="signoff__by">Naoto Nishida and Yoshio Ishiguro, The University of Tokyo</p>
+          </div>
+        </div>
+        <aside class="notes">
+          <p>That is the talk. I would like you to carry two things out of the room. On a task like this one, where the setting is underdetermined and no single architecture transfers across strangers, the gain comes from members that fail on different clips rather than from a bigger single model.</p>
+          <p>The second thing is the explanations. Test them, and report the check that comes back negative, because it is what makes the positive ones worth anything. When we did test ours, the system turned out to read the motion of each body region the way a movement analyst would name it.</p>
+          <p>Thank you, and I am happy to take questions.</p>
+        </aside>
+      </section>

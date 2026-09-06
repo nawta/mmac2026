@@ -1,0 +1,66 @@
+{
+  "members": [
+    {
+      "member": "MAMP-NTU60",
+      "family": "External (frozen)",
+      "delta": -0.84
+    },
+    {
+      "member": "SkateFormer",
+      "family": "Attention",
+      "delta": -0.68
+    },
+    {
+      "member": "MAMP-NTU120",
+      "family": "External (frozen)",
+      "delta": -0.61
+    },
+    {
+      "member": "Region-Aware ConvTr",
+      "family": "Graph-conv.",
+      "delta": -0.59
+    },
+    {
+      "member": "C3D-marker-stats",
+      "family": "External (frozen)",
+      "delta": -0.52
+    },
+    {
+      "member": "MotionBERT-Lite",
+      "family": "External (frozen)",
+      "delta": -0.47
+    },
+    {
+      "member": "Keypoint-Pool-MLP",
+      "family": "Hybrid/MLP",
+      "delta": -0.45
+    },
+    {
+      "member": "STGCN++",
+      "family": "Graph-conv.",
+      "delta": -0.42
+    },
+    {
+      "member": "Conv1D+Transformer",
+      "family": "Hybrid/MLP",
+      "delta": -0.3
+    },
+    {
+      "member": "ProtoGCN",
+      "family": "Graph-conv.",
+      "delta": -0.15
+    },
+    {
+      "member": "CTR-GCN",
+      "family": "Graph-conv.",
+      "delta": -0.09
+    }
+  ],
+  "block": {
+    "member": "All frozen externals (4)",
+    "family": "External (frozen)",
+    "delta": -2.91
+  },
+  "base": 36.94,
+  "note": "Change in pooled out-of-fold Macro-F1 when one member leaves the logit mean."
+}

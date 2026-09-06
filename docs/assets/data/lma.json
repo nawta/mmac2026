@@ -1,0 +1,91 @@
+{
+  "perEmotion": [
+    {
+      "emotion": "anger",
+      "member": 0.6,
+      "ensemble": 0.2,
+      "kinematics": 1.0
+    },
+    {
+      "emotion": "contempt",
+      "member": 0.4,
+      "ensemble": 0.0,
+      "kinematics": 1.0
+    },
+    {
+      "emotion": "disgust",
+      "member": 0.8,
+      "ensemble": 0.4,
+      "kinematics": -0.2
+    },
+    {
+      "emotion": "fear",
+      "member": 1.0,
+      "ensemble": 0.2,
+      "kinematics": 0.0
+    },
+    {
+      "emotion": "joy",
+      "member": 0.4,
+      "ensemble": 0.8,
+      "kinematics": 0.8
+    },
+    {
+      "emotion": "sadness",
+      "member": 1.0,
+      "ensemble": 0.8,
+      "kinematics": -0.4
+    },
+    {
+      "emotion": "surprise",
+      "member": -0.8,
+      "ensemble": 0.8,
+      "kinematics": -0.2
+    },
+    {
+      "emotion": "jealousy",
+      "member": 0.4,
+      "ensemble": 0.6,
+      "kinematics": 0.8
+    },
+    {
+      "emotion": "shame",
+      "member": -0.2,
+      "ensemble": 1.0,
+      "kinematics": -0.4
+    },
+    {
+      "emotion": "guilt",
+      "member": 0.8,
+      "ensemble": 0.8,
+      "kinematics": 0.6
+    },
+    {
+      "emotion": "gratitude",
+      "member": 0.8,
+      "ensemble": 0.4,
+      "kinematics": -0.8
+    },
+    {
+      "emotion": "pride",
+      "member": 0.8,
+      "ensemble": 0.2,
+      "kinematics": 0.6
+    }
+  ],
+  "headline": {
+    "memberRho": 0.5,
+    "kinematicsRho": 0.033,
+    "memberCi": [
+      0.15,
+      0.733
+    ],
+    "ensembleRho": 0.517,
+    "ensembleCi": [
+      0.333,
+      0.7
+    ],
+    "ensembleP": 0.001
+  },
+  "note": "Region-level Spearman correlation between saliency and rule-based Laban attributes."
+}

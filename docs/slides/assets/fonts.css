@@ -1,0 +1,38 @@
+/* ============================================================================
+   fonts.css — the two bundled faces, and nothing else.
+
+   Both files sit in assets/vendor/fonts next to this stylesheet, with their
+   licences in assets/vendor/LICENSES. Nothing here is fetched from a CDN.
+
+   Outfit ships as one variable file covering the whole 100-900 range, so a
+   single @font-face replaces the usual weight-per-file set. PlemolJP is the
+   mono face and comes in the two weights the deck actually sets.
+
+   Japanese has no bundled face on purpose. The Japanese landing page uses
+   --font-ja, which resolves to a face the reader's own system already has, so
+   no character can fall through to a missing glyph.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Outfit";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("vendor/fonts/outfit-var.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "PlemolJP";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("vendor/fonts/plemoljp-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "PlemolJP";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("vendor/fonts/plemoljp-700.woff2") format("woff2");
+}

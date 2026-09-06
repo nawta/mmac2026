@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Orthogonal Ensembles and Tested Explanations · ACII 2026 MMAC Challenge（日本語）</title>
+<meta name="description" content="ACII 2026 MMAC Challenge の口頭発表。互いに違うクリップで間違える 11 個のモデルを束ね、プロトコルを揃えた再現ベースラインより Macro-F1 が +11.07 pp 上がりました。説明は可視化して終わりにせず、ひとつずつ検証しています。" />
+<link rel="canonical" href="https://nawta.github.io/mmac2026/ja/" />
+<link rel="alternate" hreflang="en" href="https://nawta.github.io/mmac2026/" />
+<link rel="alternate" hreflang="ja" href="https://nawta.github.io/mmac2026/ja/" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Orthogonal Ensembles and Tested Explanations for Performer-Independent Body-Motion Emotion Recognition" />
+<meta property="og:description" content="ACII 2026 MMAC Challenge の口頭発表。メンバーの誤りが互いに直交していることが利得を生みます（プロトコルを揃えた再現ベースラインに対して +11.07 pp）。説明は 6 つの判定で検証し、5 つが肯定、1 つは否定として報告しました。" />
+<meta property="og:url" content="https://nawta.github.io/mmac2026/ja/" />
+<meta property="og:locale" content="ja_JP" />
+<meta name="twitter:card" content="summary" />
+<script>
+  /* Apply a stored theme choice before the first paint. Nothing is written to
+     the root element when no choice is stored, so the CSS media query keeps
+     following the reader's system setting. */
+  (function () {
+    try {
+      var stored = localStorage.getItem("mmac-theme");
+      if (stored === "light" || stored === "dark") {
+        document.documentElement.setAttribute("data-theme", stored);
+      }
+    } catch (e) {}
+  })();
+</script>
+<link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<!-- lang="ja" is repeated on the body so the stylesheet's [lang="ja"] rule wins
+     over its own body { font-family } and the page renders in --font-ja.
+     Japanese text also stays on one source line per block: a line break between
+     two CJK characters renders as a space and would open a gap mid-sentence. -->
+<body lang="ja">
+
+<a class="skip" href="#summary">本文へスキップ</a>
+
+<nav class="topbar" aria-label="ページ内">
+  <div class="topbar__inner">
+    <a class="topbar__mark" href="#top">MMAC · ACII 2026</a>
+    <div class="topbar__nav">
+      <a href="#summary">概要</a>
+      <a href="#results">結果</a>
+      <a href="#orthogonality">なぜ効くのか</a>
+      <a href="#explanations">説明の検証</a>
+      <a href="#limits">限界</a>
+      <a href="#cite">引用</a>
+    </div>
+    <div class="topbar__right">
+      <a class="lang-switch" href="../" hreflang="en" lang="en" title="English version">English</a>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="明るいテーマと暗いテーマを切り替える">◐</button>
+    </div>
+  </div>
+</nav>
+
+<header class="site-header wrap" id="top">
+  <p class="eyebrow">ACII 2026 · MMAC Challenge · 口頭発表</p>
+  <h1>Orthogonal Ensembles and Tested Explanations for Performer-Independent Body-Motion Emotion Recognition</h1>
+  <p class="byline"><strong>Naoto Nishida</strong>・<strong>Yoshio Ishiguro</strong></p>
+  <p class="affiliation">The University of Tokyo</p>
+  <p class="venue">MMAC Challenge at ACII 2026: Cross-Cultural Emotion Recognition from Body Movements、DIEM-A subset。</p>
+
+  <div class="hero-links">
+    <a class="btn" href="../slides/">発表スライド（英語）</a>
+    <span class="btn" aria-disabled="true">論文 · ACII 2026 Workshops、リンクは公開待ち</span>
+    <a class="btn ghost" href="#cite">引用する</a>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi" data-tone="em">
+      <span class="kpi__value">36.80 ± 4.00%</span>
+      <span class="kpi__label">提出した 11-way ensemble の Macro-F1</span>
+      <span class="kpi__note">Macro-F1 はクラスごとの F1 の平均。10-fold leave-performers-out（学習に使っていない演者でテストする）交差検証の値</span>
+    </div>
+    <div class="kpi" data-tone="ok">
+      <span class="kpi__value">+11.07 pp</span>
+      <span class="kpi__label">同じ分割で再現したベースラインとの差</span>
+      <span class="kpi__note">相対では +43%。チャンスレベルは 8.3%</span>
+    </div>
+    <div class="kpi" data-tone="note">
+      <span class="kpi__value">ρ = +0.500 vs +0.033</span>
+      <span class="kpi__label">saliency と Laban Movement Analysis（動作分析の専門家が使う記述語彙）属性の一致</span>
+      <span class="kpi__note">古典的な運動学量を対照に置いた値の約 15 倍。提出した ensemble では ρ = +0.517</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="summary">
+    <h2>この研究について</h2>
+    <p class="section-lede">身体の動きだけから 12 種類の演技された感情を当てる、チャレンジに提出したシステムです。結果は 2 つあり、なぜ効くのかと、モデルが何を読んでいるのかを示します。</p>
+
+    <p>課題は、骨格の動きだけから 12 種類の演技された感情のうち 1 つを選ぶことです。顔も音声も場面の情報も使いません。テストに使う演者は、学習には一度も登場しません。難しいのはこの最後の条件です。意味の近い感情は運動の特徴を共有するので、モデルは jealousy を contempt と、guilt を sadness や shame と取り違えます。演者ごとに動き方の癖があり、人による散らばりが感情による散らばりを上回ることもあります。チャンスレベルは 8.3% です。再現した STGCN++ ベースラインは、このページ全体で使う 10-fold leave-performers-out プロトコルのもとで Macro-F1 <span class="num">25.73 ± 4.03%</span> にとどまります。評価は学習用の 74 名（7,992 クリップ）を 10 分割して行い、チャレンジのテストは別の 18 名から取った 1,944 クリップです。</p>
+
+    <p>提出したシステムの Macro-F1 は <strong>36.80 ± 4.00%</strong> で、同じ分割で再現したベースラインより <strong>+11.07 pp</strong> 高く、相対では <strong>+43%</strong> です。この差は、メンバーどうしの食い違いが生んでいます。graph convolution、attention、hybrid MLP、凍結した外部事前学習という 4 つの帰納バイアス系統から 11 個のモデルを集め、確率に直す前の生の logit を等重みで平均して統合します（logit-mean）。融合の重みはどこにも学習させません。サンプル単位の誤りの相関はメンバー間で 0.15 から 0.43 に収まり、メンバーは互いに違うクリップで間違えます。平均は誤りを打ち消し、増幅しません。単一のモデルを大きくしても、同じことは起きませんでした。私たちが学習できた最良の単一モデルは 30.05 ± 3.48% で頭打ちです。</p>
+
+    <p>後半では、説明を検証にかけます。図に描いて示すだけでは終わりません。モデルがある身体部位を使っていると主張するたびに、その部位を隠すか、揺らすか、動きを編集して、予測が動くかどうかを確かめます。検証は 6 つの判定を返し、6 つとも報告します。5 つが肯定で、1 つが否定です。中心になる肯定は、部位の saliency（顕著度）がルールベースの Laban Movement Analysis 属性と Spearman <strong>ρ = +0.500</strong> で一致することです。古典的な運動学量を対照に置くと <strong>+0.033</strong> なので、およそ 15 倍の強さです。提出した ensemble でも同じ一致が <strong>ρ = +0.517</strong> で成り立ちます。結果は普通の言葉で読めます。sadness では、動作分析の専門家が名指す領域、つまり頭が前に垂れ、頭の高さが下がり、体幹が前に傾く姿勢に、モデルが注目します。</p>
+
+    <p>主張しないことも、主張することと同じだけ大事です。見出しの数字は、ラベル付きの学習用演者に対する交差検証であって、リーダーボードの順位ではありません。隠れテストの結果はまだ出ていません。Macro-F1 が 37% 前後という絶対値は低く、それを良いとは言いません。Laban の結果は意味の上での一致です。モデルがある部位に依存しているかどうかは、マスキングと安定性で別に確かめています。動きを編集する反実仮想の操作は、モデルがその動きに頼っていることを裏づけますが、因果を証明しません。日本と台湾の演者の差はデータセットの層で、収録時期と個人の動き方の癖に絡み合っています。文化的な発見としては読みません。<a href="#limits">限界のセクション</a>には、それぞれを、その範囲を縛るチェックと一緒に書いています。</p>
+  </section>
+
+  <section id="results">
+    <h2>結果</h2>
+    <p class="section-lede">下の表の各行は、同じ 10-fold leave-performers-out 分割で評価しています。行どうしの比較はプロトコルが揃っています。</p>
+
+    <p>ensemble の学習可能パラメータは合計 12.98 M で、1 回の推論は 64 フレームのクリップに対する 11 回の順伝播と、パラメータを持たない平均だけです。確率ではなく生の logit を平均するだけで <strong>+1.15 pp</strong> 稼げます。これは値の大きさが生んだ見かけの差ではありません。メンバーの出力を先に z 標準化しても +0.99 pp が残り、順位だけを使う Borda 融合でも +0.69 pp が残ります。</p>
+
+    <figure class="chart-figure" id="tbl-results">
+      <div class="table-scroll">
+        <table class="table" id="results-table">
+          <caption class="sr-only">主要な結果表</caption>
+          <thead data-results-head></thead>
+          <tbody data-results-body>
+            <tr class="is-placeholder"><td>結果表を ../assets/data/results.json から読み込んでいます …</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="footnote" data-results-notes></div>
+      <figcaption><b>表 1.</b> 再現したベースライン、最良の単一モデル、2 つの ensemble について、Macro-F1 と accuracy を並べています。+11.07 pp は、再現したベースラインの行と提出した ensemble の行のあいだで測っています。official baseline の行は、チャレンジが 92 名の full leave-performers-out プロトコルで報告した値をそのまま引いたものです。外部の目安にすぎず、私たちが再評価した行ではありません。表の中身は、スライドと同じ生成済みファイルから読み込んでいます。</figcaption>
+    </figure>
+
+    <figure class="chart-figure" id="fig-liftpath">
+      <div class="chart" id="chart-liftpath" data-chart="liftpath" data-src="liftpath" role="img"
+           aria-label="4 段階の Macro-F1 の棒グラフ。再現した STGCN++ が 25.73%、最良の単一モデルが 30.05%、7-way ensemble が 33.86%、11-way logit-mean ensemble が 36.80%。"></div>
+      <figcaption><b>図 1.</b> 利得は段階を追って積み上がります。棒は fold ごとの Macro-F1 の平均で、ひげは 10 fold にわたる標準偏差です。棒の隣にある青い印は pooled out-of-fold の値とそのブートストラップ 95% 信頼区間で、同じシステムに対するもう一つの集計の仕方です。この 2 つを同じ数字として読まないでください。ensemble は最良の単一モデルを約 6.8 pp 上回り、再現したベースラインに対する改善は 10 fold すべてでゼロを含みません（fold 単位の 95% 信頼区間 [9.86, 12.33] pp、演者ごと再サンプリングでは [9.14, 12.17] pp）。</figcaption>
+    </figure>
+
+    <div class="callout" data-tone="warn">
+      <p><span class="pill" data-tone="warn">適用範囲</span> 36.80 ± 4.00% は、ラベル付きの学習用演者に対する 10-fold leave-performers-out 交差検証の値です。リーダーボードの順位ではありません。隠れテストの結果は保留中です。</p>
+    </div>
+  </section>
+
+  <section id="orthogonality">
+    <h2>ensemble が効く理由</h2>
+    <p class="section-lede">メンバーが同じクリップで揃って間違えることは少なく、結果を 1 つのメンバーが背負ってはいません。</p>
+
+    <p>11 メンバーのサンプル単位の誤り相関は [0.15, 0.43] に収まります。相関がいちばん低いのは、他と性質がもっとも違う、凍結した外部事前学習の枝です。相関が中程度でも冗長とは限りません。2 つの MAMP メンバーは互いに相関していますが、単独の寄与では最大です。凍結した外部ブロックを 4 つまとめて外すと、pooled out-of-fold Macro-F1 が <strong>−2.91 pp</strong> 下がります。利得は枝のあいだに分散していて、どれか 1 本が全部を担っているのではありません。</p>
+
+    <figure class="chart-figure" id="fig-loo">
+      <div class="chart" id="chart-loo" data-chart="loo" data-src="loo" role="img"
+           aria-label="11 個のメンバーを 1 つずつ外したときの pooled out-of-fold Macro-F1 の変化を示す横棒グラフ。変化はすべて負で、MAMP-NTU60 の −0.84 ポイントから CTR-GCN の −0.09 ポイントまでの幅に収まる。"></div>
+      <figcaption><b>図 2.</b> メンバーを 1 つずつ外した結果です。各棒は、そのメンバーが logit-mean から抜けたときの pooled out-of-fold Macro-F1 の変化で、基準は 36.94% です。11 個すべてが負で、−0.84 pp から −0.09 pp までの幅に入ります。どのメンバーも寄与していて、突出して支配的なものはありません。損失がいちばん小さい 2 つは graph convolution 系のメンバーで、互いにもっとも冗長です。凍結した外部メンバー 4 つを同時に外すと −2.91 pp 下がります。これは単独のどのメンバーより大きく、graph convolution 系の損失を合計した値よりも大きい値です。</figcaption>
+    </figure>
+
+    <p>残った誤りは、この課題の混同構造から予想できるものです。誤りは意味の近い感情のあいだに落ちます。jealousy は contempt に、guilt は sadness や shame に流れます。これは、モデルの最大確信度が 62% 程度と低いことと整合します。演者ごとの Macro-F1 はおよそ 4 倍の幅で変わり、その変動のおよそ半分は課題そのものの難しさ、残りのおよそ半分はアーキテクチャに固有の誤りです。ensemble が打ち消すのはこのアーキテクチャ固有の半分で、このあとの説明が読み取るのも同じ食い違いの構造です。</p>
+  </section>
+
+  <section id="explanations">
+    <h2>検証された説明</h2>
+    <p class="section-lede">ヒートマップは主張するだけです。検証は否定も返せます。実際に 1 つが否定でした。</p>
+
+    <p>描いただけの saliency map は、間違っていると示す手立てがありません。飾りの帰属も本物の帰属も、まったく同じに見えるからです。そこでこのシステムでは、主張ごとに、失敗しうるチェックを用意しました。部位を隠して、重要でない部位を隠したときより精度が大きく落ちるかを見ます。ノイズを足して順位が保たれるかを確かめます。動きを編集して予測が動くかを調べます。検証は、提出した ensemble に入っている強いメンバー 1 つに対して、学習を終えたあとに実行します。Macro-F1 のコストは 0 pp で、再学習もしません。中心になる 2 つのチェックは、提出した 11-way ensemble 自体でももう一度走らせています。</p>
+
+    <div class="verdicts" id="verdicts">
+      <div class="verdict" data-result="pass">
+        <h3>忠実さ <span class="verdict__result">合格</span></h3>
+        <p>モデルが重要と呼んだ部位を隠すと、重要でないと呼んだ部位を隠したときより精度が大きく落ちます。AUC の差は 6 部位で <span class="num">+0.124 ± 0.031</span> で、10 fold すべてで正でした。25 関節の解像度では +0.199 です。</p>
+      </div>
+      <div class="verdict" data-result="pass">
+        <h3>安定さ <span class="verdict__result">合格</span></h3>
+        <p>部位の順位は入力ノイズを加えても保たれます。σ = 0.02 のとき Spearman <span class="num">ρ = +0.983 ± 0.039</span> で、首位の部位は一度も入れ替わりません。これがなければ、次に挙げる一致は自己整合的な飾りにすぎません。</p>
+      </div>
+      <div class="verdict" data-result="pass">
+        <h3>意味の裏づけ <span class="verdict__result">合格</span></h3>
+        <p>部位の saliency はルールベースの Laban 属性と <span class="num">ρ = +0.500</span> で一致し、運動学量の対照は <span class="num">+0.033</span> にとどまります。感情ブロックのブートストラップ信頼区間は <span class="num">[+0.150, +0.733]</span> で、感情内で並べ替えた帰無分布では p &lt; 0.001 です。</p>
+      </div>
+      <div class="verdict" data-result="pass">
+        <h3>挙動の裏づけ <span class="verdict__result">合格</span></h3>
+        <p>動きを編集すると予測が動きます。いちばん影響が大きいのは頭を固定する編集で（<span class="num">Δp_true = −0.0164</span>、予測の <span class="num">41%</span> が反転）、腕を強調する編集では <span class="num">23.1%</span> が反転します。マスキングと動きの編集という独立した 2 系統の摂動が、同じ頭と首の領域を 1 位に置きます。</p>
+      </div>
+      <div class="verdict" data-result="pass">
+        <h3>説明文の根拠 <span class="verdict__result">合格</span></h3>
+        <p>監査した 50 枚の説明カードのうち、元のスコアが支えていない主張を含むものは <span class="num">0</span> 枚です。カードは定性的なものなので、根拠の数字だけを載せ、正解率は載せません。</p>
+      </div>
+      <div class="verdict" data-result="reported-negative">
+        <h3>フレームの局在 <span class="verdict__result">否定を報告</span></h3>
+        <p>窓の中でのフレームの重要度はほぼ一様です。サンプルごとのエントロピーは log T の約 98.7%、クラス平均では 99.5% です。important から reverse を引いた AUC の差は約 <span class="num">+0.002</span> で、空間側の +0.124 とは大きく違います。モデルが頼る手がかりは空間の側にあり、1 つのフレームが決め手になるわけではありません。これはフレームを特定できるかどうかの話です。時間の情報を使っていないという話ではありません。クリップを逆再生すると精度は動きます。</p>
+      </div>
+    </div>
+
+    <p>中心になる 2 つのチェックは、提出した 11-way ensemble でも走らせました。Laban との一致は <strong>ρ = +0.517</strong>（信頼区間 [+0.333, +0.700]、p = 0.001）で、部位マスキングの差は 10 fold すべてで正のままです。この結果は、1 つのメンバーだけでなく、提出したシステムそのものを説明します。動きの編集は、モデルがその動きに頼っていることを裏づけますが、因果の証明ではありません。マスキングと編集の一致それ自体は n = 6 で ρ = 0.49、p = 0.33 と示唆にとどまるので、主張は、標本数が十分にある +0.500 対 +0.033 の対比に置きます。</p>
+
+    <figure class="chart-figure" id="fig-lma">
+      <div class="chart" id="chart-lma" data-chart="lma" data-src="lma" role="img"
+           aria-label="部位の saliency と Laban 属性の Spearman 相関を感情ごとに示した横棒グラフ。単一メンバー、提出した ensemble、古典的な運動学量の対照を並べる。一致が正になるのはメンバーで 12 感情中 10、ensemble で 12 感情中 11。"></div>
+      <figcaption><b>図 3.</b> モデルが見ている場所が、動作分析の専門家がその動きを記述する言葉と、感情ごとにどれだけ一致するかを示します。各行は 4 つの身体領域にわたる Spearman 相関なので、1 行が取りうる値は少数の離散値にとどまり、どの行も単独で主張を支えません。12 感情をまとめると、メンバーで ρ = +0.500、提出した ensemble で ρ = +0.517、古典的な運動学量の対照で ρ = +0.033 です。一致が正になるのは、メンバーでは 12 感情中 10（符号検定 p = 0.039、中央値 ρ = +0.70）、ensemble では 12 感情中 11（p = 0.001）です。sadness を具体的に読むと、頭が前に垂れ、頭の高さが下がり、体幹が前に傾く、うつむいた姿勢が浮かびます。</figcaption>
+    </figure>
+  </section>
+
+  <section id="limits">
+    <h2>この研究が主張しないこと</h2>
+    <p class="section-lede">以下の限界には、それぞれの範囲を縛るチェックを添えています。</p>
+
+    <ul class="limits">
+      <li><b>見出しの数字は交差検証であって、リーダーボードの結果ではありません。</b> 36.80 ± 4.00% は、ラベル付きの学習用演者 74 名に対する 10-fold leave-performers-out 交差検証の値で、隠れテストの結果は保留中です。このページの比較はすべて同じ分割の上で行っています。絶対値は開発段階の所見ですが、+11.07 pp の差はプロトコルが揃った比較から出ています。</li>
+      <li><b>official baseline は外部の目安です。</b> チャレンジは 92 名のプロトコルで 25.21 ± 4.49% を報告していますが、私たちはこれを再評価していません。私たち自身の再現値 25.73 ± 4.03% は、その標準偏差 1 つ分の中に収まります。改善の数字はすべて、official の値ではなく再現値を基準に測っています。</li>
+      <li><b>絶対値は低いままです。</b> 12 クラスで Macro-F1 が 37% 前後という値は低く、私たちもこれを良い数字だとは主張しません。チャンスレベル 8.3% に対して約 4.4 倍で、プロトコルを揃えた再現値に対する相対利得は +43%、12 クラスすべてが改善します。</li>
+      <li><b>Laban との一致は意味の上のもので、因果ではありません。</b> 一致が示すのは、帰属が動作分析の専門家に通じる意味を持つことです。モデルがある部位に依存しているかどうかは別の問題で、部位マスキング（+0.124 ± 0.031）とノイズ下の安定性（ρ = +0.983 ± 0.039）で確かめています。</li>
+      <li><b>反実仮想の編集は裏づけであって、証明ではありません。</b> 編集はマスキングと同じ部位の順位で予測を動かします。2 つの手法が同じ結論に集まったということで、因果の説明ではありません。両者の一致は n = 6（ρ = 0.49、p = 0.33）にとどまるので、主張は +0.500 対 +0.033 の対比に置いています。</li>
+      <li><b>日本と台湾の差はデータセットの層です。</b> 収録時期と個人の動き方の癖に絡み合っていて、文化的な効果としては読みません。演者の国は動きの特徴から 69.8% で当てられるので、これは交絡として扱います。収録が最も古い日本の学習用演者 7 名を外すと、pooled out-of-fold Macro-F1 は −0.44 pp 動きます（36.50% 対 36.94%）。</li>
+      <li><b>説明の結果には適用範囲があります。</b> ここで示したのは、提出した ensemble に入っている強いメンバー 1 つと、提出した 11-way ensemble そのものについての結果です。骨格から感情を読むモデル一般に当てはまるものではありません。</li>
+    </ul>
+
+    <div class="callout" data-tone="note">
+      <p>否定的な結果も記録の一部です。supervised-contrastive head、mixture-of-experts による融合、シナリオ文との対応づけ、視覚言語モデルからの蒸留、事後のキャリブレーションは、このプロトコルのもとでいずれも失敗するか悪化しました。実験の設定と一緒に論文に載せています。設計が単一アーキテクチャの改良ではなく多様性へ向かったのは、これらがあったからです。</p>
+    </div>
+  </section>
+
+  <section id="cite">
+    <h2>引用</h2>
+    <p class="section-lede">ページ番号と DOI は、予稿集が公開されるまで空けています。</p>
+
+    <div class="bibtex-wrap">
+      <button class="copy-btn" type="button" data-copy-target="bibtex">コピー</button>
+<pre class="bibtex" id="bibtex">@inproceedings{nishida2026orthogonal,
+  title     = {Orthogonal Ensembles and Tested Explanations for
+               Performer-Independent Body-Motion Emotion Recognition},
+  author    = {Nishida, Naoto and Ishiguro, Yoshio},
+  booktitle = {2026 International Conference on Affective Computing and
+               Intelligent Interaction Workshops and Demos (ACIIW)},
+  year      = {2026},
+  note      = {MMAC Challenge: Cross-Cultural Emotion Recognition from
+               Body Movements}
+}</pre>
+    </div>
+    <p class="footnote">論文は MMAC Challenge の ACII 2026 Workshops 予稿集に収録されます。公開され次第、ここにリンクを追加します。</p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Naoto Nishida・Yoshio Ishiguro（The University of Tokyo）。MMAC Challenge at ACII 2026: Cross-Cultural Emotion Recognition from Body Movements。<a href="../slides/">発表スライド（英語）</a> · <a href="../" hreflang="en" lang="en">English</a></p>
+    <p>このページの数字はすべて論文の表と図に由来し、<code>assets/data/</code> の生成済みデータファイルを経由して表示しています。図が読むファイルは、スライドが読むファイルと同じです。</p>
+    <p>第三者の成果物を同梱しています。すべてこのサイトから配信し、CDN は使いません。<a href="https://echarts.apache.org/">Apache ECharts</a> 5.6.0 は Apache License 2.0 のもとで、<a href="https://github.com/Outfitio/Outfit-Fonts">Outfit</a> と <a href="https://github.com/yuru7/PlemolJP">PlemolJP</a> の書体は SIL Open Font License 1.1 のもとで使っています。全文は <a href="../assets/vendor/LICENSES/">assets/vendor/LICENSES/</a> にあります: <a href="../assets/vendor/LICENSES/ECharts-Apache-2.0.txt">ECharts</a>、<a href="../assets/vendor/LICENSES/ECharts-NOTICE.txt">ECharts NOTICE</a>、<a href="../assets/vendor/LICENSES/Outfit-OFL-1.1.txt">Outfit</a>、<a href="../assets/vendor/LICENSES/PlemolJP-OFL-1.1.txt">PlemolJP</a>。この日本語ページは読者の環境にあるフォントを使うので、日本語のウェブフォントは配信していません。</p>
+  </div>
+</footer>
+
+<script src="../assets/vendor/echarts.min.js"></script>
+<script src="../assets/js/charts.js"></script>
+</body>
+</html>
