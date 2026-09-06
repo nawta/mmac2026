@@ -173,12 +173,12 @@
       moves. Six such tests were run and all six are reported, five positive and one negative. The main positive result
       concerns Laban Movement Analysis, a vocabulary movement professionals use to describe how a body moves, in terms
       such as how far the head bows or how far the trunk leans, written by people rather than learned from data. Rank the
-      four body regions by how much the model used them, rank them again by those written attributes, and the two orders
-      agree at Spearman <strong>ρ = +0.500</strong>, on a scale where +1 is identical orders, 0 unrelated, and −1
-      opposite. A control built from ordinary motion measurements instead of the analyst vocabulary reaches only
-      <strong>+0.033</strong>, about fifteen times weaker, and the same comparison on the submitted eleven-model system
-      gives <strong>ρ = +0.517</strong>. For sadness the parts the model used are the ones an analyst would name for it:
-      a bowed head, a lower head height, and a forward lean of the trunk.
+      four body regions, which are head, arms, legs and torso, by how much the model used them, rank them again by those
+      written attributes, and the two orders agree at Spearman <strong>ρ = +0.500</strong>, on a scale where +1 is
+      identical orders, 0 unrelated, and −1 opposite. A control built from ordinary motion measurements instead of the
+      analyst vocabulary reaches only <strong>+0.033</strong>, about fifteen times weaker, and the same comparison on
+      the submitted eleven-model system gives <strong>ρ = +0.517</strong>. For sadness the parts the model used are
+      the ones an analyst would name for it: a bowed head, a lower head height, and a forward lean of the trunk.
     </p>
 
     <p>
@@ -187,7 +187,7 @@
       Macro-F1 near 37% is low, and we do not defend it as good. The Laban result says the parts the model used carry
       meaning; whether the model depends on them is a separate question, tested separately by hiding parts and by
       checking the ranking under noise. Editing the motion corroborates that the model relies on that motion without
-      proving causation. The difference between the Japanese and Taiwanese performers is a dataset stratum tangled up
+      proving causation. The difference between the Japanese and Taiwanese performers is a split in the data, tangled up
       with when the recordings were made and how individuals move, and we do not read it as a cultural finding.
       <a href="#limits">The limits section</a> states each of these with the check that bounds it, and
       <a href="#glossary">the glossary</a> collects the terms.
@@ -257,7 +257,7 @@
     <p>
       Taken pair by pair, the correlation between which recordings two of them get wrong falls between 0.15 and 0.43,
       and the lowest values belong to the models trained beforehand on other data, which differ most from the rest.
-      Moderate correlation does not mean redundancy: the two MAMP members correlate with each other and still supply the
+      Moderate correlation does not mean redundancy: the pair of members whose errors agree most still supply the
       largest single contribution. Removing that whole pretrained block at once costs <strong>−2.91 pp</strong>, so the
       gain is spread across the four kinds of model rather than coming from one of them.
     </p>
@@ -289,7 +289,7 @@
     <p class="section-lede">Every explanation here comes with a test that could have failed, and one of the six did.</p>
 
     <p>
-      A picture of where a model looked cannot be wrong, since a decorative attribution looks exactly like a real one.
+      A picture of where a model looked cannot be wrong, since a decorative one looks exactly like a real one.
       So each claim here is paired with a check that could fail: hide a body part and see whether accuracy falls further
       than it does for a part the model called unimportant, add noise and see whether the ranking of parts survives, edit
       the motion and see whether the answer moves. The checks run after training, on a strong member of the submitted
@@ -399,7 +399,7 @@
         (ρ = 0.49, p = 0.33), so the claim leans on the 0.500 against 0.033 contrast instead.
       </li>
       <li>
-        <b>The Japan and Taiwan difference is a dataset stratum.</b> It is entangled with when the recordings were made
+        <b>The Japan and Taiwan difference is a split in the data.</b> It is entangled with when the recordings were made
         and with how individuals move, and we do not read it as a cultural finding. A classifier can tell a performer's
         country from the motion features 69.8% of the time, which is why we treat country as a confound. Dropping the
         seven earliest Japanese training performers moves the score on the pooled held-out predictions by −0.44 pp,
@@ -413,10 +413,12 @@
 
     <div class="callout" data-tone="note">
       <p>
-        The things that did not work are part of the record too. Supervised-contrastive heads, mixture-of-experts fusion,
-        scenario-text alignment, vision-language distillation and calibration after training all failed or made results
-        worse under this arrangement. The paper reports them with their configurations, since they are the reason the
-        design went after disagreement between models instead of a better single model.
+        The things that did not work are part of the record too. Pulling same-emotion recordings together during
+        training, routing each recording to one of four specialist models instead of averaging all of them, matching
+        recordings against written descriptions of the scene, copying the answers of a model that reads images and text,
+        and rescaling the model's confidence after training all failed or made results worse under this arrangement. The
+        paper lists each under its own name with its configuration, since they are the reason the design went after
+        disagreement between models instead of a better single model.
       </p>
     </div>
   </section>
