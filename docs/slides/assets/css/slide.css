@@ -78,6 +78,22 @@
 #s-07-fusion .cards { flex: 1 1 auto; }
 #s-07-fusion .kpi__value { font-size: 46px; }
 
+/* Title slide, the two affiliation logos. Matched on height rather than width,
+   the way a logo row normally is, so the two read as a pair even though the
+   lab mark is much wider than it is tall. Both PNGs carry real transparency,
+   so no blend mode is needed and the row prints the same as it projects. */
+#s-01-title .logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  margin: 34px 0 0;
+}
+#s-01-title .logos img {
+  height: 48px;
+  width: auto;
+}
+
 /* ---- ensemble ---- */
 /* ============================================================================
    ensemble.css — layout for slides 8 to 11, the ensemble half of the talk.
