@@ -195,7 +195,7 @@
     <p class="footnote">Seven members trained here plus four frozen branches with a linear head each: <strong>12.98 M</strong> trainable parameters.</p>
   </div>
   <aside class="notes">
-    <p>Eleven models in four families, each one here for what it assumes about motion. A graph network reads a joint through the joints it’s attached to. The attention model drops that assumption, and the hybrid MLPs make almost no assumption at all. The frozen four learned motion on other corpora, and here we train only a linear head on top.</p>
+    <p>Eleven models in four families. Each family is here for what it assumes about motion, and the four assumptions are the four cards. The frozen four learned their motion on other corpora, and here we train only a linear head on top.</p>
     <p>Those last four disagree with the rest more than any other family. Take that block out and we lose 2.91 points. The whole pool comes to 12.98 million trainable parameters.</p>
   </aside>
 </section>

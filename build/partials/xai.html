@@ -147,9 +147,8 @@
           <p class="footnote">One strong member. The 12 emotions are not 12 independent observations, so the 95% CI [+0.150, +0.733] is an emotion-block bootstrap and the null permutes regions within an emotion, p &lt; 0.001. Positive for 10 of the 12 emotions (sign test p = 0.039, median ρ = +0.70).</p>
         </div>
         <aside class="notes">
-          <p>This is the result I'd most like you to take away. People wrote the Laban rules; nothing learned them from our recordings.</p>
           <p>We have two rankings of the four regions: the saliency the model puts on each, and what the Laban attributes say for that emotion. They agree at 0.500.</p>
-          <p>One correlation on its own doesn't tell you much, so we ran a control. Classical kinematics goes through the same pipeline and reaches 0.033, about fifteen times weaker.</p>
+          <p>One correlation on its own doesn't tell you much, so we ran a control. Classical kinematics goes through the same pipeline and reaches 0.033. The difference is what each one measures. Speed, acceleration and energy measure how much the body moved. The Laban attributes measure what shape it holds: how far the head bows, how low it sits, how the trunk leans. The model is tracking the shape.</p>
           <p>The twelve emotions aren't twelve independent observations. The interval resamples emotions, and the null shuffles regions inside one emotion. Ten of the twelve are positive.</p>
           <p>For sadness, that means the head bows and the trunk leans forward.</p>
         </aside>
@@ -204,13 +203,13 @@
           <p class="lead-in">Inside the half-second of movement the model reads, every frame counts about the same. Across the body, the head and neck dominate.</p>
           <div class="cols">
             <div class="chart" data-chart="temporal" data-src="saliency"></div>
-            <div class="chart" data-chart="spatial" data-src="saliency"></div>
+            <div class="chart" data-chart="spatialheat" data-src="saliency"></div>
           </div>
           <p class="footnote">The window is 64 frames, about half a second at 120 fps. Across frames the important-versus-reverse gap is about +0.002, against +0.124 ± 0.031 across body parts, and frame saliency entropy is 98.7% of its maximum per clip, 99.5% as a class mean. Order still matters: time reversal moves accuracy, so this is a claim about locating a frame.</p>
         </div>
         <aside class="notes">
           <p>Here's the negative, and it's what tells you the other five could have failed. Every model here reads a 64-frame window, about half a second. If you ask which frames inside that window matter, the answer is all of them, more or less equally.</p>
-          <p>Frame saliency entropy is 98.7 percent of maximum, and masking frames in importance order costs almost nothing more than masking them in reverse. The same measurement over body parts gave a clear positive.</p>
+          <p>Frame saliency entropy is 98.7 percent of maximum, and masking frames in importance order costs almost nothing more than masking them in reverse. Across the body it's the opposite. The head is the top joint in all twelve emotions, and the head, neck and upper spine each carry about two and a half times an even share. The hips get under a tenth.</p>
           <p>This is a claim about locating a single frame, not about time in general. Order still matters: reverse the clip and accuracy moves. We report the null rather than hiding it.</p>
           <p><strong>Not part of the script. An answer to have ready in the questions:</strong> if someone asks about the drop at each end of the curve: saliency does taper over about the last eight frames and the first one, from about 0.018 down to 0.004, against a flat 0.0156 elsewhere. The edges of the window fall away, no frame in the middle does, and the entropy is still 99.5 percent. That's why the claim rests on the entropy and the gap, not on the shape of the curve.</p>
         </aside>
