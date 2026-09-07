@@ -130,12 +130,17 @@
       var head = data.headline || {};
       var rho = 'ρ';
 
-      // Short enough to read from the back of the room. The two dashed lines
-      // carry their own aggregate values, so the caption only has to say what
-      // the bars are and that the lines are the overall levels.
-      var caption = 'Bars are per-emotion Spearman ' + rho + ' between saliency '
-        + 'and Laban attributes; grey is the classical-kinematics control. '
-        + 'Dashed lines mark the overall levels.';
+      // The bars and the dashed lines are two different aggregations of the
+      // same data, and the paper's headline is the second one. A bar is one
+      // emotion's Spearman over its four regions; a line pools all 12 x 4
+      // pairs into a single correlation. So a line is NOT the mean of the bars
+      // it sits among, and the caption has to say so, or a reader measures the
+      // grey bars by eye, gets about +0.23, and thinks the +0.033 line is
+      // wrong. Both numbers are right; they answer different questions.
+      var caption = 'Bars are one emotion at a time, Spearman ' + rho
+        + ' over its four body regions; grey is the classical-kinematics '
+        + 'control. Dashed lines pool all 12 x 4 pairs into one correlation, '
+        + 'which is the paper\'s headline and not the average of the bars.';
 
       // The two aggregate levels, sorted the way they stack in the plot so the
       // key below runs in the same order as the lines it names.

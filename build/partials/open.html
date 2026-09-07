@@ -39,7 +39,7 @@
     <p class="eyebrow">MMAC Challenge at ACII 2026 · Oral</p>
   </div>
   <aside class="notes">
-    <p>Good morning. I’m Naoto Nishida from the University of Tokyo, with Yoshio Ishiguro. The paper has two halves: an ensemble that works because its members disagree, and explanations we tested, each able to come back negative.</p>
+    <p>Good morning. I’m Naoto Nishida from the University of Tokyo, with Yoshio Ishiguro. The talk has two halves. First, an ensemble that works because its models disagree. Second, explanations we tested, and any of them could have come back negative.</p>
   </aside>
 </section>
 
@@ -82,9 +82,9 @@
     <p class="footnote">Each recording is one performer acting one emotion; every model here reads a fixed 64-frame window of it, about half a second. The recordings come from DIEM-A, the Diverse Intercultural E-Motion Database of Asian Performers.</p>
   </div>
   <aside class="notes">
-    <p>A performer acts one emotion, and the model sees only the skeleton. The twelve run from anger and joy to jealousy, shame and pride, all acted.</p>
-    <p>The split is the hard part. The 7,992 training recordings are balanced at 666 an emotion, and every test recording comes from one of eighteen people who appear nowhere in training.</p>
-    <p>Chance is 8.3 percent, and movement alone often does not settle which of the twelve emotions it is. Body-only is the point of the challenge, and it is also what makes it hard.</p>
+    <p>A performer acts out one emotion, and the model sees only the skeleton. The twelve run from anger and joy to jealousy, shame and pride, all of them acted.</p>
+    <p>The split is the hard part. There are 7,992 training recordings, 666 per emotion. Every test recording comes from one of eighteen people the model has never seen.</p>
+    <p>Chance is 8.3 percent, and often the movement alone doesn’t tell you which of the twelve it is. You get the body and nothing else, and that’s what makes it hard.</p>
   </aside>
 </section>
 
@@ -108,9 +108,9 @@
     <p class="footnote">Every score here comes from 10-fold leave-performers-out cross-validation over the 74 training performers, reported as the per-fold mean ± SD.</p>
   </div>
   <aside class="notes">
-    <p>Two things make it hard. Emotions close in meaning are close in movement, and everyone has a movement style of their own.</p>
-    <p>The second one is why we hold out performers rather than recordings. With the same person on both sides of the split, a model can score well by recognising them.</p>
-    <p>The organisers’ reference model reaches 25.73 there. We reran it ourselves on the same 74 performers under the same folds, which is what makes every later comparison protocol-matched. The official baseline is within one standard deviation of that reproduction, and it stays an outside anchor.</p>
+    <p>Two things make this hard. Close emotions move alike, and everybody moves their own way.</p>
+    <p>That second one is why we hold out people rather than recordings. If the same person is on both sides of the split, a model can score well by recognising them.</p>
+    <p>We reran the organisers’ reference model on the same 74 performers and folds. It gets 25.73, and every number I compare later is measured that same way. Their published baseline sits within one standard deviation of our rerun. I quote it only as an outside reference.</p>
   </aside>
 </section>
 
@@ -134,8 +134,8 @@
     <p class="footnote">All on the same ten-way performer split. The paper lists eight of these; together they are the ceiling on one better network.</p>
   </div>
   <aside class="notes">
-    <p>We tried the obvious upgrades to a single model first. The contrastive head cost eleven and a half points, because with twelve emotions in a batch of 128 there are too few same-emotion pairs to learn from. Each of these ran under the same folds as everything else.</p>
-    <p>Eight attempts, the same pattern. We report them as constraints on the design rather than leaving them out. The best single model we could build stops near 30 percent, and that ceiling on one better architecture is what sent us to diversity.</p>
+    <p>We tried the obvious upgrades first. The contrastive head cost us eleven and a half points. With twelve emotions in a batch of 128, there are too few same-emotion pairs to learn from. All of them ran on the same folds.</p>
+    <p>Eight attempts, and the same pattern every time. We report them rather than leave them out, because they shaped the design. The best single model we built stops near 30 percent. That’s where we gave up on one better network and went for diversity.</p>
   </aside>
 </section>
 
@@ -158,9 +158,9 @@
     </div>
   </div>
   <aside class="notes">
-    <p>So the design stops buying capacity and buys disagreement instead. The reasoning is narrow. If two models are wrong on the same recording, averaging them keeps the mistake. If they are wrong on different recordings, averaging cancels it. Parameter count does not enter that anywhere.</p>
-    <p>Different assumptions about motion break on different people, and that is something we can choose members for.</p>
-    <p>It is a claim that can fail, which is the useful part. The next two slides are what we chose and how it is combined.</p>
+    <p>So instead of one bigger model, we picked models that disagree. If two models are wrong on the same recording, averaging them keeps the mistake. If they’re wrong on different recordings, averaging cancels it. How many parameters they have doesn’t come into it.</p>
+    <p>Models that assume different things about motion break on different people, and that’s something we can pick for.</p>
+    <p>This can turn out to be wrong, and later in the talk we check it. Next is what we picked, then how we combine them.</p>
   </aside>
 </section>
 
@@ -192,8 +192,8 @@
     <p class="footnote">Seven members trained here plus four frozen branches with a linear head each: <strong>12.98 M</strong> trainable parameters.</p>
   </div>
   <aside class="notes">
-    <p>Eleven members in four families, and a family is in the pool for what it assumes, not for what it adds. The graph networks read a joint through the joints it is attached to. The attention model drops that and lets any two joints, at any two moments, count together, however far apart they sit. The hybrid MLPs pool joints and frames into statistics with almost no structural assumption. The frozen four were pretrained on generic motion corpora elsewhere, and only a linear head is trained here.</p>
-    <p>Those last four disagree with the rest more than any other family, and taking that block out costs 2.91 points. The whole pool comes to 12.98 million trainable parameters.</p>
+    <p>Eleven models in four families, each one here for what it assumes about motion. A graph network reads a joint through the joints it’s attached to. The attention model drops that assumption, and the hybrid MLPs make almost no assumption at all. The frozen four learned motion on other corpora, and here we train only a linear head on top.</p>
+    <p>Those last four disagree with the rest more than any other family. Take that block out and we lose 2.91 points. The whole pool comes to 12.98 million trainable parameters.</p>
   </aside>
 </section>
 
@@ -231,7 +231,7 @@
     <p class="footnote">The two smaller figures are the same comparison with the members rescaled and then with their magnitudes thrown away, so the gain is not an artifact of one member's logits being larger than another's.</p>
   </div>
   <aside class="notes">
-    <p>Nothing is weighted, and that is deliberate. A fitted fusion weight would be fitted on the training folds, which under leave-performers-out means fitted to the 74 performers we happen to have. With nothing fitted, there is nothing in the fusion to overfit.</p>
-    <p>The second choice is the raw logits rather than the probabilities, worth 1.15 points. A softmax first bounds how far a member can disagree with the rest, and that margin is the part worth keeping. It is not an artifact of logit scale: z-score every member first and +0.99 survives, and fusing ranks alone, magnitudes gone, keeps +0.69.</p>
+    <p>Nothing here is weighted. If we fitted a weight, we’d fit it on the training folds. Under leave-performers-out that means fitting it to the 74 people we happen to have. So there’s nothing in the fusion to overfit.</p>
+    <p>The other choice is the raw logits rather than the probabilities, and that’s worth 1.15 points. Run a softmax first and you cap how far one model can disagree with the rest. It isn’t an artifact of scale. Z-score every model first and +0.99 survives. Fuse the ranks alone and +0.69 is still there.</p>
   </aside>
 </section>

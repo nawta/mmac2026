@@ -51,9 +51,9 @@
           <p class="footnote">95% CI on the gain: [9.86, 12.33] pp by fold, [9.14, 12.17] pp by performer. The organisers' published baseline over all 92 performers, 25.21 ± 4.49%, sits within one SD of our rerun; we quote it for reference and measure the gain against the rerun.</p>
         </div>
         <aside class="notes">
-          <p>Eleven models, logits averaged, reach 36.80. The comparison is STGCN++, rerun by us on the same 74 performers and folds: 25.73. That is +11.07 pp, about 43 percent relative.</p>
-          <p>It is not noise: the gain excludes zero in all ten folds, and again when we resample performers.</p>
-          <p>Treat it as a development result: the organisers keep the test labels, so our contest score is pending. Their published 92-performer baseline, 25.21, sits within one standard deviation of our rerun.</p>
+          <p>We average the logits of eleven models and get 36.80. The comparison is STGCN++, which we reran ourselves on the same 74 performers and folds. It reaches 25.73. That's +11.07 pp, about 43 percent relative.</p>
+          <p>It's not noise. The gain excludes zero in all ten folds, and again when we resample performers.</p>
+          <p>Treat this as a development result. The organisers keep the test labels, so our contest score is still pending. Their published baseline over 92 performers is 25.21, within one standard deviation of our rerun.</p>
         </aside>
       </section>
 
@@ -71,8 +71,8 @@
           <p class="footnote">Each bar is the mean over ten leave-performers-out folds, each dot is one fold, and the pooled out-of-fold score sits beside each bar.</p>
         </div>
         <aside class="notes">
-          <p>Four stages. Our rerun of the baseline at 25.7. The best single model we could build, 30.1. Seven members averaged, 33.9. The eleven we submitted, 36.8. Every family we add moves the score up.</p>
-          <p>Averaging beats the best single model by almost seven points, more than any change of architecture bought us. The last stage adds no new training at all.</p>
+          <p>There are four stages. Our rerun of the baseline is at 25.7. The best single model we could build reaches 30.1. Average seven members and you get 33.9. The eleven we submitted give 36.8. Every family we add moves the score up.</p>
+          <p>Averaging beats the best single model by almost seven points. No architecture change we tried gave us that much. The last stage adds no new training.</p>
           <p>Each bar is a ten-fold mean, and the dots behind it are the folds.</p>
         </aside>
       </section>
@@ -93,10 +93,10 @@
           <p class="footnote">Correlations run over per-sample error indicators on 7,992 out-of-fold clips. The removal costs are pooled out-of-fold Macro-F1 against a base of 36.94%.</p>
         </div>
         <aside class="notes">
-          <p>This is the bet the design rests on. Averaging only cancels a mistake the members do not make together, so we measured it rather than assumed it.</p>
-          <p>Each cell on the left is one pair of members, coloured by how often both are wrong on the same clip. Everything sits between 0.15 and 0.43, lowest for the frozen external branch.</p>
-          <p>On the right we drop one member at a time. Every delta is negative: no member dominates and none is dead weight. Drop all four frozen externals and you lose almost three points. The lift is spread across the whole set.</p>
-          <p>Moderate correlation is not redundancy: the most correlated pair still gives the largest single contribution.</p>
+          <p>Averaging only cancels a mistake if the members don't make it together. That's what the whole design depends on, so we measured it.</p>
+          <p>Each cell on the left is one pair of members, coloured by how often both are wrong on the same clip. Everything sits between 0.15 and 0.43, lowest for the frozen four.</p>
+          <p>On the right we drop one member at a time. Every delta is negative. No member carries the result on its own, and none is dead weight. Drop all four frozen external members at once and you lose almost three points.</p>
+          <p>And the pair that agrees most often still gives the largest single contribution. Overlap doesn't make a member spare.</p>
         </aside>
       </section>
 
@@ -118,8 +118,8 @@
           <p class="footnote">The recording-date check gives 36.50 against 36.94% pooled out-of-fold. The same motion also decodes which country a performer is from about 69.8% of the time, which is another reason not to read the country gap as culture.</p>
         </div>
         <aside class="notes">
-          <p>The mistakes left are the expected ones, jealousy into contempt.</p>
-          <p>Japanese and Taiwanese performers score 35.3 against 38.9, and we do not read that as culture. The two groups also differ in when they were recorded and in how each individual moves, so country is not the only thing separating them.</p>
-          <p>The recording-date check moves the score by less than half a point. The same motion decodes performer country far better than emotion, which we disclose as a risk of identifying people, not a cultural signal.</p>
+          <p>The mistakes left are the expected ones. Jealousy gets read as contempt.</p>
+          <p>Japanese and Taiwanese performers score 35.3 against 38.9, and we don't read that as culture. They also differ in when they were recorded and in how each person moves.</p>
+          <p>The recording-date check moves the score by less than half a point. The same motion tells you a performer's country far better than it tells you their emotion. We report it as a privacy risk, not a cultural signal. Motion can identify a person.</p>
         </aside>
       </section>

@@ -47,7 +47,7 @@
         </div>
         <aside class="notes">
           <p>The second half is the one I care more about.</p>
-          <p>A decorative attribution looks like a real one, so a picture cannot come back wrong. Each explanation is a check: claim a body part matters, interfere with it, report against something that could have failed.</p>
+          <p>A saliency map can't come back wrong. A decorative one looks like a real one. We don't draw pictures. We claim a body part matters, we interfere with it, and we report a number that could come back negative.</p>
         </aside>
       </section>
 
@@ -87,9 +87,9 @@
           <p class="footnote">Each check runs on one strong member of the submitted ensemble; the two that carry the most weight are re-run on all eleven.</p>
         </div>
         <aside class="notes">
-          <p>Here is the scorecard and the recipe behind every row: to say the model uses a part of the body, we interfere with it and watch whether the prediction moves.</p>
-          <p>Each carries a value and either a null or an interval, so any could have come back the other way. The one negative gets its own slide: a check that can only pass is worth nothing.</p>
-          <p>All of it is post hoc, so it costs no accuracy. The two checks that matter most run on all eleven members.</p>
+          <p>Here's the scorecard. Every row works the same way. We interfere with one part of the body and watch whether the prediction moves.</p>
+          <p>Each row carries a value and either a null or an interval, so any of them could have come out the other way. The negative gets its own slide. We report it because a set of checks that always passes isn't testing anything.</p>
+          <p>Nothing is retrained, so it costs no accuracy. The two checks doing the most work run on all eleven.</p>
         </aside>
       </section>
 
@@ -126,9 +126,9 @@
           <p class="footnote">Masking works over 6 body parts here and the next slide's alignment over 4 regions, two groupings for two checks. At the finer 25-joint resolution the gap grows to +0.199. Both values are 10-fold means.</p>
         </div>
         <aside class="notes">
-          <p>Everything after this rests on the first two checks.</p>
-          <p>The first asks whether the model uses the parts it points to. We rank the six body parts by saliency, mask them in that order, and compare against the reverse. The important parts cost more: a gap of 0.124, positive in every fold, 0.199 at 25-joint resolution.</p>
-          <p>The second asks whether that ranking is a property or an accident. Add noise, rank again, and the two agree at 0.98; the top part never flips.</p>
+          <p>These two come first, because everything after them depends on them.</p>
+          <p>The first asks whether the model really uses the parts it points to. We rank the six body parts by saliency and mask them in that order, then in reverse. Masking the important ones costs more: a gap of 0.124, positive in every fold, and 0.199 at 25-joint resolution.</p>
+          <p>The second asks whether that ranking is real or an accident. We add noise, rank again, and the two agree at 0.98.</p>
         </aside>
       </section>
 
@@ -147,11 +147,11 @@
           <p class="footnote">One strong member. The 12 emotions are not 12 independent observations, so the 95% CI [+0.150, +0.733] is an emotion-block bootstrap and the null permutes regions within an emotion, p &lt; 0.001. Positive for 10 of the 12 emotions (sign test p = 0.039, median ρ = +0.70).</p>
         </div>
         <aside class="notes">
-          <p>This is the main result. Laban Movement Analysis is a vocabulary that movement professionals wrote down; nothing in it learned from our recordings.</p>
-          <p>So we have two rankings of the four regions: the saliency the model puts on each, and what the Laban attributes say for that emotion. They agree at 0.500.</p>
-          <p>On its own that would just be a number, so we chose a control. Classical kinematics through the identical pipeline reaches 0.033, about fifteen times weaker. The contrast is the finding.</p>
-          <p>The statistics respect that structure: the interval resamples emotions and the null shuffles regions inside an emotion. Ten of the twelve are positive.</p>
-          <p>In plain language: for sadness the head bows, the body is carried lower, the trunk leans forward.</p>
+          <p>This is the result I'd most like you to take away. People wrote the Laban rules; nothing learned them from our recordings.</p>
+          <p>We have two rankings of the four regions: the saliency the model puts on each, and what the Laban attributes say for that emotion. They agree at 0.500.</p>
+          <p>One correlation on its own doesn't tell you much, so we ran a control. Classical kinematics goes through the same pipeline and reaches 0.033, about fifteen times weaker.</p>
+          <p>The twelve emotions aren't twelve independent observations. The interval resamples emotions, and the null shuffles regions inside one emotion. Ten of the twelve are positive.</p>
+          <p>For sadness, that means the head bows and the trunk leans forward.</p>
         </aside>
       </section>
 
@@ -191,10 +191,10 @@
           </div>
         </div>
         <aside class="notes">
-          <p>Two more checks. First, we re-run the alignment on the eleven-way ensemble we submitted: 0.517, a little stronger if anything, with the whole interval above zero.</p>
-          <p>Second, we edit the movement itself. Freeze the head and 41 percent of predictions change; amplify one arm and 23 percent, in the order masking already gave. Two kinds of interference agree.</p>
-          <p>The last number is the narration: we read fifty of the system's written accounts looking for a sentence the measurements do not support, and found none.</p>
-          <p>The edits corroborate the finding. They are not causal proof; the main evidence is still 0.500 against 0.033.</p>
+          <p>First, we ran the same alignment on the ensemble we submitted. It comes out at 0.517, if anything a little stronger. The whole interval sits above zero.</p>
+          <p>Second, we edit the movement. Freeze the head and 41 percent of predictions change. Amplify one arm and 23 percent change. Masking and editing rank the parts the same way.</p>
+          <p>We read fifty of the system's written accounts, looking for a claim the measurements don't support. We found none.</p>
+          <p>The edits back the finding up. They're not causal proof, and the main evidence is still 0.500 against 0.033.</p>
         </aside>
       </section>
 
@@ -209,9 +209,9 @@
           <p class="footnote">The window is 64 frames, about half a second at 120 fps. Across frames the important-versus-reverse gap is about +0.002, against +0.124 ± 0.031 across body parts, and frame saliency entropy is 98.7% of its maximum per clip, 99.5% as a class mean. Order still matters: time reversal moves accuracy, so this is a claim about locating a frame.</p>
         </div>
         <aside class="notes">
-          <p>This is the negative, and I think it is what makes the rest of this a test. Every model here reads a 64-frame window, about half a second. Ask which frames inside it matter and the answer is all of them, roughly equally.</p>
-          <p>Frame saliency entropy is 98.7 percent of maximum, and masking frames in importance order costs almost nothing more than the reverse, where the same measurement over body parts gave a clear positive. The evidence is spread through time and concentrated in space.</p>
-          <p>To be precise, this is about locating a single frame, not time in general. Order still matters; time reversal moves accuracy. We report the null rather than hiding it.</p>
-          <p><strong>Not part of the script. An answer to have ready in the questions:</strong> if someone asks about the fall at the ends of the curve, saliency tapers over roughly the last eight frames and the first one, from about 0.018 to 0.004 against a flat 0.0156. The window edges fall away, no interior frame does, and the entropy stays at 99.5 percent. That is why the claim rests on the entropy and the gap rather than on the shape of the curve.</p>
+          <p>Here's the negative, and it's what tells you the other five could have failed. Every model here reads a 64-frame window, about half a second. If you ask which frames inside that window matter, the answer is all of them, more or less equally.</p>
+          <p>Frame saliency entropy is 98.7 percent of maximum, and masking frames in importance order costs almost nothing more than masking them in reverse. The same measurement over body parts gave a clear positive.</p>
+          <p>This is a claim about locating a single frame, not about time in general. Order still matters: reverse the clip and accuracy moves. We report the null rather than hiding it.</p>
+          <p><strong>Not part of the script. An answer to have ready in the questions:</strong> if someone asks about the drop at each end of the curve: saliency does taper over about the last eight frames and the first one, from about 0.018 down to 0.004, against a flat 0.0156 elsewhere. The edges of the window fall away, no frame in the middle does, and the entropy is still 99.5 percent. That's why the claim rests on the entropy and the gap, not on the shape of the curve.</p>
         </aside>
       </section>
