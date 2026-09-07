@@ -122,8 +122,8 @@
      it down to nothing.
 
      Two figures are the exception, because they carry type of their own that a
-     reader has to be able to read: the cells of the confusion matrix on slide 9
-     and the panel labels of the Laban and counterfactual figure on slide 14. On
+     reader has to be able to read: the cells of the confusion matrix on slide 11
+     and the panel labels of the Laban and counterfactual figure on slide 16. On
      screen a reader clicks either one and lightbox.js fills the window with it.
      Paper has no lightbox, so on paper each one has to be as large as its own
      slide can make it.
@@ -137,17 +137,17 @@
      the 97.4mm its own 300dpi artwork was drawn for, and the Laban figure from
      130.2 to 138.9mm, where it fills its column exactly and the next millimetre
      would have to come out of the four numbers printed beside it. */
-  #s-09-error-structure,
-  #s-14-ensemble-edits { row-gap: 10px !important; }
-  #s-09-error-structure .body,
-  #s-14-ensemble-edits .body { gap: 10px !important; }
-  #s-09-error-structure .fig,
-  #s-14-ensemble-edits .fig { gap: 4px !important; }
-  #s-09-error-structure .fig__cap,
-  #s-14-ensemble-edits .fig__cap { line-height: 1.2 !important; }
+  #s-11-error-structure,
+  #s-16-ensemble-edits { row-gap: 10px !important; }
+  #s-11-error-structure .body,
+  #s-16-ensemble-edits .body { gap: 10px !important; }
+  #s-11-error-structure .fig,
+  #s-16-ensemble-edits .fig { gap: 4px !important; }
+  #s-11-error-structure .fig__cap,
+  #s-16-ensemble-edits .fig__cap { line-height: 1.2 !important; }
 
   /* What the rules above do not fix, written down so the next person does not
-     spend an afternoon finding out the same way. Slide 14's figure is still too
+     spend an afternoon finding out the same way. Slide 16's figure is still too
      small to read and nothing in this file can change that.
 
      It is not resolution. Both images print above the 300dpi they were drawn
@@ -158,7 +158,7 @@
      smallest labels are 18 to 22 pixels tall in the source, which comes to 1.2
      to 1.5mm on paper, under 4.5pt, at 138.9mm across. Reaching a 7pt reading
      size needs about 250mm. The page is 297mm wide and the four kpi blocks have
-     to sit somewhere, so no arrangement of slide 14 gets there: the figure needs
+     to sit somewhere, so no arrangement of slide 16 gets there: the figure needs
      a slide to itself, or one panel per slide. That is a change to
      build/partials/xai.html, not to this file. */
 

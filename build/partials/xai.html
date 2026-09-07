@@ -1,11 +1,12 @@
       <!-- ==================================================================
-           Slides 10 to 15 — the explainability half of the talk.
+           Slides 12 to 17 — the explainability half of the talk.
 
-           Ten pivots from the score to what the system reads, eleven is the
-           scorecard, twelve the two checks everything else rests on, thirteen
-           the Laban match, fourteen the same match on the submitted ensemble
-           plus the motion edits, and fifteen the negative we report. All six
-           carry data-tone="note", the sky the site uses for this half.
+           Twelve pivots from the score to what the system reads, thirteen is
+           the scorecard, fourteen the two checks everything else rests on,
+           fifteen the Laban match, sixteen the same match on the submitted
+           ensemble plus the motion edits, and seventeen the negative we
+           report. All six carry data-tone="note", the sky the site uses for
+           this half.
 
            Who is in the room: an ACII audience already fluent in Macro-F1,
            folds, saliency, AUC, Spearman rho, ensembles, nulls and intervals.
@@ -19,32 +20,38 @@
            Two groupings of the body appear here and they are not a
            contradiction: masking works over 6 body parts (also reported at
            25-joint resolution), the Laban alignment over 4 regions, which are
-           head, arms, legs and torso. The footnote on slide 12 says so. The
+           head, arms, legs and torso. The footnote on slide 14 says so. The
            names of the six are not written down in the paper, so the six stay
            a count.
 
            Wording that has to agree with something outside this file: the
            control is "classical kinematics", which is what the legend and the
-           caption of the chart on slide 13 call it, and it is spelled out once
+           caption of the chart on slide 15 call it, and it is spelled out once
            as per-joint speed, acceleration, range of motion and energy.
+
+           The notes are the spoken script and nothing else, with one marked
+           exception: the last paragraph of slide 17 is an answer to have ready
+           in the five minutes of questions, not a line the speaker says during
+           the talk. It carries that label in bold so the presenter window shows
+           it as the aside it is.
 
            Layout that deck.css does not already provide lives in
            build/partials/xai.css, scoped to these six slide ids.
            =================================================================== -->
 
-      <section class="slide section" id="s-10-tested-explanations" data-title="Tested explanations" data-tone="note">
+      <section class="slide section" id="s-12-tested-explanations" data-title="Tested explanations" data-tone="note">
         <h2>Explanations you can test</h2>
         <div class="body">
           <p class="lead-in">A saliency map cannot come back wrong. A test can.</p>
           <p>The second half asks which parts of the body the model uses, and answers by interfering with the movement instead of drawing a picture of it.</p>
         </div>
         <aside class="notes">
-          <p>That was the first half: where the number comes from and why it works.</p>
-          <p>The second half is the one I care more about. A saliency map cannot come back wrong, because a decorative attribution looks exactly like a real one. So we built the explanations as checks. Each one claims the model uses some part of the body, interferes with that part, and reports what happened against something it could have failed. Five come back positive, one comes back negative, and none of it retrains anything.</p>
+          <p>The second half is the one I care more about.</p>
+          <p>A decorative attribution looks like a real one, so a picture cannot come back wrong. Each explanation is a check: claim a body part matters, interfere with it, report against something that could have failed.</p>
         </aside>
       </section>
 
-      <section class="slide" id="s-11-six-verdicts" data-title="Six verdicts" data-tone="note">
+      <section class="slide" id="s-13-six-verdicts" data-title="Six verdicts" data-tone="note">
         <h2>Six checks, five positive and one negative</h2>
         <div class="body">
           <p class="lead-in">To claim the model uses a part of the body, we mask it, perturb it, or edit how it moves, and watch whether the prediction moves.</p>
@@ -80,13 +87,13 @@
           <p class="footnote">Each check runs on one strong member of the submitted ensemble; the two that carry the most weight are re-run on all eleven.</p>
         </div>
         <aside class="notes">
-          <p>Here is the scorecard, and the recipe behind every row of it. To say the model uses some part of the body, we interfere with that part. We hide it, add noise to it, or edit how it moves, and then see whether the prediction moves with it.</p>
-          <p>Each check carries a value and either a null or an interval, so any of them could have come back the other way. Five are positive. One is negative, and it gets a slide of its own, because a check that can only pass is worth nothing.</p>
-          <p>Two things about scope. All of it is post hoc, so it costs no accuracy. And each check runs on one strong member, with the two that matter most re-run on all eleven.</p>
+          <p>Here is the scorecard and the recipe behind every row: to say the model uses a part of the body, we interfere with it and watch whether the prediction moves.</p>
+          <p>Each carries a value and either a null or an interval, so any could have come back the other way. The one negative gets its own slide: a check that can only pass is worth nothing.</p>
+          <p>All of it is post hoc, so it costs no accuracy. The two checks that matter most run on all eleven members.</p>
         </aside>
       </section>
 
-      <section class="slide" id="s-12-faithful-stable" data-title="Faithful and stable" data-tone="note">
+      <section class="slide" id="s-14-faithful-stable" data-title="Faithful and stable" data-tone="note">
         <h2>The model uses the parts it ranks high</h2>
         <div class="body">
           <p class="lead-in">Masking the parts it ranks high costs more accuracy than masking the parts it ranks low, and the ranking barely moves under noise.</p>
@@ -120,35 +127,35 @@
         </div>
         <aside class="notes">
           <p>Everything after this rests on the first two checks.</p>
-          <p>The first asks whether the model uses the parts it points to. We rank the six body parts by saliency, mask them in that order, and compare against masking them in reverse. Accuracy falls further when the important parts go first. The gap is 0.124, and it is positive in every fold. At the finer 25-joint resolution the gap grows to 0.199.</p>
-          <p>The second asks whether that ranking is a property or an accident. Add noise, rank again, and the two rankings agree at 0.98, with the top part never flipping.</p>
-          <p>Without those two, the alignment I am about to show would be a picture agreeing with itself.</p>
+          <p>The first asks whether the model uses the parts it points to. We rank the six body parts by saliency, mask them in that order, and compare against the reverse. The important parts cost more: a gap of 0.124, positive in every fold, 0.199 at 25-joint resolution.</p>
+          <p>The second asks whether that ranking is a property or an accident. Add noise, rank again, and the two agree at 0.98; the top part never flips.</p>
         </aside>
       </section>
 
-      <section class="slide" id="s-13-laban" data-title="Laban alignment" data-tone="note">
+      <section class="slide" id="s-15-laban" data-title="Laban alignment" data-tone="note">
         <h2>The model reads the body the way a movement analyst would</h2>
         <div class="body">
           <p class="lead-in">Laban Movement Analysis is a movement analyst's vocabulary for how a body moves. People wrote its rules; nothing learned them from our recordings.</p>
           <div class="cols cols--figure">
             <ul>
               <li>Saliency over the four regions, head, arms, legs and torso, ranks the way the Laban attributes do: ρ = +0.500.</li>
-              <li>Classical kinematics, per-joint speed, acceleration, range of motion and energy, reaches +0.033, about 15 times weaker.</li>
-              <li>Sadness reads as a bowed, sunken posture: head down, trunk leaning forward.</li>
+              <li>Classical kinematics is the control that makes +0.500 a result: per-joint speed, acceleration, range of motion and energy reach +0.033, about 15 times weaker.</li>
+              <li>Sadness reads as a bowed, sunken posture: head down, trunk forward.</li>
             </ul>
             <div class="chart" data-chart="lma" data-src="lma"></div>
           </div>
           <p class="footnote">One strong member. The 12 emotions are not 12 independent observations, so the 95% CI [+0.150, +0.733] is an emotion-block bootstrap and the null permutes regions within an emotion, p &lt; 0.001. Positive for 10 of the 12 emotions (sign test p = 0.039, median ρ = +0.70).</p>
         </div>
         <aside class="notes">
-          <p>This is the main result. Laban Movement Analysis is the vocabulary movement professionals use for how a body moves: how far the head bows, how far the trunk leans, how high the body is carried. People wrote those rules down, and nothing in them learned from our recordings.</p>
-          <p>So we have two rankings of the four regions, head, arms, legs and torso. One is how much saliency the model puts on each region, the other is what the Laban attributes say for that emotion, and they agree at 0.500. The control is classical kinematics, per-joint speed, acceleration, range of motion and energy, through the identical pipeline, and it reaches 0.033, about fifteen times weaker.</p>
-          <p>The statistics respect the structure here, because the forty-eight pairs are twelve emotions of four regions. The interval resamples emotions and the null shuffles regions inside an emotion. Ten of the twelve come out positive.</p>
-          <p>What I like about it is that it reads in plain language. For sadness the model uses what you would expect: the head bows, the body is carried lower, the trunk leans forward.</p>
+          <p>This is the main result. Laban Movement Analysis is a vocabulary that movement professionals wrote down; nothing in it learned from our recordings.</p>
+          <p>So we have two rankings of the four regions: the saliency the model puts on each, and what the Laban attributes say for that emotion. They agree at 0.500.</p>
+          <p>On its own that would just be a number, so we chose a control. Classical kinematics through the identical pipeline reaches 0.033, about fifteen times weaker. The contrast is the finding.</p>
+          <p>The statistics respect that structure: the interval resamples emotions and the null shuffles regions inside an emotion. Ten of the twelve are positive.</p>
+          <p>In plain language: for sadness the head bows, the body is carried lower, the trunk leans forward.</p>
         </aside>
       </section>
 
-      <section class="slide" id="s-14-ensemble-edits" data-title="Ensemble and edits" data-tone="note">
+      <section class="slide" id="s-16-ensemble-edits" data-title="Ensemble and edits" data-tone="note">
         <h2>The alignment holds for the submitted ensemble, and the edits move the prediction</h2>
         <div class="body">
           <div class="cols cols--figure">
@@ -184,14 +191,14 @@
           </div>
         </div>
         <aside class="notes">
-          <p>Two more checks. First, we re-run the alignment on the eleven-way ensemble we actually submitted, and it comes out at 0.517, a little stronger if anything, with the whole interval above zero.</p>
-          <p>Second, we stop masking and edit the movement itself. Freeze the head and 41 percent of predictions change. Amplify one arm and 23 percent change, with the parts in the order masking already gave, so two different kinds of interference agree with each other.</p>
-          <p>The fourth number is the narration. The system puts each decision into words on a card, citing the regions and the Laban attributes that card rests on, and we read fifty of them looking for a sentence the measurements do not support. We found none.</p>
-          <p>I want to be precise about what this buys. The edits corroborate the finding. They are not causal proof, and the main evidence is still 0.500 against 0.033.</p>
+          <p>Two more checks. First, we re-run the alignment on the eleven-way ensemble we submitted: 0.517, a little stronger if anything, with the whole interval above zero.</p>
+          <p>Second, we edit the movement itself. Freeze the head and 41 percent of predictions change; amplify one arm and 23 percent, in the order masking already gave. Two kinds of interference agree.</p>
+          <p>The last number is the narration: we read fifty of the system's written accounts looking for a sentence the measurements do not support, and found none.</p>
+          <p>The edits corroborate the finding. They are not causal proof; the main evidence is still 0.500 against 0.033.</p>
         </aside>
       </section>
 
-      <section class="slide" id="s-15-reported-negative" data-title="Reported negative" data-tone="note">
+      <section class="slide" id="s-17-reported-negative" data-title="Reported negative" data-tone="note">
         <h2>The negative we report</h2>
         <div class="body">
           <p class="lead-in">Inside the half-second of movement the model reads, every frame counts about the same. Across the body, the head and neck dominate.</p>
@@ -202,9 +209,9 @@
           <p class="footnote">The window is 64 frames, about half a second at 120 fps. Across frames the important-versus-reverse gap is about +0.002, against +0.124 ± 0.031 across body parts, and frame saliency entropy is 98.7% of its maximum per clip, 99.5% as a class mean. Order still matters: time reversal moves accuracy, so this is a claim about locating a frame.</p>
         </div>
         <aside class="notes">
-          <p>This is the negative, and I think it is what makes the rest of this a test. Every model here reads a 64-frame window, about half a second of movement. Ask which frames inside it matter and the answer is all of them, roughly equally.</p>
-          <p>Frame saliency entropy is 98.7 percent of maximum, and masking frames in importance order costs almost nothing more than the reverse order, where the same measurement over body parts gave a clear positive. On the right is the other side of it: the head and neck dominate in all twelve emotions. The evidence is spread through time and concentrated in space.</p>
-          <p>To be precise, this is about locating a single frame, not about time in general. Order still matters, and time reversal moves accuracy. We report the null rather than hiding it.</p>
-          <p>If someone asks about the fall at the ends of the curve: saliency tapers over roughly the last eight frames and the first one, from about 0.018 to 0.004 against a flat 0.0156. The window edges fall away, no interior frame does, and the entropy stays at 99.5 percent. That is why the claim rests on the entropy and the gap rather than on the shape of the curve.</p>
+          <p>This is the negative, and I think it is what makes the rest of this a test. Every model here reads a 64-frame window, about half a second. Ask which frames inside it matter and the answer is all of them, roughly equally.</p>
+          <p>Frame saliency entropy is 98.7 percent of maximum, and masking frames in importance order costs almost nothing more than the reverse, where the same measurement over body parts gave a clear positive. The evidence is spread through time and concentrated in space.</p>
+          <p>To be precise, this is about locating a single frame, not time in general. Order still matters; time reversal moves accuracy. We report the null rather than hiding it.</p>
+          <p><strong>Not part of the script. An answer to have ready in the questions:</strong> if someone asks about the fall at the ends of the curve, saliency tapers over roughly the last eight frames and the first one, from about 0.018 to 0.004 against a flat 0.0156. The window edges fall away, no interior frame does, and the entropy stays at 99.5 percent. That is why the claim rests on the entropy and the gap rather than on the shape of the curve.</p>
         </aside>
       </section>

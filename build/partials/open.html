@@ -1,15 +1,31 @@
 <!-- ===========================================================================
-     Slides 01-05: the title, the task, why it is hard, what failed, and the
-     principle the rest of the talk defends. The four content slides carry
-     data-tone="em" (peach), which deck.css turns into the chapter hairline for
-     the ensemble half of the talk.
+     Slides 01-07: the title, the task, why it is hard, what ruled out the
+     single-model route, and then three slides on the system itself: the
+     principle, the eleven members, and the fusion. The six content slides
+     carry data-tone="em" (peach), which deck.css turns into the chapter
+     hairline for the ensemble half of the talk.
+
+     05 to 07 are the design argument, and they come before any score. 05 is
+     the choice (diversity over capacity), 06 is what was chosen, and 07 is how
+     it is combined (equal weights, raw logits) with the +1.15 pp that argues
+     for the logit mean. The result slides that follow are then free to report
+     rather than argue.
+
+     06 and 07 are built the same way on purpose: every card is headed with a
+     reason rather than a label, and the slide names what the choice was made
+     over. On 06 each card heading is the assumption that family brings, taken
+     from the four priors the paper names in §4.1, and the members follow under
+     it. The pipeline figure used to sit beside those cards and grouped the
+     Region-Aware ConvTr under hybrid/MLP, which contradicts both the cards and
+     loo.json; figures are generated elsewhere and cannot be hand-edited, so
+     the figure is off this slide and the space went to the reasoning.
 
      The room is an ACII audience, so terms the field already shares (Macro-F1,
      cross-validation, logits, pp) are named here and never explained. What is
      explained is what belongs to this work: the contest, DIEM-A, the performer
      split, the four body regions, and the phrases the paper coins. What a
      slide has no room for is spoken instead, in the notes, whose length is
-     budgeted against the slide's share of twelve minutes.
+     budgeted against the slide's share of fifteen minutes.
      ======================================================================== -->
 
 <section class="slide title" id="s-01-title" data-title="Title">
@@ -23,9 +39,7 @@
     <p class="eyebrow">MMAC Challenge at ACII 2026 · Oral</p>
   </div>
   <aside class="notes">
-    <p>Good morning. I’m Naoto Nishida from the University of Tokyo, and this is joint work with Yoshio Ishiguro.</p>
-    <p>The MMAC Challenge asks entrants to name the emotion in a motion-capture recording of a single performer. The organisers keep the test labels, so no entrant can score their own system on the test set.</p>
-    <p>The paper has two halves. The first is an ensemble that works because its members disagree with each other. The second is a set of explanations we tested, and every one of them could have come back negative. At the end I’ll show that both halves come from the same structure in the data. This runs about twelve minutes, and then I’m happy to take questions.</p>
+    <p>Good morning. I’m Naoto Nishida from the University of Tokyo, with Yoshio Ishiguro. The paper has two halves: an ensemble that works because its members disagree, and explanations we tested, each able to come back negative.</p>
   </aside>
 </section>
 
@@ -68,9 +82,9 @@
     <p class="footnote">Each recording is one performer acting one emotion; every model here reads a fixed 64-frame window of it, about half a second. The recordings come from DIEM-A, the Diverse Intercultural E-Motion Database of Asian Performers.</p>
   </div>
   <aside class="notes">
-    <p>A performer acts one emotion, a motion-capture system tracks reflective markers on their body, and what the model gets is the skeleton that comes out of it: twenty-four joints in three dimensions, plus one point for where the body is in the room. Nothing else, so no face, no audio and no scene. The twelve run from anger, fear and joy to jealousy, shame, gratitude and pride, all of them acted.</p>
-    <p>The split is the hard part. Seventy-four performers in training, forty Japanese and thirty-four Taiwanese, give 7,992 recordings, evenly balanced at 666 per emotion. The test set is 1,944 recordings from eighteen other people, nine Japanese and nine Taiwanese. Nobody appears in both, so every test recording comes from a stranger.</p>
-    <p>Chance is 8.3 percent and a strong baseline only reaches about 25, because the movement alone often does not settle which emotion it is.</p>
+    <p>A performer acts one emotion, and the model sees only the skeleton. The twelve run from anger and joy to jealousy, shame and pride, all acted.</p>
+    <p>The split is the hard part. The 7,992 training recordings are balanced at 666 an emotion, and every test recording comes from one of eighteen people who appear nowhere in training.</p>
+    <p>Chance is 8.3 percent, and movement alone often does not settle which of the twelve emotions it is. Body-only is the point of the challenge, and it is also what makes it hard.</p>
   </aside>
 </section>
 
@@ -94,16 +108,16 @@
     <p class="footnote">Every score here comes from 10-fold leave-performers-out cross-validation over the 74 training performers, reported as the per-fold mean ± SD.</p>
   </div>
   <aside class="notes">
-    <p>Two things make it hard. First, emotions that are close in meaning are close in movement, so jealousy and contempt look alike, and so do shame and guilt.</p>
-    <p>Second, everyone has a personal movement style, so the same emotion performed by two people can vary about as much as two different emotions performed by one person. That is why we hold performers out rather than recordings: if the same performer appeared on both sides, a model could score well by recognising the person.</p>
-    <p>On that split, the reference model the organisers give us reaches 25.73, plus or minus about four. Every later comparison uses that number, because we retrained it ourselves on exactly the same 74 performers. A single better architecture does not gain much here.</p>
+    <p>Two things make it hard. Emotions close in meaning are close in movement, and everyone has a movement style of their own.</p>
+    <p>The second one is why we hold out performers rather than recordings. With the same person on both sides of the split, a model can score well by recognising them.</p>
+    <p>The organisers’ reference model reaches 25.73 there. We reran it ourselves on the same 74 performers under the same folds, which is what makes every later comparison protocol-matched. The official baseline is within one standard deviation of that reproduction, and it stays an outside anchor.</p>
   </aside>
 </section>
 
-<section class="slide" id="s-04-negatives" data-title="What did not work" data-tone="em">
-  <h2>What did not work</h2>
+<section class="slide" id="s-04-negatives" data-title="The single-model ceiling" data-tone="em">
+  <h2>The single-model route ran out first</h2>
   <div class="body">
-    <p class="lead-in">Every obvious upgrade to a single model failed or made the score worse.</p>
+    <p class="lead-in">Every upgrade to a single model failed or made the score worse.</p>
     <ul>
       <li>A supervised-contrastive head cost <strong>−11.53 pp</strong>.</li>
       <li>Aligning recordings to scene descriptions cost <strong>−1.42 pp</strong>: the projection collapsed onto performer identity, not emotion.</li>
@@ -117,45 +131,107 @@
         <span class="kpi__note">Macro-F1, same split</span>
       </div>
     </div>
-    <p class="footnote">All on the same ten-way performer split. The paper lists eight of these; they are why we stopped looking for one better network.</p>
+    <p class="footnote">All on the same ten-way performer split. The paper lists eight of these; together they are the ceiling on one better network.</p>
   </div>
   <aside class="notes">
-    <p>We did try the obvious upgrades to a single model. The contrastive head, which pulls same-emotion recordings together in training, cost eleven and a half points, because with twelve emotions in a batch of 128 there are too few same-emotion pairs to learn from. Aligning recordings against written descriptions of the scene ended up encoding who the performer was instead of the emotion. Distillation did not help either: shown a stick figure with no face and no scene, the teacher ranked the true emotion last.</p>
-    <p>The best single model we could build tops out at about 30 percent. We report the failures on purpose. They are the reason we stopped looking for one better architecture and went for diversity instead.</p>
+    <p>We tried the obvious upgrades to a single model first. The contrastive head cost eleven and a half points, because with twelve emotions in a batch of 128 there are too few same-emotion pairs to learn from. Each of these ran under the same folds as everything else.</p>
+    <p>Eight attempts, the same pattern. We report them as constraints on the design rather than leaving them out. The best single model we could build stops near 30 percent, and that ceiling on one better architecture is what sent us to diversity.</p>
   </aside>
 </section>
 
 <section class="slide" id="s-05-principle" data-title="The principle" data-tone="em">
   <h2>Combine models that make different mistakes</h2>
   <div class="body">
-    <p class="lead-in">We average eleven models from four families with different assumptions.</p>
-    <div class="cols cols--figure">
-      <div>
-        <p>Each family represents motion differently, so they fail on different recordings.</p>
-        <div class="kpi-row">
-          <div class="kpi" data-tone="em">
-            <span class="kpi__value">11</span>
-            <span class="kpi__label">models in the ensemble</span>
-            <span class="kpi__note">four families</span>
-          </div>
-          <div class="kpi" data-tone="note">
-            <span class="kpi__value">12.98 M</span>
-            <span class="kpi__label">trainable parameters</span>
-            <span class="kpi__note">one recording, 11 models</span>
-          </div>
-        </div>
-        <div class="callout" data-tone="ok">
-          <p>Nothing is fitted: every model counts the same, and we average logits rather than probabilities.</p>
-        </div>
+    <p class="lead-in">Averaging cancels a mistake only when the members do not make it together, so the members were chosen for how differently they fail.</p>
+    <div class="cards" data-cols="2">
+      <div class="card" data-tone="warn">
+        <h3>Capacity</h3>
+        <p>More capacity in one network. Under this split it did not transfer to performers the model had never seen.</p>
       </div>
-      <figure class="fig">
-        <img src="assets/img/architecture.png" alt="Pipeline diagram. A 25-node, 64-frame clip feeds eleven models grouped into four families: graph networks, attention, hybrid and MLP, and frozen external pretraining. Their logits go into an equal-weight 11-way mean, then a 12-class softmax over emotions.">
-        <figcaption class="fig__cap">Eleven members make up four families, and we average their raw logits with equal weight.</figcaption>
-      </figure>
+      <div class="card" data-tone="ok">
+        <h3>Diversity</h3>
+        <p>Eleven models whose assumptions about motion differ, so the recording that defeats one family is not the one that defeats the next.</p>
+      </div>
+    </div>
+    <div class="callout" data-tone="note">
+      <p>This can fail. If the gain came from parameters, the members’ errors would coincide and dropping one would cost nothing. Both are measured later in the talk.</p>
     </div>
   </div>
   <aside class="notes">
-    <p>So the design is simple. Four families that assume different things about motion: graph networks, an attention model, hybrid MLPs, and some frozen external pretraining. Eleven models in total, about thirteen million trainable parameters, each reading the same half-second window, and we average their logits with equal weight. Nothing in the averaging is learned or tuned.</p>
-    <p>We are betting that the gain comes from the members disagreeing rather than from the extra parameters. The next three slides are where I try to show that the bet is right.</p>
+    <p>So the design stops buying capacity and buys disagreement instead. The reasoning is narrow. If two models are wrong on the same recording, averaging them keeps the mistake. If they are wrong on different recordings, averaging cancels it. Parameter count does not enter that anywhere.</p>
+    <p>Different assumptions about motion break on different people, and that is something we can choose members for.</p>
+    <p>It is a claim that can fail, which is the useful part. The next two slides are what we chose and how it is combined.</p>
+  </aside>
+</section>
+
+<section class="slide" id="s-06-members" data-title="The eleven members" data-tone="em">
+  <h2>Each family assumes something different about motion</h2>
+  <div class="body">
+    <p class="lead-in">One larger network was the alternative. The capacity went to these four assumptions instead.</p>
+    <div class="cards" data-cols="2">
+      <div class="card">
+        <h3>Motion travels along the skeleton</h3>
+        <p class="members">Graph, 4 · STGCN++, CTR-GCN, ProtoGCN, Region-Aware ConvTr</p>
+      </div>
+      <div class="card">
+        <h3>Distant joints and moments count together</h3>
+        <p class="members">Attention, 1 · SkateFormer</p>
+      </div>
+      <div class="card">
+        <h3>The clip as pooled statistics</h3>
+        <p class="members">Hybrid MLP, 2 · Conv1D+Transformer, Keypoint-Pool-MLP</p>
+      </div>
+      <div class="card">
+        <h3>Motion learned on other corpora</h3>
+        <p class="members">Frozen external, 4 · MAMP NTU60 and NTU120, MotionBERT-Lite, C3D-marker-stats</p>
+      </div>
+    </div>
+    <div class="callout" data-tone="ok">
+      <p>The frozen branches disagree with the rest more than any other family, and removing that block costs <strong>−2.91 pp</strong>.</p>
+    </div>
+    <p class="footnote">Seven members trained here plus four frozen branches with a linear head each: <strong>12.98 M</strong> trainable parameters.</p>
+  </div>
+  <aside class="notes">
+    <p>Eleven members in four families, and a family is in the pool for what it assumes, not for what it adds. The graph networks read a joint through the joints it is attached to. The attention model drops that and lets any two joints, at any two moments, count together, however far apart they sit. The hybrid MLPs pool joints and frames into statistics with almost no structural assumption. The frozen four were pretrained on generic motion corpora elsewhere, and only a linear head is trained here.</p>
+    <p>Those last four disagree with the rest more than any other family, and taking that block out costs 2.91 points. The whole pool comes to 12.98 million trainable parameters.</p>
+  </aside>
+</section>
+
+<section class="slide" id="s-07-fusion" data-title="The fusion" data-tone="em">
+  <h2>Equal weights, raw logits, nothing fitted</h2>
+  <div class="body">
+    <p class="lead-in">Add the eleven logit vectors and divide by eleven.</p>
+    <div class="cards" data-cols="2">
+      <div class="card">
+        <h3>Why equal weights</h3>
+        <p>A fitted weight is fitted to the performers in the training folds, which is the thing that does not transfer here.</p>
+      </div>
+      <div class="card">
+        <h3>Why raw logits</h3>
+        <p>A softmax first bounds how far one member can disagree with the rest.</p>
+      </div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi" data-tone="ok">
+        <span class="kpi__value">+1.15 pp</span>
+        <span class="kpi__label">logit mean over probability mean</span>
+        <span class="kpi__note">same members, same folds</span>
+      </div>
+      <div class="kpi" data-tone="note">
+        <span class="kpi__value">+0.99 pp</span>
+        <span class="kpi__label">members z-scored first</span>
+        <span class="kpi__note">scale removed</span>
+      </div>
+      <div class="kpi" data-tone="note">
+        <span class="kpi__value">+0.69 pp</span>
+        <span class="kpi__label">ranks only, Borda fusion</span>
+        <span class="kpi__note">magnitude discarded</span>
+      </div>
+    </div>
+    <p class="footnote">The two smaller figures are the same comparison with the members rescaled and then with their magnitudes thrown away, so the gain is not an artifact of one member's logits being larger than another's.</p>
+  </div>
+  <aside class="notes">
+    <p>Nothing is weighted, and that is deliberate. A fitted fusion weight would be fitted on the training folds, which under leave-performers-out means fitted to the 74 performers we happen to have. With nothing fitted, there is nothing in the fusion to overfit.</p>
+    <p>The second choice is the raw logits rather than the probabilities, worth 1.15 points. A softmax first bounds how far a member can disagree with the rest, and that margin is the part worth keeping. It is not an artifact of logit scale: z-score every member first and +0.99 survives, and fusing ranks alone, magnitudes gone, keeps +0.69.</p>
   </aside>
 </section>

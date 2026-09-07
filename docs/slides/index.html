@@ -19,17 +19,33 @@
     <div id="deck">
       <!-- open -->
 <!-- ===========================================================================
-     Slides 01-05: the title, the task, why it is hard, what failed, and the
-     principle the rest of the talk defends. The four content slides carry
-     data-tone="em" (peach), which deck.css turns into the chapter hairline for
-     the ensemble half of the talk.
+     Slides 01-07: the title, the task, why it is hard, what ruled out the
+     single-model route, and then three slides on the system itself: the
+     principle, the eleven members, and the fusion. The six content slides
+     carry data-tone="em" (peach), which deck.css turns into the chapter
+     hairline for the ensemble half of the talk.
+
+     05 to 07 are the design argument, and they come before any score. 05 is
+     the choice (diversity over capacity), 06 is what was chosen, and 07 is how
+     it is combined (equal weights, raw logits) with the +1.15 pp that argues
+     for the logit mean. The result slides that follow are then free to report
+     rather than argue.
+
+     06 and 07 are built the same way on purpose: every card is headed with a
+     reason rather than a label, and the slide names what the choice was made
+     over. On 06 each card heading is the assumption that family brings, taken
+     from the four priors the paper names in §4.1, and the members follow under
+     it. The pipeline figure used to sit beside those cards and grouped the
+     Region-Aware ConvTr under hybrid/MLP, which contradicts both the cards and
+     loo.json; figures are generated elsewhere and cannot be hand-edited, so
+     the figure is off this slide and the space went to the reasoning.
 
      The room is an ACII audience, so terms the field already shares (Macro-F1,
      cross-validation, logits, pp) are named here and never explained. What is
      explained is what belongs to this work: the contest, DIEM-A, the performer
      split, the four body regions, and the phrases the paper coins. What a
      slide has no room for is spoken instead, in the notes, whose length is
-     budgeted against the slide's share of twelve minutes.
+     budgeted against the slide's share of fifteen minutes.
      ======================================================================== -->
 
 <section class="slide title" id="s-01-title" data-title="Title">
@@ -43,9 +59,7 @@
     <p class="eyebrow">MMAC Challenge at ACII 2026 · Oral</p>
   </div>
   <aside class="notes">
-    <p>Good morning. I’m Naoto Nishida from the University of Tokyo, and this is joint work with Yoshio Ishiguro.</p>
-    <p>The MMAC Challenge asks entrants to name the emotion in a motion-capture recording of a single performer. The organisers keep the test labels, so no entrant can score their own system on the test set.</p>
-    <p>The paper has two halves. The first is an ensemble that works because its members disagree with each other. The second is a set of explanations we tested, and every one of them could have come back negative. At the end I’ll show that both halves come from the same structure in the data. This runs about twelve minutes, and then I’m happy to take questions.</p>
+    <p>Good morning. I’m Naoto Nishida from the University of Tokyo, with Yoshio Ishiguro. The paper has two halves: an ensemble that works because its members disagree, and explanations we tested, each able to come back negative.</p>
   </aside>
 </section>
 
@@ -88,9 +102,9 @@
     <p class="footnote">Each recording is one performer acting one emotion; every model here reads a fixed 64-frame window of it, about half a second. The recordings come from DIEM-A, the Diverse Intercultural E-Motion Database of Asian Performers.</p>
   </div>
   <aside class="notes">
-    <p>A performer acts one emotion, a motion-capture system tracks reflective markers on their body, and what the model gets is the skeleton that comes out of it: twenty-four joints in three dimensions, plus one point for where the body is in the room. Nothing else, so no face, no audio and no scene. The twelve run from anger, fear and joy to jealousy, shame, gratitude and pride, all of them acted.</p>
-    <p>The split is the hard part. Seventy-four performers in training, forty Japanese and thirty-four Taiwanese, give 7,992 recordings, evenly balanced at 666 per emotion. The test set is 1,944 recordings from eighteen other people, nine Japanese and nine Taiwanese. Nobody appears in both, so every test recording comes from a stranger.</p>
-    <p>Chance is 8.3 percent and a strong baseline only reaches about 25, because the movement alone often does not settle which emotion it is.</p>
+    <p>A performer acts one emotion, and the model sees only the skeleton. The twelve run from anger and joy to jealousy, shame and pride, all acted.</p>
+    <p>The split is the hard part. The 7,992 training recordings are balanced at 666 an emotion, and every test recording comes from one of eighteen people who appear nowhere in training.</p>
+    <p>Chance is 8.3 percent, and movement alone often does not settle which of the twelve emotions it is. Body-only is the point of the challenge, and it is also what makes it hard.</p>
   </aside>
 </section>
 
@@ -114,16 +128,16 @@
     <p class="footnote">Every score here comes from 10-fold leave-performers-out cross-validation over the 74 training performers, reported as the per-fold mean ± SD.</p>
   </div>
   <aside class="notes">
-    <p>Two things make it hard. First, emotions that are close in meaning are close in movement, so jealousy and contempt look alike, and so do shame and guilt.</p>
-    <p>Second, everyone has a personal movement style, so the same emotion performed by two people can vary about as much as two different emotions performed by one person. That is why we hold performers out rather than recordings: if the same performer appeared on both sides, a model could score well by recognising the person.</p>
-    <p>On that split, the reference model the organisers give us reaches 25.73, plus or minus about four. Every later comparison uses that number, because we retrained it ourselves on exactly the same 74 performers. A single better architecture does not gain much here.</p>
+    <p>Two things make it hard. Emotions close in meaning are close in movement, and everyone has a movement style of their own.</p>
+    <p>The second one is why we hold out performers rather than recordings. With the same person on both sides of the split, a model can score well by recognising them.</p>
+    <p>The organisers’ reference model reaches 25.73 there. We reran it ourselves on the same 74 performers under the same folds, which is what makes every later comparison protocol-matched. The official baseline is within one standard deviation of that reproduction, and it stays an outside anchor.</p>
   </aside>
 </section>
 
-<section class="slide" id="s-04-negatives" data-title="What did not work" data-tone="em">
-  <h2>What did not work</h2>
+<section class="slide" id="s-04-negatives" data-title="The single-model ceiling" data-tone="em">
+  <h2>The single-model route ran out first</h2>
   <div class="body">
-    <p class="lead-in">Every obvious upgrade to a single model failed or made the score worse.</p>
+    <p class="lead-in">Every upgrade to a single model failed or made the score worse.</p>
     <ul>
       <li>A supervised-contrastive head cost <strong>−11.53 pp</strong>.</li>
       <li>Aligning recordings to scene descriptions cost <strong>−1.42 pp</strong>: the projection collapsed onto performer identity, not emotion.</li>
@@ -137,59 +151,126 @@
         <span class="kpi__note">Macro-F1, same split</span>
       </div>
     </div>
-    <p class="footnote">All on the same ten-way performer split. The paper lists eight of these; they are why we stopped looking for one better network.</p>
+    <p class="footnote">All on the same ten-way performer split. The paper lists eight of these; together they are the ceiling on one better network.</p>
   </div>
   <aside class="notes">
-    <p>We did try the obvious upgrades to a single model. The contrastive head, which pulls same-emotion recordings together in training, cost eleven and a half points, because with twelve emotions in a batch of 128 there are too few same-emotion pairs to learn from. Aligning recordings against written descriptions of the scene ended up encoding who the performer was instead of the emotion. Distillation did not help either: shown a stick figure with no face and no scene, the teacher ranked the true emotion last.</p>
-    <p>The best single model we could build tops out at about 30 percent. We report the failures on purpose. They are the reason we stopped looking for one better architecture and went for diversity instead.</p>
+    <p>We tried the obvious upgrades to a single model first. The contrastive head cost eleven and a half points, because with twelve emotions in a batch of 128 there are too few same-emotion pairs to learn from. Each of these ran under the same folds as everything else.</p>
+    <p>Eight attempts, the same pattern. We report them as constraints on the design rather than leaving them out. The best single model we could build stops near 30 percent, and that ceiling on one better architecture is what sent us to diversity.</p>
   </aside>
 </section>
 
 <section class="slide" id="s-05-principle" data-title="The principle" data-tone="em">
   <h2>Combine models that make different mistakes</h2>
   <div class="body">
-    <p class="lead-in">We average eleven models from four families with different assumptions.</p>
-    <div class="cols cols--figure">
-      <div>
-        <p>Each family represents motion differently, so they fail on different recordings.</p>
-        <div class="kpi-row">
-          <div class="kpi" data-tone="em">
-            <span class="kpi__value">11</span>
-            <span class="kpi__label">models in the ensemble</span>
-            <span class="kpi__note">four families</span>
-          </div>
-          <div class="kpi" data-tone="note">
-            <span class="kpi__value">12.98 M</span>
-            <span class="kpi__label">trainable parameters</span>
-            <span class="kpi__note">one recording, 11 models</span>
-          </div>
-        </div>
-        <div class="callout" data-tone="ok">
-          <p>Nothing is fitted: every model counts the same, and we average logits rather than probabilities.</p>
-        </div>
+    <p class="lead-in">Averaging cancels a mistake only when the members do not make it together, so the members were chosen for how differently they fail.</p>
+    <div class="cards" data-cols="2">
+      <div class="card" data-tone="warn">
+        <h3>Capacity</h3>
+        <p>More capacity in one network. Under this split it did not transfer to performers the model had never seen.</p>
       </div>
-      <figure class="fig">
-        <img src="assets/img/architecture.png" alt="Pipeline diagram. A 25-node, 64-frame clip feeds eleven models grouped into four families: graph networks, attention, hybrid and MLP, and frozen external pretraining. Their logits go into an equal-weight 11-way mean, then a 12-class softmax over emotions.">
-        <figcaption class="fig__cap">Eleven members make up four families, and we average their raw logits with equal weight.</figcaption>
-      </figure>
+      <div class="card" data-tone="ok">
+        <h3>Diversity</h3>
+        <p>Eleven models whose assumptions about motion differ, so the recording that defeats one family is not the one that defeats the next.</p>
+      </div>
+    </div>
+    <div class="callout" data-tone="note">
+      <p>This can fail. If the gain came from parameters, the members’ errors would coincide and dropping one would cost nothing. Both are measured later in the talk.</p>
     </div>
   </div>
   <aside class="notes">
-    <p>So the design is simple. Four families that assume different things about motion: graph networks, an attention model, hybrid MLPs, and some frozen external pretraining. Eleven models in total, about thirteen million trainable parameters, each reading the same half-second window, and we average their logits with equal weight. Nothing in the averaging is learned or tuned.</p>
-    <p>We are betting that the gain comes from the members disagreeing rather than from the extra parameters. The next three slides are where I try to show that the bet is right.</p>
+    <p>So the design stops buying capacity and buys disagreement instead. The reasoning is narrow. If two models are wrong on the same recording, averaging them keeps the mistake. If they are wrong on different recordings, averaging cancels it. Parameter count does not enter that anywhere.</p>
+    <p>Different assumptions about motion break on different people, and that is something we can choose members for.</p>
+    <p>It is a claim that can fail, which is the useful part. The next two slides are what we chose and how it is combined.</p>
+  </aside>
+</section>
+
+<section class="slide" id="s-06-members" data-title="The eleven members" data-tone="em">
+  <h2>Each family assumes something different about motion</h2>
+  <div class="body">
+    <p class="lead-in">One larger network was the alternative. The capacity went to these four assumptions instead.</p>
+    <div class="cards" data-cols="2">
+      <div class="card">
+        <h3>Motion travels along the skeleton</h3>
+        <p class="members">Graph, 4 · STGCN++, CTR-GCN, ProtoGCN, Region-Aware ConvTr</p>
+      </div>
+      <div class="card">
+        <h3>Distant joints and moments count together</h3>
+        <p class="members">Attention, 1 · SkateFormer</p>
+      </div>
+      <div class="card">
+        <h3>The clip as pooled statistics</h3>
+        <p class="members">Hybrid MLP, 2 · Conv1D+Transformer, Keypoint-Pool-MLP</p>
+      </div>
+      <div class="card">
+        <h3>Motion learned on other corpora</h3>
+        <p class="members">Frozen external, 4 · MAMP NTU60 and NTU120, MotionBERT-Lite, C3D-marker-stats</p>
+      </div>
+    </div>
+    <div class="callout" data-tone="ok">
+      <p>The frozen branches disagree with the rest more than any other family, and removing that block costs <strong>−2.91 pp</strong>.</p>
+    </div>
+    <p class="footnote">Seven members trained here plus four frozen branches with a linear head each: <strong>12.98 M</strong> trainable parameters.</p>
+  </div>
+  <aside class="notes">
+    <p>Eleven members in four families, and a family is in the pool for what it assumes, not for what it adds. The graph networks read a joint through the joints it is attached to. The attention model drops that and lets any two joints, at any two moments, count together, however far apart they sit. The hybrid MLPs pool joints and frames into statistics with almost no structural assumption. The frozen four were pretrained on generic motion corpora elsewhere, and only a linear head is trained here.</p>
+    <p>Those last four disagree with the rest more than any other family, and taking that block out costs 2.91 points. The whole pool comes to 12.98 million trainable parameters.</p>
+  </aside>
+</section>
+
+<section class="slide" id="s-07-fusion" data-title="The fusion" data-tone="em">
+  <h2>Equal weights, raw logits, nothing fitted</h2>
+  <div class="body">
+    <p class="lead-in">Add the eleven logit vectors and divide by eleven.</p>
+    <div class="cards" data-cols="2">
+      <div class="card">
+        <h3>Why equal weights</h3>
+        <p>A fitted weight is fitted to the performers in the training folds, which is the thing that does not transfer here.</p>
+      </div>
+      <div class="card">
+        <h3>Why raw logits</h3>
+        <p>A softmax first bounds how far one member can disagree with the rest.</p>
+      </div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi" data-tone="ok">
+        <span class="kpi__value">+1.15 pp</span>
+        <span class="kpi__label">logit mean over probability mean</span>
+        <span class="kpi__note">same members, same folds</span>
+      </div>
+      <div class="kpi" data-tone="note">
+        <span class="kpi__value">+0.99 pp</span>
+        <span class="kpi__label">members z-scored first</span>
+        <span class="kpi__note">scale removed</span>
+      </div>
+      <div class="kpi" data-tone="note">
+        <span class="kpi__value">+0.69 pp</span>
+        <span class="kpi__label">ranks only, Borda fusion</span>
+        <span class="kpi__note">magnitude discarded</span>
+      </div>
+    </div>
+    <p class="footnote">The two smaller figures are the same comparison with the members rescaled and then with their magnitudes thrown away, so the gain is not an artifact of one member's logits being larger than another's.</p>
+  </div>
+  <aside class="notes">
+    <p>Nothing is weighted, and that is deliberate. A fitted fusion weight would be fitted on the training folds, which under leave-performers-out means fitted to the 74 performers we happen to have. With nothing fitted, there is nothing in the fusion to overfit.</p>
+    <p>The second choice is the raw logits rather than the probabilities, worth 1.15 points. A softmax first bounds how far a member can disagree with the rest, and that margin is the part worth keeping. It is not an artifact of logit scale: z-score every member first and +0.99 survives, and fusing ranks alone, magnitudes gone, keeps +0.69.</p>
   </aside>
 </section>
 
       <!-- ensemble -->
 <!-- ==================================================================
-           Slides 6 to 9 — the ensemble half of the talk.
+           Slides 8 to 11 — the ensemble half of the talk.
 
-           Six states the result, seven shows where the gain accumulates,
-           eight gives the mechanism behind it, and nine checks what the
+           Eight states the result, nine shows where the gain accumulates,
+           ten gives the mechanism behind it, and eleven checks what the
            system still gets wrong. All four carry data-tone="em", the peach
            the site uses for the ensemble half, so the chapter is visible in
            the hairline across the top of the stage before anyone reads the
            heading.
+
+           These four report what the design bought. Why it was designed that
+           way is settled before them, on 05 to 07, and the fusion numbers sit
+           there with it: the choice of a logit mean over a probability mean is
+           argued on 07, so nine is free to be a result and nothing else.
 
            These slides are spoken to an affective computing room, so the
            vocabulary that room already shares (Macro-F1, folds, logits,
@@ -202,7 +283,7 @@
            build/partials/ensemble.css, scoped to these four slide ids.
            =================================================================== -->
 
-      <section class="slide lead" id="s-06-headline" data-title="Headline result" data-tone="em">
+      <section class="slide lead" id="s-08-headline" data-title="Headline result" data-tone="em">
         <h1>Averaging the eleven models adds +11.07 pp over our baseline rerun</h1>
         <div class="body">
           <div class="kpi-row">
@@ -229,34 +310,33 @@
           <p class="footnote">95% CI on the gain: [9.86, 12.33] pp by fold, [9.14, 12.17] pp by performer. The organisers' published baseline over all 92 performers, 25.21 ± 4.49%, sits within one SD of our rerun; we quote it for reference and measure the gain against the rerun.</p>
         </div>
         <aside class="notes">
-          <p>Eleven models, their logits averaged, reach 36.80. The comparison is STGCN++, the model the organisers hand out as the reference point, which we reran ourselves on the same 74 performers under the same folds: 25.73. That is +11.07 pp, about 43 percent relative.</p>
-          <p>It is not noise. The paired gain excludes zero in all ten folds, and again when we resample whole performers instead of folds.</p>
-          <p>Treat it as a development result. The organisers keep the test labels and score the contest themselves, so our number there is still pending. Their published 92-performer baseline, 25.21, sits within one standard deviation of our rerun, and we measure the gain against the rerun.</p>
+          <p>Eleven models, logits averaged, reach 36.80. The comparison is STGCN++, rerun by us on the same 74 performers and folds: 25.73. That is +11.07 pp, about 43 percent relative.</p>
+          <p>It is not noise: the gain excludes zero in all ten folds, and again when we resample performers.</p>
+          <p>Treat it as a development result: the organisers keep the test labels, so our contest score is pending. Their published 92-performer baseline, 25.21, sits within one standard deviation of our rerun.</p>
         </aside>
       </section>
 
-      <section class="slide" id="s-07-lift-path" data-title="Lift path" data-tone="em">
+      <section class="slide" id="s-09-lift-path" data-title="Lift path" data-tone="em">
         <h2>The gain builds one model family at a time</h2>
         <div class="body">
           <p class="lead-in">Baseline, best single model, seven members, then eleven: 25.7 → 30.1 → 33.9 → 36.8%.</p>
           <div class="cols cols--figure">
             <div class="card">
-              <p>The ensemble beats the best single model by <strong>+6.8 pp</strong>. Averaging logits rather than probabilities adds <strong>+1.15 pp</strong> for free.</p>
-              <p>That is not a scale artifact. Z-score the members first and <strong>+0.99 pp</strong> survives; fuse ranks alone and <strong>+0.69 pp</strong> survives.</p>
+              <p>The ensemble beats the best single model by <strong>+6.8 pp</strong>, more than any change of architecture bought us.</p>
+              <p>The last step is the four frozen external branches joining the seven members we trained ourselves.</p>
             </div>
             <div class="chart" data-chart="liftpath" data-src="liftpath" style="height:380px"></div>
           </div>
-          <p class="footnote">Each bar is the mean over ten leave-performers-out folds, each dot is one fold, and the pooled out-of-fold score sits beside each bar. The seven-member stage is the members we trained ourselves, before the four frozen external branches join.</p>
+          <p class="footnote">Each bar is the mean over ten leave-performers-out folds, each dot is one fold, and the pooled out-of-fold score sits beside each bar.</p>
         </div>
         <aside class="notes">
           <p>Four stages. Our rerun of the baseline at 25.7. The best single model we could build, 30.1. Seven members averaged, 33.9. The eleven we submitted, 36.8. Every family we add moves the score up.</p>
-          <p>Averaging beats the best single model by almost seven points, which is more than any change of architecture bought us. Averaging logits rather than probabilities is worth another point and a bit, at no cost.</p>
-          <p>And the gain is not one member's scores being larger than the rest. Z-score them first and most of it survives; fuse ranks alone and about two thirds survives.</p>
-          <p>The seven-member stage is what we trained ourselves. The other four are pretrained on other motion data and stay frozen.</p>
+          <p>Averaging beats the best single model by almost seven points, more than any change of architecture bought us. The last stage adds no new training at all.</p>
+          <p>Each bar is a ten-fold mean, and the dots behind it are the folds.</p>
         </aside>
       </section>
 
-      <section class="slide" id="s-08-orthogonality" data-title="Orthogonal errors" data-tone="em">
+      <section class="slide" id="s-10-orthogonality" data-title="Orthogonal errors" data-tone="em">
         <h2>Orthogonal errors: the members rarely fail on the same clip</h2>
         <div class="body">
           <div class="cols">
@@ -272,14 +352,14 @@
           <p class="footnote">Correlations run over per-sample error indicators on 7,992 out-of-fold clips. The removal costs are pooled out-of-fold Macro-F1 against a base of 36.94%.</p>
         </div>
         <aside class="notes">
-          <p>Averaging only cancels a mistake the members do not make together. If they all fail on the same clip, averaging keeps the failure. That is what we mean by orthogonal errors, and we measure it rather than assume it.</p>
-          <p>Each cell on the left is one pair of members, coloured by how often the two are wrong on the same clip. Everything sits between 0.15 and 0.43, which is low, and the lowest column is the frozen external members, the ones least like the rest.</p>
-          <p>On the right we drop one member at a time. Every delta is negative, so no member dominates and none is dead weight. Drop all four frozen externals at once and you lose almost three points, so the gain sits across the whole set.</p>
-          <p>If someone asks about the most correlated pair, moderate correlation is not redundancy: that pair still gives the largest single contribution.</p>
+          <p>This is the bet the design rests on. Averaging only cancels a mistake the members do not make together, so we measured it rather than assumed it.</p>
+          <p>Each cell on the left is one pair of members, coloured by how often both are wrong on the same clip. Everything sits between 0.15 and 0.43, lowest for the frozen external branch.</p>
+          <p>On the right we drop one member at a time. Every delta is negative: no member dominates and none is dead weight. Drop all four frozen externals and you lose almost three points. The lift is spread across the whole set.</p>
+          <p>Moderate correlation is not redundancy: the most correlated pair still gives the largest single contribution.</p>
         </aside>
       </section>
 
-      <section class="slide" id="s-09-error-structure" data-title="Where errors go" data-tone="em">
+      <section class="slide" id="s-11-error-structure" data-title="Where errors go" data-tone="em">
         <h2>The errors fall between emotions that move alike</h2>
         <div class="body">
           <p class="lead-in">Jealousy reads as contempt and guilt as sadness, and top confidence sits near 62%.</p>
@@ -297,21 +377,22 @@
           <p class="footnote">The recording-date check gives 36.50 against 36.94% pooled out-of-fold. The same motion also decodes which country a performer is from about 69.8% of the time, which is another reason not to read the country gap as culture.</p>
         </div>
         <aside class="notes">
-          <p>The mistakes that are left are the ones you would expect. Jealousy goes to contempt, and guilt goes to sadness or shame. Top confidence averages about 62 percent, so the system is not sure either.</p>
+          <p>The mistakes left are the expected ones, jealousy into contempt.</p>
           <p>Japanese and Taiwanese performers score 35.3 against 38.9, and we do not read that as culture. The two groups also differ in when they were recorded and in how each individual moves, so country is not the only thing separating them.</p>
-          <p>As a check on recording date we drop the seven earliest Japanese performers from training, and the score moves by less than half a point. The same motion also decodes performer country far better than it decodes emotion, which we disclose as a risk of identifying people, not as a cultural signal.</p>
+          <p>The recording-date check moves the score by less than half a point. The same motion decodes performer country far better than emotion, which we disclose as a risk of identifying people, not a cultural signal.</p>
         </aside>
       </section>
 
       <!-- xai -->
 <!-- ==================================================================
-           Slides 10 to 15 — the explainability half of the talk.
+           Slides 12 to 17 — the explainability half of the talk.
 
-           Ten pivots from the score to what the system reads, eleven is the
-           scorecard, twelve the two checks everything else rests on, thirteen
-           the Laban match, fourteen the same match on the submitted ensemble
-           plus the motion edits, and fifteen the negative we report. All six
-           carry data-tone="note", the sky the site uses for this half.
+           Twelve pivots from the score to what the system reads, thirteen is
+           the scorecard, fourteen the two checks everything else rests on,
+           fifteen the Laban match, sixteen the same match on the submitted
+           ensemble plus the motion edits, and seventeen the negative we
+           report. All six carry data-tone="note", the sky the site uses for
+           this half.
 
            Who is in the room: an ACII audience already fluent in Macro-F1,
            folds, saliency, AUC, Spearman rho, ensembles, nulls and intervals.
@@ -325,32 +406,38 @@
            Two groupings of the body appear here and they are not a
            contradiction: masking works over 6 body parts (also reported at
            25-joint resolution), the Laban alignment over 4 regions, which are
-           head, arms, legs and torso. The footnote on slide 12 says so. The
+           head, arms, legs and torso. The footnote on slide 14 says so. The
            names of the six are not written down in the paper, so the six stay
            a count.
 
            Wording that has to agree with something outside this file: the
            control is "classical kinematics", which is what the legend and the
-           caption of the chart on slide 13 call it, and it is spelled out once
+           caption of the chart on slide 15 call it, and it is spelled out once
            as per-joint speed, acceleration, range of motion and energy.
+
+           The notes are the spoken script and nothing else, with one marked
+           exception: the last paragraph of slide 17 is an answer to have ready
+           in the five minutes of questions, not a line the speaker says during
+           the talk. It carries that label in bold so the presenter window shows
+           it as the aside it is.
 
            Layout that deck.css does not already provide lives in
            build/partials/xai.css, scoped to these six slide ids.
            =================================================================== -->
 
-      <section class="slide section" id="s-10-tested-explanations" data-title="Tested explanations" data-tone="note">
+      <section class="slide section" id="s-12-tested-explanations" data-title="Tested explanations" data-tone="note">
         <h2>Explanations you can test</h2>
         <div class="body">
           <p class="lead-in">A saliency map cannot come back wrong. A test can.</p>
           <p>The second half asks which parts of the body the model uses, and answers by interfering with the movement instead of drawing a picture of it.</p>
         </div>
         <aside class="notes">
-          <p>That was the first half: where the number comes from and why it works.</p>
-          <p>The second half is the one I care more about. A saliency map cannot come back wrong, because a decorative attribution looks exactly like a real one. So we built the explanations as checks. Each one claims the model uses some part of the body, interferes with that part, and reports what happened against something it could have failed. Five come back positive, one comes back negative, and none of it retrains anything.</p>
+          <p>The second half is the one I care more about.</p>
+          <p>A decorative attribution looks like a real one, so a picture cannot come back wrong. Each explanation is a check: claim a body part matters, interfere with it, report against something that could have failed.</p>
         </aside>
       </section>
 
-      <section class="slide" id="s-11-six-verdicts" data-title="Six verdicts" data-tone="note">
+      <section class="slide" id="s-13-six-verdicts" data-title="Six verdicts" data-tone="note">
         <h2>Six checks, five positive and one negative</h2>
         <div class="body">
           <p class="lead-in">To claim the model uses a part of the body, we mask it, perturb it, or edit how it moves, and watch whether the prediction moves.</p>
@@ -386,13 +473,13 @@
           <p class="footnote">Each check runs on one strong member of the submitted ensemble; the two that carry the most weight are re-run on all eleven.</p>
         </div>
         <aside class="notes">
-          <p>Here is the scorecard, and the recipe behind every row of it. To say the model uses some part of the body, we interfere with that part. We hide it, add noise to it, or edit how it moves, and then see whether the prediction moves with it.</p>
-          <p>Each check carries a value and either a null or an interval, so any of them could have come back the other way. Five are positive. One is negative, and it gets a slide of its own, because a check that can only pass is worth nothing.</p>
-          <p>Two things about scope. All of it is post hoc, so it costs no accuracy. And each check runs on one strong member, with the two that matter most re-run on all eleven.</p>
+          <p>Here is the scorecard and the recipe behind every row: to say the model uses a part of the body, we interfere with it and watch whether the prediction moves.</p>
+          <p>Each carries a value and either a null or an interval, so any could have come back the other way. The one negative gets its own slide: a check that can only pass is worth nothing.</p>
+          <p>All of it is post hoc, so it costs no accuracy. The two checks that matter most run on all eleven members.</p>
         </aside>
       </section>
 
-      <section class="slide" id="s-12-faithful-stable" data-title="Faithful and stable" data-tone="note">
+      <section class="slide" id="s-14-faithful-stable" data-title="Faithful and stable" data-tone="note">
         <h2>The model uses the parts it ranks high</h2>
         <div class="body">
           <p class="lead-in">Masking the parts it ranks high costs more accuracy than masking the parts it ranks low, and the ranking barely moves under noise.</p>
@@ -426,35 +513,35 @@
         </div>
         <aside class="notes">
           <p>Everything after this rests on the first two checks.</p>
-          <p>The first asks whether the model uses the parts it points to. We rank the six body parts by saliency, mask them in that order, and compare against masking them in reverse. Accuracy falls further when the important parts go first. The gap is 0.124, and it is positive in every fold. At the finer 25-joint resolution the gap grows to 0.199.</p>
-          <p>The second asks whether that ranking is a property or an accident. Add noise, rank again, and the two rankings agree at 0.98, with the top part never flipping.</p>
-          <p>Without those two, the alignment I am about to show would be a picture agreeing with itself.</p>
+          <p>The first asks whether the model uses the parts it points to. We rank the six body parts by saliency, mask them in that order, and compare against the reverse. The important parts cost more: a gap of 0.124, positive in every fold, 0.199 at 25-joint resolution.</p>
+          <p>The second asks whether that ranking is a property or an accident. Add noise, rank again, and the two agree at 0.98; the top part never flips.</p>
         </aside>
       </section>
 
-      <section class="slide" id="s-13-laban" data-title="Laban alignment" data-tone="note">
+      <section class="slide" id="s-15-laban" data-title="Laban alignment" data-tone="note">
         <h2>The model reads the body the way a movement analyst would</h2>
         <div class="body">
           <p class="lead-in">Laban Movement Analysis is a movement analyst's vocabulary for how a body moves. People wrote its rules; nothing learned them from our recordings.</p>
           <div class="cols cols--figure">
             <ul>
               <li>Saliency over the four regions, head, arms, legs and torso, ranks the way the Laban attributes do: ρ = +0.500.</li>
-              <li>Classical kinematics, per-joint speed, acceleration, range of motion and energy, reaches +0.033, about 15 times weaker.</li>
-              <li>Sadness reads as a bowed, sunken posture: head down, trunk leaning forward.</li>
+              <li>Classical kinematics is the control that makes +0.500 a result: per-joint speed, acceleration, range of motion and energy reach +0.033, about 15 times weaker.</li>
+              <li>Sadness reads as a bowed, sunken posture: head down, trunk forward.</li>
             </ul>
             <div class="chart" data-chart="lma" data-src="lma"></div>
           </div>
           <p class="footnote">One strong member. The 12 emotions are not 12 independent observations, so the 95% CI [+0.150, +0.733] is an emotion-block bootstrap and the null permutes regions within an emotion, p &lt; 0.001. Positive for 10 of the 12 emotions (sign test p = 0.039, median ρ = +0.70).</p>
         </div>
         <aside class="notes">
-          <p>This is the main result. Laban Movement Analysis is the vocabulary movement professionals use for how a body moves: how far the head bows, how far the trunk leans, how high the body is carried. People wrote those rules down, and nothing in them learned from our recordings.</p>
-          <p>So we have two rankings of the four regions, head, arms, legs and torso. One is how much saliency the model puts on each region, the other is what the Laban attributes say for that emotion, and they agree at 0.500. The control is classical kinematics, per-joint speed, acceleration, range of motion and energy, through the identical pipeline, and it reaches 0.033, about fifteen times weaker.</p>
-          <p>The statistics respect the structure here, because the forty-eight pairs are twelve emotions of four regions. The interval resamples emotions and the null shuffles regions inside an emotion. Ten of the twelve come out positive.</p>
-          <p>What I like about it is that it reads in plain language. For sadness the model uses what you would expect: the head bows, the body is carried lower, the trunk leans forward.</p>
+          <p>This is the main result. Laban Movement Analysis is a vocabulary that movement professionals wrote down; nothing in it learned from our recordings.</p>
+          <p>So we have two rankings of the four regions: the saliency the model puts on each, and what the Laban attributes say for that emotion. They agree at 0.500.</p>
+          <p>On its own that would just be a number, so we chose a control. Classical kinematics through the identical pipeline reaches 0.033, about fifteen times weaker. The contrast is the finding.</p>
+          <p>The statistics respect that structure: the interval resamples emotions and the null shuffles regions inside an emotion. Ten of the twelve are positive.</p>
+          <p>In plain language: for sadness the head bows, the body is carried lower, the trunk leans forward.</p>
         </aside>
       </section>
 
-      <section class="slide" id="s-14-ensemble-edits" data-title="Ensemble and edits" data-tone="note">
+      <section class="slide" id="s-16-ensemble-edits" data-title="Ensemble and edits" data-tone="note">
         <h2>The alignment holds for the submitted ensemble, and the edits move the prediction</h2>
         <div class="body">
           <div class="cols cols--figure">
@@ -490,14 +577,14 @@
           </div>
         </div>
         <aside class="notes">
-          <p>Two more checks. First, we re-run the alignment on the eleven-way ensemble we actually submitted, and it comes out at 0.517, a little stronger if anything, with the whole interval above zero.</p>
-          <p>Second, we stop masking and edit the movement itself. Freeze the head and 41 percent of predictions change. Amplify one arm and 23 percent change, with the parts in the order masking already gave, so two different kinds of interference agree with each other.</p>
-          <p>The fourth number is the narration. The system puts each decision into words on a card, citing the regions and the Laban attributes that card rests on, and we read fifty of them looking for a sentence the measurements do not support. We found none.</p>
-          <p>I want to be precise about what this buys. The edits corroborate the finding. They are not causal proof, and the main evidence is still 0.500 against 0.033.</p>
+          <p>Two more checks. First, we re-run the alignment on the eleven-way ensemble we submitted: 0.517, a little stronger if anything, with the whole interval above zero.</p>
+          <p>Second, we edit the movement itself. Freeze the head and 41 percent of predictions change; amplify one arm and 23 percent, in the order masking already gave. Two kinds of interference agree.</p>
+          <p>The last number is the narration: we read fifty of the system's written accounts looking for a sentence the measurements do not support, and found none.</p>
+          <p>The edits corroborate the finding. They are not causal proof; the main evidence is still 0.500 against 0.033.</p>
         </aside>
       </section>
 
-      <section class="slide" id="s-15-reported-negative" data-title="Reported negative" data-tone="note">
+      <section class="slide" id="s-17-reported-negative" data-title="Reported negative" data-tone="note">
         <h2>The negative we report</h2>
         <div class="body">
           <p class="lead-in">Inside the half-second of movement the model reads, every frame counts about the same. Across the body, the head and neck dominate.</p>
@@ -508,15 +595,15 @@
           <p class="footnote">The window is 64 frames, about half a second at 120 fps. Across frames the important-versus-reverse gap is about +0.002, against +0.124 ± 0.031 across body parts, and frame saliency entropy is 98.7% of its maximum per clip, 99.5% as a class mean. Order still matters: time reversal moves accuracy, so this is a claim about locating a frame.</p>
         </div>
         <aside class="notes">
-          <p>This is the negative, and I think it is what makes the rest of this a test. Every model here reads a 64-frame window, about half a second of movement. Ask which frames inside it matter and the answer is all of them, roughly equally.</p>
-          <p>Frame saliency entropy is 98.7 percent of maximum, and masking frames in importance order costs almost nothing more than the reverse order, where the same measurement over body parts gave a clear positive. On the right is the other side of it: the head and neck dominate in all twelve emotions. The evidence is spread through time and concentrated in space.</p>
-          <p>To be precise, this is about locating a single frame, not about time in general. Order still matters, and time reversal moves accuracy. We report the null rather than hiding it.</p>
-          <p>If someone asks about the fall at the ends of the curve: saliency tapers over roughly the last eight frames and the first one, from about 0.018 to 0.004 against a flat 0.0156. The window edges fall away, no interior frame does, and the entropy stays at 99.5 percent. That is why the claim rests on the entropy and the gap rather than on the shape of the curve.</p>
+          <p>This is the negative, and I think it is what makes the rest of this a test. Every model here reads a 64-frame window, about half a second. Ask which frames inside it matter and the answer is all of them, roughly equally.</p>
+          <p>Frame saliency entropy is 98.7 percent of maximum, and masking frames in importance order costs almost nothing more than the reverse, where the same measurement over body parts gave a clear positive. The evidence is spread through time and concentrated in space.</p>
+          <p>To be precise, this is about locating a single frame, not time in general. Order still matters; time reversal moves accuracy. We report the null rather than hiding it.</p>
+          <p><strong>Not part of the script. An answer to have ready in the questions:</strong> if someone asks about the fall at the ends of the curve, saliency tapers over roughly the last eight frames and the first one, from about 0.018 to 0.004 against a flat 0.0156. The window edges fall away, no interior frame does, and the entropy stays at 99.5 percent. That is why the claim rests on the entropy and the gap rather than on the shape of the curve.</p>
         </aside>
       </section>
 
       <!-- close -->
-<section class="slide both-halves" id="s-16-one-idea" data-title="One idea">
+<section class="slide both-halves" id="s-18-one-idea" data-title="One idea">
         <h2>One idea behind both halves</h2>
         <div class="body">
           <p class="lead-in">Scores vary about <strong>fourfold</strong> across performers, and the spread splits in two.</p>
@@ -541,12 +628,12 @@
           <p class="footnote">Recordings paired with written explanations are not released while consent and licensing are under review.</p>
         </div>
         <aside class="notes">
-          <p>The two halves join here. The score varies about fourfold from one performer to the next. Half of that spread is difficulty every model shares. The other half is one model's own, a performer that one architecture fails on and the others do not. Averaging cancels that half, and it is the same disagreement the explanations describe.</p>
-          <p>Three limits. Scores are low, so the claim is relative, forty-three percent over the organisers' reference model, which we reran on the same performers so the two numbers compare. The headline is cross-validation on our training performers, not the contest result, and the organisers' scoring of the hidden test is still pending. Matching a movement analyst's vocabulary is agreement in words, so we test dependence separately, by hiding parts of the body and editing how they move.</p>
+          <p>Both halves meet here. The fourfold spread between performers splits into difficulty every member shares and one architecture failing where the rest do not. Averaging cancels that half, and the explanations read the same disagreement.</p>
+          <p>Three limits. Scores are low, so the claim is relative: forty-three percent over the reference model, which we reran on the same performers. The headline is cross-validation, with the contest test still pending. Laban alignment is vocabulary; masking and motion edits test dependence.</p>
         </aside>
       </section>
 
-      <section class="slide closing" id="s-17-close" data-title="Takeaways">
+      <section class="slide closing" id="s-19-close" data-title="Takeaways">
         <h2>Orthogonal errors win, and explanations can be tested</h2>
         <div class="body">
           <ol class="takeaways">
@@ -577,9 +664,8 @@
           </div>
         </div>
         <aside class="notes">
-          <p>Two things to carry out of the room. The task was to name one of twelve emotions from body motion alone, on performers the system had never trained on, and in that setting the movement often does not settle the answer. The gain came from models that fail on different recordings rather than from one bigger model.</p>
-          <p>The second is the explanations. Test them, and report the check that comes back negative, because that is what makes the positive ones worth anything. When we tested ours, the system read each body region the way a movement analyst would name it.</p>
-          <p>Thank you, and I am happy to take questions.</p>
+          <p>Where movement alone cannot settle the answer, the gain came from models that fail on different recordings rather than from one bigger model. And test the explanations: report the check that comes back negative.</p>
+          <p>Thank you. I am happy to take questions.</p>
         </aside>
       </section>
     </div>

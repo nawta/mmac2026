@@ -1,5 +1,5 @@
 /* ===========================================================================
-   Slides 01-05. deck.css already carries every component these slides use, so
+   Slides 01-07. deck.css already carries every component these slides use, so
    what is left is a handful of fits, each scoped to one slide id.
    ========================================================================== */
 
@@ -9,18 +9,18 @@
 #s-01-title h1 { max-width: 28ch; }
 
 /* deck.css tints a KPI only when the whole row carries the tone, which is the
-   right default for a row that means one thing. These three rows each have one
-   number the slide is actually about, so the tone goes on the single .kpi and
+   right default for a row that means one thing. These three rows each hold
+   numbers that mean different things, so the tone goes on the single .kpi and
    the rest of the row stays white. */
 #s-02-task .kpi[data-tone],
 #s-04-negatives .kpi[data-tone],
-#s-05-principle .kpi[data-tone] {
+#s-07-fusion .kpi[data-tone] {
   background: var(--tone-soft);
   border-color: var(--tone);
 }
 #s-02-task .kpi[data-tone] .kpi__value,
 #s-04-negatives .kpi[data-tone] .kpi__value,
-#s-05-principle .kpi[data-tone] .kpi__value {
+#s-07-fusion .kpi[data-tone] .kpi__value {
   color: var(--tone-ink);
 }
 
@@ -36,6 +36,11 @@
 #s-03-hard-setting .cards { flex: 1 1 auto; }
 #s-03-hard-setting .card { justify-content: center; }
 
+/* The principle slide has no footnote to hold its bottom edge, so the two
+   cards keep the height their text asks for and the note that says how the
+   claim could fail takes the bottom of the stage instead. */
+#s-05-principle .callout { margin-top: auto; }
+
 /* One KPI in a row of its own would otherwise stretch the full 1152px of the
    stage and read as a banner rather than a number. */
 #s-04-negatives .kpi-row {
@@ -43,16 +48,28 @@
   justify-content: center;
 }
 
-/* The left column of the figure split: three blocks stacked on the body's own
-   rhythm. The figure beside them takes the height the row gives it, which is
-   what keeps the pipeline diagram legible from the back of the room. */
-#s-05-principle .cols > div:first-child {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  min-width: 0;
+/* The pipeline figure has left this slide, so the four families hold the whole
+   stage as a 2x2 that takes the height the lead-in and the note below it do
+   not want. Every card opens on its heading, which is the assumption that
+   family brings and the reason the family is in the pool, so the heading takes
+   the peach ink this half of the talk uses for its own claims instead of the
+   blue deck.css gives a card heading by default. */
+#s-06-members .cards { flex: 1 1 auto; }
+#s-06-members .card { gap: var(--space-xs); }
+#s-06-members .card h3 { color: var(--peach-ink); }
+
+/* The member names under each heading say which models carry that assumption.
+   They are labels rather than a second claim, so they drop to the caption size
+   and the grey the deck keeps for names, and the heading stays the line the
+   room reads first. */
+#s-06-members .members {
+  font-size: var(--fs-fine);
+  line-height: 1.4;
+  color: var(--muted);
 }
 
-/* Two KPIs share half the stage here instead of the whole of it, so the value
-   drops a step to keep "12.98 M" on one line inside its card. */
-#s-05-principle .kpi__value { font-size: 44px; }
+/* The two reasons take the space the row of numbers under them does not want,
+   and both headings stay on the same line as each other, which centring the
+   card contents would break the moment one reason ran a line longer. */
+#s-07-fusion .cards { flex: 1 1 auto; }
+#s-07-fusion .kpi__value { font-size: 46px; }

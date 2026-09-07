@@ -125,8 +125,8 @@ One module per chart in `assets/js/charts/<name>.js`:
     window.DeckCharts = window.DeckCharts || {};
     window.DeckCharts.liftpath = {
       init: function (el, data) {           // returns a handle
-        var chart = echarts.init(el, null, {renderer: 'canvas'});
-        chart.setOption({ … });
+        var chart = echarts.init(el, null, {renderer: 'svg'});
+        chart.setOption({ … });        // SVG, so the deck prints as vector
         return {
           resize:  function () { chart.resize(); },
           onEnter: function () { /* start animation */ },

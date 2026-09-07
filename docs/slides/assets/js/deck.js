@@ -337,8 +337,8 @@
   // On screen the miss repairs itself, because arriving at the slide resizes
   // the chart before anyone sees it. Printing arrives nowhere. Every slide is
   // laid out at once and each chart prints at the size it was given, so a deck
-  // exported to PDF without walking it first lost the Laban chart on slide 13
-  // and both saliency charts on slide 15, which left the reported negative as
+  // exported to PDF without walking it first lost the Laban chart on slide 15
+  // and both saliency charts on slide 17, which left the reported negative as
   // a heading over an empty page.
   //
   // So once the page has settled, every chart is measured again inside the

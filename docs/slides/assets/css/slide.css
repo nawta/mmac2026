@@ -3,7 +3,7 @@
 
 /* ---- open ---- */
 /* ===========================================================================
-   Slides 01-05. deck.css already carries every component these slides use, so
+   Slides 01-07. deck.css already carries every component these slides use, so
    what is left is a handful of fits, each scoped to one slide id.
    ========================================================================== */
 
@@ -13,18 +13,18 @@
 #s-01-title h1 { max-width: 28ch; }
 
 /* deck.css tints a KPI only when the whole row carries the tone, which is the
-   right default for a row that means one thing. These three rows each have one
-   number the slide is actually about, so the tone goes on the single .kpi and
+   right default for a row that means one thing. These three rows each hold
+   numbers that mean different things, so the tone goes on the single .kpi and
    the rest of the row stays white. */
 #s-02-task .kpi[data-tone],
 #s-04-negatives .kpi[data-tone],
-#s-05-principle .kpi[data-tone] {
+#s-07-fusion .kpi[data-tone] {
   background: var(--tone-soft);
   border-color: var(--tone);
 }
 #s-02-task .kpi[data-tone] .kpi__value,
 #s-04-negatives .kpi[data-tone] .kpi__value,
-#s-05-principle .kpi[data-tone] .kpi__value {
+#s-07-fusion .kpi[data-tone] .kpi__value {
   color: var(--tone-ink);
 }
 
@@ -40,6 +40,11 @@
 #s-03-hard-setting .cards { flex: 1 1 auto; }
 #s-03-hard-setting .card { justify-content: center; }
 
+/* The principle slide has no footnote to hold its bottom edge, so the two
+   cards keep the height their text asks for and the note that says how the
+   claim could fail takes the bottom of the stage instead. */
+#s-05-principle .callout { margin-top: auto; }
+
 /* One KPI in a row of its own would otherwise stretch the full 1152px of the
    stage and read as a banner rather than a number. */
 #s-04-negatives .kpi-row {
@@ -47,23 +52,35 @@
   justify-content: center;
 }
 
-/* The left column of the figure split: three blocks stacked on the body's own
-   rhythm. The figure beside them takes the height the row gives it, which is
-   what keeps the pipeline diagram legible from the back of the room. */
-#s-05-principle .cols > div:first-child {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  min-width: 0;
+/* The pipeline figure has left this slide, so the four families hold the whole
+   stage as a 2x2 that takes the height the lead-in and the note below it do
+   not want. Every card opens on its heading, which is the assumption that
+   family brings and the reason the family is in the pool, so the heading takes
+   the peach ink this half of the talk uses for its own claims instead of the
+   blue deck.css gives a card heading by default. */
+#s-06-members .cards { flex: 1 1 auto; }
+#s-06-members .card { gap: var(--space-xs); }
+#s-06-members .card h3 { color: var(--peach-ink); }
+
+/* The member names under each heading say which models carry that assumption.
+   They are labels rather than a second claim, so they drop to the caption size
+   and the grey the deck keeps for names, and the heading stays the line the
+   room reads first. */
+#s-06-members .members {
+  font-size: var(--fs-fine);
+  line-height: 1.4;
+  color: var(--muted);
 }
 
-/* Two KPIs share half the stage here instead of the whole of it, so the value
-   drops a step to keep "12.98 M" on one line inside its card. */
-#s-05-principle .kpi__value { font-size: 44px; }
+/* The two reasons take the space the row of numbers under them does not want,
+   and both headings stay on the same line as each other, which centring the
+   card contents would break the moment one reason ran a line longer. */
+#s-07-fusion .cards { flex: 1 1 auto; }
+#s-07-fusion .kpi__value { font-size: 46px; }
 
 /* ---- ensemble ---- */
 /* ============================================================================
-   ensemble.css — layout for slides 6 to 9, the ensemble half of the talk.
+   ensemble.css — layout for slides 8 to 11, the ensemble half of the talk.
 
    deck.css carries almost all of it. What is left is the handful of decisions
    a shared stylesheet cannot make for one slide: how three numbers that are
@@ -73,14 +90,14 @@
    reach another author's slide.
    ========================================================================== */
 
-/* --------------------------------------------------- 06 · headline result --*/
+/* --------------------------------------------------- 08 · headline result --*/
 
 /* A lead slide centres its body, which sizes every block to its own content.
    The KPI row would then shrink to the width of its widest number and sit
    narrower than the paragraph under it, so the slide would read as three
    different column widths stacked up. Stretching the blocks gives one column;
    the text inside them stays centred, which is what .lead is for. */
-#s-06-headline .body {
+#s-08-headline .body {
   align-items: stretch;
   justify-content: center;
 }
@@ -89,61 +106,61 @@
    well, and at 54px "36.80 ± 4.00%" is wider than the card it sits in. The
    value is set to nowrap, so the overflow would leave the stage rather than
    wrap. Two steps down fits all three with room to spare. */
-#s-06-headline .kpi__value { font-size: 42px; }
+#s-08-headline .kpi__value { font-size: 42px; }
 
 /* deck.css tints KPI cards through a tone on the whole row, which assumes one
    row means one category. Here the three numbers are three different things:
    the submitted ensemble, the baseline it is measured against, and the gain
    between them. Each card carries its own tone and has to paint itself. */
-#s-06-headline .kpi[data-tone] {
+#s-08-headline .kpi[data-tone] {
   background: var(--tone-soft);
   border-color: var(--tone);
 }
-#s-06-headline .kpi[data-tone] .kpi__value { color: var(--tone-ink); }
+#s-08-headline .kpi[data-tone] .kpi__value { color: var(--tone-ink); }
 
 /* Two runs of prose long enough to wrap. Centred, they would break into ragged
    lines either side of the callout's left bar, so they range left and let the
    big numbers above them hold the centre. */
-#s-06-headline .callout,
-#s-06-headline .footnote { text-align: left; }
+#s-08-headline .callout,
+#s-08-headline .footnote { text-align: left; }
 
-/* ------------------------------------------------------- 07 · lift path ----*/
+/* ------------------------------------------------------- 09 · lift path ----*/
 
 /* .cols ranges its columns from the top, which is right when both sides are
-   text. Here the right side is a 380px chart and the left is a short card, so
+   text. Here the right side is a 380px chart and the left is a two-line card, so
    ranging from the top hangs the card off the heading with a hand's width of
    empty slide under it. Centring it against the bars reads as one row. */
-#s-07-lift-path .card { align-self: center; }
+#s-09-lift-path .card { align-self: center; }
 
-/* ---------------------------------------------------- 08 · orthogonality ---*/
+/* ---------------------------------------------------- 10 · orthogonality ---*/
 
 /* The two charts here are the argument, and the line under each one is the
    claim it settles rather than a note about a picture. So the captions take
    body ink and range left, where the muted centred caption style deck.css
    uses under a photograph would read as small print and get skipped. */
-#s-08-orthogonality .fig__cap {
+#s-10-orthogonality .fig__cap {
   font-size: 20px;
   color: var(--ink);
   text-align: left;
 }
 
-/* --------------------------------------------------- 09 · error structure --*/
+/* --------------------------------------------------- 11 · error structure --*/
 
 /* The confusion panel is 1150x974, wider than it is tall, so at the default
    figure split it would use about two thirds of its column and leave the rest
    empty while the text beside it wrapped every few words. Giving the text the
    wider column costs the image nothing: it is height-bound either way. */
-#s-09-error-structure .cols {
+#s-11-error-structure .cols {
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
 }
 
 /* The figure beside it is stretched to the full height of the row, so a caveat
    ranged from the top would sit against the top edge of the matrix and leave
    its own column open underneath. Centred, the two columns share a middle. */
-#s-09-error-structure .callout { align-self: center; }
+#s-11-error-structure .callout { align-self: center; }
 
 /* ---- xai ---- */
-/* Slides 10 to 15, the explainability half. deck.css already carries the
+/* Slides 12 to 17, the explainability half. deck.css already carries the
    section divider, the verdict scorecard, the table, the KPI blocks and the
    figure, so what is left here is the handful of places where those defaults
    do not fit the content: a narrower measure on the divider, a table with two
@@ -153,112 +170,112 @@
    Every rule is scoped to one of these six slide ids so nothing reaches a
    slide someone else wrote. */
 
-/* ---- 10, the divider ------------------------------------------------- */
+/* ---- 12, the divider ------------------------------------------------- */
 
 /* .slide.section centres its body, so the measure is set here rather than by
    the column width. Two short lines read as a statement; a full 1152px line
    reads as a paragraph that happens to be centred. */
-#s-10-tested-explanations .body p {
+#s-12-tested-explanations .body p {
   max-width: 44ch;
 }
 
-/* ---- 11, the scorecard ----------------------------------------------- */
+/* ---- 13, the scorecard ----------------------------------------------- */
 
 /* deck.css colours a verdict's name with its own tone, mint for a check that
    passes and lemon for the one reported as negative, but .slide strong is the
    more specific selector and paints all six the same warm red. Naming the
    element restores the tone the scorecard is built around. */
-#s-11-six-verdicts .verdict strong {
+#s-13-six-verdicts .verdict strong {
   color: var(--tone-ink);
 }
 
-/* ---- 12, faithful and stable ----------------------------------------- */
+/* ---- 14, faithful and stable ----------------------------------------- */
 
 /* Two rows and four short columns leave most of the stage empty at the
    default row height, so the rows take the space instead of the slide ending
    in a band of nothing. */
-#s-12-faithful-stable .table th,
-#s-12-faithful-stable .table td {
+#s-14-faithful-stable .table th,
+#s-14-faithful-stable .table td {
   padding: 22px 14px;
 }
 
-/* ---- 14, the ensemble and the edits ---------------------------------- */
+/* ---- 16, the ensemble and the edits ---------------------------------- */
 
 /* Four numbers beside a two-panel figure. .kpi-row lays its blocks out in one
    row, which would give each of them 130px next to a figure, so they wrap to
    2x2 and the type steps down to match the narrower block. */
-#s-14-ensemble-edits .kpi-row {
+#s-16-ensemble-edits .kpi-row {
   grid-auto-flow: row;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
   align-self: start;
 }
-#s-14-ensemble-edits .kpi {
+#s-16-ensemble-edits .kpi {
   padding: 12px 14px;
 }
-#s-14-ensemble-edits .kpi__value {
+#s-16-ensemble-edits .kpi__value {
   font-size: 34px;
 }
-#s-14-ensemble-edits .kpi__label {
+#s-16-ensemble-edits .kpi__label {
   font-size: 19px;
 }
-#s-14-ensemble-edits .kpi__note {
+#s-16-ensemble-edits .kpi__note {
   font-size: 16px;
 }
 
 /* deck.css tints a .kpi through its row. These four carry a tone each, so the
    same two declarations are made to read from the block's own data-tone. */
-#s-14-ensemble-edits .kpi[data-tone] {
+#s-16-ensemble-edits .kpi[data-tone] {
   background: var(--tone-soft);
   border-color: var(--tone);
 }
-#s-14-ensemble-edits .kpi[data-tone] .kpi__value {
+#s-16-ensemble-edits .kpi[data-tone] .kpi__value {
   color: var(--tone-ink);
 }
 
-/* ---- 15, the reported negative --------------------------------------- */
+/* ---- 17, the reported negative --------------------------------------- */
 
 /* The two charts are the argument: frame saliency is flat, region saliency is
    not. .cols aligns its columns to the top, which would leave both charts at
    whatever height they were given; stretching them instead lets the pair take
    the height the slide has left, so a line more or less of text above changes
    the charts rather than pushing them off the stage. */
-#s-15-reported-negative .cols {
+#s-17-reported-negative .cols {
   align-items: stretch;
 }
-#s-15-reported-negative .chart {
+#s-17-reported-negative .chart {
   min-height: 0;
 }
 
 /* ---- close ---- */
-/* Slides 16 and 17: the fused idea with its limits, and the closing slide.
+/* Slides 18 and 19: the fused idea with its limits, and the closing slide.
    deck.css already carries the components these two slides use, so what is
    left here is the handful of measurements they need and nothing else. Every
    rule is scoped to one slide id, because the partials are joined into a
    single stylesheet and a loose selector would reach into somebody else's
    slide. */
 
-/* ------------------------------------------------ 16  one idea, and limits -*/
+/* ------------------------------------------------ 18  one idea, and limits -*/
 
 /* The honest-limits box is a callout holding a list rather than a paragraph,
    which is a shape deck.css does not otherwise meet. The list sits closer to
    its heading than a default list would, so the box reads as one block of
    scope rather than as four separate remarks. */
-#s-16-one-idea .callout ul {
+#s-18-one-idea .callout ul {
   padding-left: 1.1em;
 }
-#s-16-one-idea .callout li + li {
+#s-18-one-idea .callout li + li {
   margin-top: 6px;
 }
 
-/* ------------------------------------------------------- 17  the close -----*/
+/* ------------------------------------------------------- 19  the close -----*/
 
 /* A closing slide centres its body, which is right for the heading and the
    sign-off and wrong for a numbered list: centred list items leave their
    numbers stranded down the left. Sizing the list to its longest line and
    centring that box gives a left-aligned list on a centred slide. max-width
    keeps it inside the stage if a line ever grows past the body width. */
-#s-17-close .takeaways {
+#s-19-close .takeaways {
   width: max-content;
   max-width: 100%;
   margin: 0 auto;
@@ -270,11 +287,11 @@
    ensemble result, sky for the explainability result, mint for the verdicts
    that passed. The two declarations mirror the row rule in deck.css, applied
    one level lower. */
-#s-17-close .kpi[data-tone] {
+#s-19-close .kpi[data-tone] {
   background: var(--tone-soft);
   border-color: var(--tone);
 }
-#s-17-close .kpi[data-tone] .kpi__value {
+#s-19-close .kpi[data-tone] .kpi__value {
   color: var(--tone-ink);
 }
 
@@ -282,22 +299,22 @@
    run out of the card instead of breaking. The longest of these three is a
    Greek letter and a signed decimal, which fits at this size with room to
    spare. */
-#s-17-close .kpi__value {
+#s-19-close .kpi__value {
   font-size: 46px;
 }
 
 /* Name and thanks belong together at the foot of the slide, closer to each
    other than the body's gap would put them. */
-#s-17-close .signoff {
+#s-19-close .signoff {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
 }
-#s-17-close .signoff__thanks {
+#s-19-close .signoff__thanks {
   font-size: 24px;
   line-height: 1.35;
 }
-#s-17-close .signoff__by {
+#s-19-close .signoff__by {
   font-size: var(--fs-small);
   line-height: 1.35;
   color: var(--muted);

@@ -1,31 +1,31 @@
-/* Slides 16 and 17: the fused idea with its limits, and the closing slide.
+/* Slides 18 and 19: the fused idea with its limits, and the closing slide.
    deck.css already carries the components these two slides use, so what is
    left here is the handful of measurements they need and nothing else. Every
    rule is scoped to one slide id, because the partials are joined into a
    single stylesheet and a loose selector would reach into somebody else's
    slide. */
 
-/* ------------------------------------------------ 16  one idea, and limits -*/
+/* ------------------------------------------------ 18  one idea, and limits -*/
 
 /* The honest-limits box is a callout holding a list rather than a paragraph,
    which is a shape deck.css does not otherwise meet. The list sits closer to
    its heading than a default list would, so the box reads as one block of
    scope rather than as four separate remarks. */
-#s-16-one-idea .callout ul {
+#s-18-one-idea .callout ul {
   padding-left: 1.1em;
 }
-#s-16-one-idea .callout li + li {
+#s-18-one-idea .callout li + li {
   margin-top: 6px;
 }
 
-/* ------------------------------------------------------- 17  the close -----*/
+/* ------------------------------------------------------- 19  the close -----*/
 
 /* A closing slide centres its body, which is right for the heading and the
    sign-off and wrong for a numbered list: centred list items leave their
    numbers stranded down the left. Sizing the list to its longest line and
    centring that box gives a left-aligned list on a centred slide. max-width
    keeps it inside the stage if a line ever grows past the body width. */
-#s-17-close .takeaways {
+#s-19-close .takeaways {
   width: max-content;
   max-width: 100%;
   margin: 0 auto;
@@ -37,11 +37,11 @@
    ensemble result, sky for the explainability result, mint for the verdicts
    that passed. The two declarations mirror the row rule in deck.css, applied
    one level lower. */
-#s-17-close .kpi[data-tone] {
+#s-19-close .kpi[data-tone] {
   background: var(--tone-soft);
   border-color: var(--tone);
 }
-#s-17-close .kpi[data-tone] .kpi__value {
+#s-19-close .kpi[data-tone] .kpi__value {
   color: var(--tone-ink);
 }
 
@@ -49,22 +49,22 @@
    run out of the card instead of breaking. The longest of these three is a
    Greek letter and a signed decimal, which fits at this size with room to
    spare. */
-#s-17-close .kpi__value {
+#s-19-close .kpi__value {
   font-size: 46px;
 }
 
 /* Name and thanks belong together at the foot of the slide, closer to each
    other than the body's gap would put them. */
-#s-17-close .signoff {
+#s-19-close .signoff {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
 }
-#s-17-close .signoff__thanks {
+#s-19-close .signoff__thanks {
   font-size: 24px;
   line-height: 1.35;
 }
-#s-17-close .signoff__by {
+#s-19-close .signoff__by {
   font-size: var(--fs-small);
   line-height: 1.35;
   color: var(--muted);
