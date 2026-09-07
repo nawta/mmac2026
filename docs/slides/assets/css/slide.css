@@ -86,11 +86,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 40px;
-  margin: 34px 0 0;
+  gap: 52px;
+  margin: 38px 0 0;
 }
 #s-01-title .logos img {
-  height: 48px;
+  height: 70px;
   width: auto;
 }
 
