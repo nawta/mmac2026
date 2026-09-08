@@ -200,17 +200,17 @@
       <section class="slide" id="s-17-reported-negative" data-title="Reported negative" data-tone="note">
         <h2>The negative we report</h2>
         <div class="body">
-          <p class="lead-in">Inside the half-second of movement the model reads, every frame counts about the same. Across the body, the head and neck dominate.</p>
+          <p class="lead-in">Inside the half-second the model reads, every frame counts about the same, and across the body the head and neck dominate. <strong>Order still matters:</strong> reverse the clip and every model that reads it in order loses 3 to 5 points.</p>
           <div class="cols">
             <div class="chart" data-chart="temporal" data-src="saliency"></div>
             <div class="chart" data-chart="spatialheat" data-src="saliency"></div>
           </div>
-          <p class="footnote">The window is 64 frames, about half a second at 120 fps. Across frames the important-versus-reverse gap is about +0.002, against +0.124 ± 0.031 across body parts, and frame saliency entropy is 98.7% of its maximum per clip, 99.5% as a class mean. Order still matters: time reversal moves accuracy, so this is a claim about locating a frame.</p>
+          <p class="footnote">The window is 64 frames, about half a second at 120 fps. Across frames the important-versus-reverse gap is about +0.002, against +0.124 ± 0.031 across body parts, and frame saliency entropy is 98.7% of its maximum per clip, 99.5% as a class mean. The null is about locating a frame, not about time.</p>
         </div>
         <aside class="notes">
           <p>Here's the negative, and it's what tells you the other five could have failed. Every model here reads a 64-frame window, about half a second. If you ask which frames inside that window matter, the answer is all of them, more or less equally.</p>
           <p>Frame saliency entropy is 98.7 percent of maximum, and masking frames in importance order costs almost nothing more than masking them in reverse. Across the body it's the opposite. The head is the top joint in all twelve emotions, and the head, neck and upper spine each carry about two and a half times an even share. The hips get under a tenth.</p>
-          <p>This is a claim about locating a single frame, not about time in general. Order still matters: reverse the clip and accuracy moves. We report the null rather than hiding it.</p>
+          <p>This is a claim about locating a single frame, not about time in general. Order still matters. We reversed the clips and re-ran the models: every one that reads a clip in order lost between three and five points. We report the null rather than hiding it.</p>
           <p><strong>Not part of the script. An answer to have ready in the questions:</strong> if someone asks about the drop at each end of the curve: saliency does taper over about the last eight frames and the first one, from about 0.018 down to 0.004, against a flat 0.0156 elsewhere. The edges of the window fall away, no frame in the middle does, and the entropy is still 99.5 percent. That's why the claim rests on the entropy and the gap, not on the shape of the curve.</p>
         </aside>
       </section>

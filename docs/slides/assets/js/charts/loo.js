@@ -91,6 +91,17 @@
       var block = data.block;
 
       var categories = rows.map(function (r) { return r.member; });
+
+      // Short enough to sit on an axis: the paper's family names carry
+      // punctuation and a slash that a tick label does not need.
+      function shortFamily(name) {
+        var key = familyKey(name);
+        return { graph: 'graph', attention: 'attention',
+                 hybrid: 'hybrid MLP', external: 'frozen external' }[key] || name;
+      }
+      var byMember = {};
+      rows.forEach(function (r) { byMember[r.member] = r; });
+
       categories.push(SPACER, block.member);
 
       var byName = {};
@@ -228,10 +239,20 @@
             axisLabel: {
               interval: 0,
               fontSize: 14, color: ink, fontFamily: font, margin: 10,
+              // The family beside the name, so a reader does not have to carry
+              // a bar's tint over to the legend to find out what it is.
               formatter: function (value) {
-                return value === block.member ? '{block|' + value + '}' : value;
+                if (value === block.member) return '{block|' + value + '}';
+                var record = byMember[value];
+                return record
+                  ? '{name|' + value + '}  {fam|' + shortFamily(record.family) + '}'
+                  : value;
               },
-              rich: { block: { fontSize: 14, fontWeight: 700, color: em, fontFamily: font } }
+              rich: {
+                block: { fontSize: 14, fontWeight: 700, color: em, fontFamily: font },
+                name: { fontSize: 14, color: ink, fontFamily: font },
+                fam: { fontSize: 12, color: muted, fontFamily: font }
+              }
             }
           },
           series: series().map(function (s, i) {

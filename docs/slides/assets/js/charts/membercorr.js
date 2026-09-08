@@ -94,6 +94,11 @@
       var names = order.map(function (i) { return data.members[i]; });
       var fams = order.map(function (i) { return data.family[i]; });
 
+      function shortFamily(name) {
+        return { graph: 'graph', attention: 'attention', hybrid: 'hybrid MLP',
+                 external: 'frozen external' }[name] || name;
+      }
+
       var blocks = [];
       fams.forEach(function (f, i) {
         var open = blocks[blocks.length - 1];
@@ -241,7 +246,19 @@
             splitArea: { show: false },
             axisLine: { show: false },
             axisTick: { show: false },
-            axisLabel: { interval: 0, margin: 10, fontSize: 14, color: ink, fontFamily: font }
+            // The family beside the name. The bands above the columns say the
+            // same thing, but only for the x axis, and a reader tracing a row
+            // should not have to look up to find out what it is.
+            axisLabel: {
+              interval: 0, margin: 10, fontSize: 14, color: ink, fontFamily: font,
+              formatter: function (value, i) {
+                return '{name|' + value + '}  {fam|' + shortFamily(fams[i]) + '}';
+              },
+              rich: {
+                name: { fontSize: 14, color: ink, fontFamily: font },
+                fam: { fontSize: 11, color: muted, fontFamily: font }
+              }
+            }
           },
           visualMap: {
             seriesIndex: 0,
