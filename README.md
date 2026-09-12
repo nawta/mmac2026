@@ -50,8 +50,9 @@ quoted here and never re-run with our script.
 
 Those four come from splitting the 74 labeled training performers into ten
 groups and training ten times, each time holding one group out and testing on
-it. They are not a leaderboard placement, and the hidden-test result is still
-pending.
+it. They are not a leaderboard placement. On the organisers' hidden test set the
+submitted system scored 37.23% Macro-F1 and 37.50% accuracy and received the
+Best Performance Award; that single score sits inside the 36.80 ± 4.00% range.
 
 | System | Trainable params (M)‡ | Macro-F1 (mean ± SD) | Macro-F1 95% CI | Accuracy (mean ± SD) |
 |---|---|---|---|---|

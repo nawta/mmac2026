@@ -53,7 +53,7 @@
 </nav>
 
 <header class="site-header wrap" id="top">
-  <p class="eyebrow">ACII 2026 · MMAC Challenge · Oral presentation</p>
+  <p class="eyebrow">ACII 2026 · MMAC Challenge · Oral presentation · Best Performance Award</p>
   <h1>Orthogonal Ensembles and Tested Explanations for Performer-Independent Body-Motion Emotion Recognition</h1>
   <p class="byline"><strong>Naoto Nishida</strong> and <strong>Yoshio Ishiguro</strong></p>
   <p class="affiliation">The University of Tokyo</p>
@@ -65,6 +65,7 @@
   <div class="hero-links">
     <a class="btn" href="slides/">Talk slides</a>
     <a class="btn" href="https://arxiv.org/abs/2609.02510">Paper · arXiv preprint</a>
+    <a class="btn" href="https://github.com/nawta/diema-challenge">Code · GitHub</a>
     <a class="btn ghost" href="#cite">Cite this work</a>
   </div>
 </header>
@@ -117,11 +118,14 @@
     </p>
 
     <p>
-      No number on this page is scored against the organisers' test labels, since entrants do not have them. Everything
-      here is measured on a stand-in built from the training performers alone: those 74 are divided into ten groups, and
+      Only one number on this page is scored against the organisers' test labels, since entrants do not have them: the
+      final leaderboard result, 37.23% Macro-F1 and 37.50% accuracy over the 18 test performers, which received the
+      Best Performance Award. Every other number here is measured on a stand-in built from the training performers
+      alone: those 74 are divided into ten groups, and
       the whole procedure runs ten times, each time training on nine groups and testing on the group left out. One such
       run is a fold, and the paper calls the arrangement leave-performers-out, since nobody in a run's test recordings
-      appears in its training recordings. It reproduces what makes the contest hard, on data whose labels we hold. The hidden test result is still pending, so nothing here is a leaderboard placement.
+      appears in its training recordings. It reproduces what makes the contest hard, on data whose labels we hold, and
+      the leaderboard score sits inside the range that stand-in predicted.
     </p>
   </section>
 
@@ -177,8 +181,8 @@
 
     <p>
       The work claims less than those numbers might suggest on their own. The headline is the ten-run stand-in on the
-      labelled training performers rather than a leaderboard placement, the hidden test result is pending, and a
-      Macro-F1 near 37% is low, which we do not defend as good. <a href="#limits">The limits section</a> states each of
+      labelled training performers rather than the leaderboard score; that score, 37.23% Macro-F1 on the hidden test
+      set, is a single number with no spread; and a Macro-F1 near 37% is low, which we do not defend as good. <a href="#limits">The limits section</a> states each of
       these with the check that bounds it.
     </p>
   </section>
@@ -214,6 +218,13 @@
       </figcaption>
     </figure>
 
+    <p>
+      On the organisers' hidden test set, whose labels entrants never see, the submitted system scored
+      <strong>37.23%</strong> Macro-F1 and 37.50% accuracy on the final leaderboard and received the challenge's Best
+      Performance Award. That is one score over 18 performers with no spread to report, so it stays out of Table 1; it
+      sits inside the 36.80 ± 4.00% range from the ten runs.
+    </p>
+
     <figure class="chart-figure" id="fig-liftpath">
       <div class="chart" id="chart-liftpath" data-chart="liftpath" data-src="liftpath" role="img"
            aria-label="Bar chart of Macro-F1 at four stages: the reproduced baseline 25.73 percent, the best single model 30.05, seven models combined 33.86, and the submitted eleven-model system 36.80 percent."></div>
@@ -230,7 +241,8 @@
       <p>
         <span class="pill" data-tone="warn">Scope</span>
         36.80 ± 4.00% comes from the ten-run stand-in on the labelled training performers, which is cross-validation and
-        not a leaderboard placement. The hidden test result is pending.
+        not a leaderboard placement. On the organisers' hidden test set the same system scored 37.23% Macro-F1 and
+        37.50% accuracy, a single score with no spread that sits inside the stand-in's range.
       </p>
     </div>
   </section>
@@ -370,9 +382,10 @@
 
     <ul class="limits">
       <li>
-        <b>The headline is a stand-in for the test, not a leaderboard result.</b> 36.80 ± 4.00% comes from the ten runs
-        over the 74 labelled training performers, and the hidden test result is pending. Every comparison here uses the
-        same split, so the +11.07 pp gain is measured under matched conditions.
+        <b>The headline is a stand-in for the test, not the leaderboard result.</b> 36.80 ± 4.00% comes from the ten runs
+        over the 74 labelled training performers. The leaderboard result on the hidden test set is 37.23% Macro-F1 and
+        37.50% accuracy, a single score with no spread, and it sits inside the stand-in's range. Every comparison here
+        uses the same split, so the +11.07 pp gain is measured under matched conditions.
       </li>
       <li>
         <b>We did not re-run the official baseline.</b> The organisers report 25.21 ± 4.49% over all 92 performers,
@@ -475,7 +488,8 @@
     </div>
     <p class="footnote">
       The paper appears in the ACII 2026 Workshops proceedings for the MMAC Challenge. A preprint is on arXiv:
-      <a href="https://arxiv.org/abs/2609.02510">arxiv.org/abs/2609.02510</a>.
+      <a href="https://arxiv.org/abs/2609.02510">arxiv.org/abs/2609.02510</a>. The code is at
+      <a href="https://github.com/nawta/diema-challenge">github.com/nawta/diema-challenge</a>.
     </p>
   </section>
 

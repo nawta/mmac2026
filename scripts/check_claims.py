@@ -26,6 +26,7 @@ REQUIRED = [
     "+0.517",           # LMA alignment, submitted ensemble
     "+0.124 ± 0.031",   # faithfulness AUC gap
     "+0.983 ± 0.039",   # stability
+    "37.23%",           # hidden-test Macro-F1, the organisers' final leaderboard
 ]
 
 # Values and phrasings the brief bans outright.
@@ -46,15 +47,15 @@ BANNED = [
      "Japan/Taiwan is a dataset stratum"),
     (r"(prove|proves|proof) that the model (causally )?(reads|uses)",
      "counterfactual edits corroborate, they do not prove"),
-    (r"leaderboard (result|placement|score) of", "the hidden-test result is pending"),
+    (r"(test|leaderboard)[^.<]{0,60}\bpending", "the hidden-test result is out: 37.23% Macro-F1"),
 ]
 
 # Every caveat the brief requires to travel with its containment clause.
 # Checked on pages only. A chart module may label an axis "cross-validation"
 # without restating the caveat, because the slide around it carries it.
 PAIRED = [
-    ("cross-validation", ["pending", "not a leaderboard", "hidden test", "hidden-test"],
-     "the cross-validation headline needs the pending-test note beside it"),
+    ("cross-validation", ["37.23", "not a leaderboard", "hidden test", "hidden-test"],
+     "the cross-validation headline needs the hidden-test score or the not-a-leaderboard note beside it"),
 ]
 
 
